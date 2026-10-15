@@ -1,0 +1,8 @@
+﻿Python 3.14.7
+
+command: python -m pytest
+
+..............                                                           [100%]
+14 passed in 2.24s
+
+note: 合成数据自检结果，不是算法性能指标（红线 R-1）

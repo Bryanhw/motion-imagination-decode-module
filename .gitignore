@@ -1,0 +1,33 @@
+# 仓库根 .gitignore（2026-10-15 建立）
+# 目的：让仓库根只留「交付物 + 配置」，避免 AI 助手与评审把缓存、大文件、工具产物当成果扫到。
+# 依据：docs/Start项目落地评估.md §5.3；目录纪律见 AGENTS.md。
+# 注意：bci-decoder/ 子目录另有自己的 .gitignore，两者不冲突。
+
+# —— 环境与缓存（可再生产，不入库）——
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# —— 大文件：数据、模型、输出（体积大 / 可能含隐私）——
+artifacts/
+data/
+*.joblib
+*.npy
+*.onnx
+*.jsonl
+
+# —— 本地工具与运行时状态（脚本入库，产物不入库）——
+.deepworks/
+.opencode-router/
+uploads/
+.tools/*.pdf
+.tools/out/
+.tools/check_*.json
+
+# —— 编辑器 ——
+.vscode/
+.idea/
+
+# —— 由 .tools/md2docx.py 生成的对外提交稿；如需入库请取消下一行注释 ——
+# *.docx

@@ -1,0 +1,17 @@
+# 环境
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 数据与模型（体积大 / 可能含隐私，不进版本库）
+data/
+artifacts/
+*.npy
+*.joblib
+*.onnx
+*.jsonl
+
+# 编辑器
+.vscode/
+.idea/

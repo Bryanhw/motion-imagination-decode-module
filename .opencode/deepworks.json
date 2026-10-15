@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "workspace": {
+    "name": "校企合作项目",
+    "createdAt": 1791458178054,
+    "preset": "starter"
+  },
+  "authorizedRoots": [
+    "D:\\校企合作项目"
+  ],
+  "reload": null
+}
