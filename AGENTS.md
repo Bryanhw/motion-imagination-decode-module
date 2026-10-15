@@ -14,6 +14,7 @@
 3. `agent_docs/tech_stack.md` —— 技术栈与**确切命令**
 4. `agent_docs/testing.md` —— 完工前必须拿到的证据
 5. `docs/PRD-BCI-Decoder-MVP.md` + `docs/TechDesign-BCI-Decoder-MVP.md` —— 契约版范围与技术设计
+6. `docs/PRD-Game-MVP.md` + `docs/TechDesign-Game-MVP.md` —— **游戏端（脑控弹球）**契约与设计（消费同一套冻结契约，输入源可切 `keyboard｜ws｜jsonl`）
 
 > 详版（内容最全，冲突时以它们为准）：
 > `docs/MVP规格说明书.md`（**范围与验收的唯一依据**）、`docs/在线解码模块设计说明.md`（工程）、
