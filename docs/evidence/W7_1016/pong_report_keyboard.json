@@ -1,0 +1,42 @@
+{
+  "schema": "bci-pong-report/1",
+  "input": "keyboard",
+  "input_status": {
+    "kind": "keyboard",
+    "label": "idle",
+    "commands": 0
+  },
+  "headless": true,
+  "frames": 120,
+  "fps_target": 60,
+  "duration_s": 2.007,
+  "score": 0,
+  "misses": 0,
+  "best": 0,
+  "commands": 0,
+  "applied_commands": 0,
+  "rate_limited_commands": 0,
+  "idle_commands": 0,
+  "left_commands": 0,
+  "right_commands": 0,
+  "labels_seen": {},
+  "notes_seen": {},
+  "paddle": {
+    "start_x": 480.0,
+    "x": 480.0,
+    "min_x": 480.0,
+    "max_x": 480.0,
+    "travel_px": 0.0,
+    "step_px": 172.8,
+    "step_ratio": 0.18,
+    "interp_seconds": 0.5,
+    "width": 211.2
+  },
+  "ball": {
+    "radius": 12.0,
+    "speed": 260.0,
+    "live": true
+  },
+  "messages": null,
+  "note": "本报告不含任何准确率指标：MVP 阶段不对外报告准确率（AGENTS.md 红线 6）"
+}

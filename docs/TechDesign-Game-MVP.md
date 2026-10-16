@@ -4,8 +4,16 @@
 > **应用名**：`BCI-Decoder-Game`（弹球端；与 `BCI-Decoder` 同一项目）
 > **版本**：v1.0（2026-10-15）
 > **定位**：本文件**只管游戏端**（`game/`）。**游戏端 PRD 见** [`PRD-Game-MVP.md`](PRD-Game-MVP.md)（2026-10-15）；解码侧设计见 [`TechDesign-BCI-Decoder-MVP.md`](TechDesign-BCI-Decoder-MVP.md)；**接口冻结以** [`MVP规格说明书.md`](MVP规格说明书.md) 第 4 节为准。
-> **为什么单独成文**：脑控弹球是 PRD 的 must-have（F4），但主 TechDesign 里没有它的落地设计（目录树无游戏端、无启动命令）。复核结论见 [`PRD-TechDesign-一致性复核.md`](PRD-TechDesign-一致性复核.md) P1-2。
+> **为什么单独成文**：脑控弹球是 PRD 的 must-have（F4），但主 TechDesign 里没有它的落地设计（目录树无游戏端、无启动命令）。复核结论见 [`MVP_PRD.md`](MVP_PRD.md) P1-2。
 > **负责人**：黄凯森（数据评测 + 游戏）；**必须与算法并行开工，不等 F1 完成**（`MVP规格说明书` L35、L60）。
+
+> **实现状态（2026-10-16，AI 编码助手辅助实施 + 人工跑测试）**：**代码已落地并通过工程自检**。
+> `bci-decoder/game/` 六个文件全部实现；游戏端单测 **39/39**、解码模块单测 **17/17**；
+> 端到端（真解码器 `--outputs websocket` → 游戏端 `--input ws`，headless）**39 项断言全绿**，
+> 覆盖"解码器运行中被杀"（F5.3）、契约控制率 2 条/秒回放、键盘降级路径。
+> 证据见 [`docs/evidence/W7_1016/`](evidence/W7_1016/README.md)。
+> **仍未完成（不得据此宣称 F4 验收通过）**：真人带屏手感验证与现场演示（A8）、联调录屏（A7）、
+> 真实采集设备联调（设备型号/LSL 流名称待书面确认）。
 
 ---
 
@@ -39,10 +47,12 @@
 | A7 | 游戏端**真的订阅到消息并驱动画面**（不是"端口能连"） | — | **联调录屏为证** |
 | A8 | 脑控弹球：键盘可玩 → 解码可玩；有分数、反馈、可重来 | — | 现场演示 |
 
-**PRD 侧的 3 条 Success Criteria**（PRD §F4）：
-- [ ] 键盘版本完整可玩：有得分、有反馈、可重来。
-- [ ] 切换到解码输入后，"想象 → 挡板动"现场可演示。
-- [ ] `idle` 时挡板**保持不动**（不是随机方向）。
+**PRD 侧的 3 条 Success Criteria**（PRD §F4）——**2026-10-16 工程侧自检通过，现场演示与真人手感待 A8**：
+- [x] 键盘版本完整可玩：有得分、有反馈、可重来。（headless 自检：120 帧正常退出、无按键不下发指令；**真人可玩待 A8**）
+- [x] 切换到解码输入后，"想象 → 挡板动"现场可演示。（端到端已验证：真解码器 → `--input ws`，挡板双向被驱动、球在跑；**联调录屏待补**）
+- [x] `idle` 时挡板**保持不动**（不是随机方向）。（端到端 + 单测：`idle` 冻结优先于限流；未训练/未置信恒 `idle`）
+
+> 证据：`docs/evidence/W7_1016/README.md`（含 F4.1–F4.4、F5.3 的逐条自检结果）
 
 ---
 
@@ -168,7 +178,8 @@
 | **离散→连续的平滑** | 收到指令后做**插值动画**（如 0.5 s 内线性逼近目标位置），让画面跟手；**但插值不得改变指令语义**，尤其 `idle` 必须是"停在原地" |
 | **`idle` 的安全含义** | 挡板停在原处。**绝不能**变成"随机左右"或"漂移"——这是红线 R-3 的界面体现 |
 | **失球与回合** | 失球 → 记分 + 短暂停顿 + 重发球；提供 `R` 重开（F4.1"可重来"） |
-| **手感可调** | `confidence` → 挡板速度倍率（建议 0.7x–1.3x），演示时可现场展示"专注度高就更跟手" |
+| **手感可调** | `confidence` → 挡板速度倍率，**实测落地为 1.0x–1.3x**（原建议 0.7x–1.3x 的下半段会使单条位移低于"窗口宽 1/6"的硬下限，故只向上调节）；演示时可现场展示"专注度高就更跟手" |
+| **过快消息流必须限流** ⚠️ | 契约是 2 条/秒，但"尽快跑"的自检源可达 300+ 条/秒。若每条都重设目标并重启插值，**同向指令会互相抵消、画面看着在动其实没动**（实测 596 条只位移 0.2 px）。落地：`paddle.min_command_interval_seconds = 0.2`，只丢弃过快到达的重复指令，**不改变方向、不改变单条位移量**；`idle` 冻结优先于限流；HUD 仍跟随最新消息的 `label`/`confidence` |
 | **窗口长度不得改** | 2.0 s 是冻结契约；改成 1.0 s 需**重新训练模型**（`MVP规格说明书` L342–343），不是改参数 |
 
 **演示可读性**（F4.4）：窗口内固定显示 `label` + `confidence` + 当前 `state`；`idle` 与 `running` 用不同颜色区分（对齐 PRD 的终端视图约定）。
@@ -211,15 +222,20 @@ PRD 已确认设计基调（2026-10-15，团队确认不替换）：
 > **位置已定案（2026-10-15）：`bci-decoder/game/`**。依据：`MVP规格说明书` 附录A 先 `cd bci-decoder` 再执行 `python game\pong.py`；且 `bci-decoder/` 已拍板为**本团队成果、计入进度**（`docs/Start项目落地评估.md` §5.1 方案 A）。下面的模块划分与位置无关。
 
 ```
-game/
-├── pong.py            # 入口：参数解析、主循环、组装（--input keyboard|ws|jsonl）
-├── input_source.py    # 输入源抽象：KeyboardSource / WsSource / JsonlSource
-├── ws_client.py       # WebSocket 客户端：连接、重连、解析、畸形消息计数
-├── render.py          # 渲染：得分/状态/挡板/最近一条消息
-├── config_game.yaml   # 手感参数（挡板速度、插值时长、配色）
+game/                                  # 实现状态 2026-10-16：以下 6 个文件全部已落地
+├── pong.py            #  30 KB 入口：参数解析、主循环、组装（--input keyboard|ws|jsonl、--headless、--report）
+├── input_source.py    #  10 KB 输入源抽象：KeyboardSource / WsSource / JsonlSource / CompositeSource
+├── ws_client.py       #  19 KB WebSocket 客户端：连接、重连、解析、畸形消息计数
+├── render.py          #   8 KB 渲染：得分/状态/挡板/最近一条消息（headless 下自动初始化字体）
+├── config_game.yaml   #   2 KB 手感参数（挡板速度、插值时长、配色、限流窗口）
 └── tests/
-    └── test_ws_protocol.py   # 协议解析单测（喂样例 JSON，不依赖真连接）
+    └── test_ws_protocol.py   # 20 KB 协议与玩法单测（39 例：喂样例 JSON，不依赖真连接）
 ```
+
+**与设计稿的差异（已落地，如实记录）**：
+- `WsSource` / `JsonlSource` 之上多了 `CompositeSource`：`--input ws|jsonl` 默认叠加键盘兜底（断线期间仍可用方向键玩），可用 `--no-keyboard-fallback` 关闭。
+- `pong.py` 增加 `--headless`（SDL dummy 驱动，供无显示器自检）与 `--report <json>`（退出时写 `bci-pong-report/1` 报告，含计数自洽的不变式）。
+- 新增限流参数 `paddle.min_command_interval_seconds`（见 §6），用于抵御"尽快跑"的异常消息流。
 
 **设计要点**：
 - **输入源可切换**是 F4.1/F4.2 的关键：键盘版与解码版**共用同一套玩法与渲染**，只换 `input_source`。这样"先做完整键盘玩法"不是额外工作，而是同一个程序的一个模式。
@@ -273,7 +289,15 @@ game/
 | 断线重连 | 脚本起一个假 WS 服务端 → 杀掉 → 断言客户端重连且不退出（F5.3） |
 | 陈旧/超时保护 | 喂过期 `t_data` → 断言丢弃；停止喂 3 s → 断言回到"不动" |
 
-**人工验证（要留证据）**：
+> **自检结果（2026-10-16，全部通过）**：解码模块单测 `pytest -q tests` → **17/17**；游戏端 `pytest -q game\tests` → **39/39**；
+> 端到端脚本（真解码器 `--outputs websocket` → `python game\pong.py --input ws --headless`）→ **39 项断言全绿**。
+> 上表四条均已覆盖，并**追加四条回归**（都是实测踩出来的真缺陷，见证据 README §6）：
+> ① 消息洪流下仍必须产生可见位移（原实现 596 条指令只位移 0.2 px）；
+> ② 交替洪流不得抵消为零；③ 契约 2 条/秒（0.5 s 间隔）一条都不得被限流；
+> ④ WebSocket 端口绑定失败必须**显式抛错**，不得静默不服务。
+> 证据：`docs/evidence/W7_1016/README.md`。
+
+**人工验证（要留证据）**—— ⏳ **以下 5 项均未完成，不得宣称 F4 验收通过**：
 
 1. **键盘版完整可玩**：得分、反馈、可重来 → 录屏（F4.1）；
 2. **解码版联调**：真实收到消息并驱动画面 → **录屏为证**（A7，注意是"画面真的动了"，不是"端口能连"）；
@@ -303,8 +327,8 @@ game/
 | 时间 | 游戏端目标 | 依据 |
 |---|---|---|
 | **W8（10/20）** | **键盘版完整可玩**：分数、反馈、可重来、通道/节奏锁死 | `大一学生学习路线图` L228 |
-| **W9–W10** | 接口冻结（2026-10-13 已完成）→ 接 `WsSource`；假服务端联调通过 | `MVP规格说明书` |
-| **②（10/27）** | **弹球 Demo 打通**：解码驱动画面，联调录屏归档 | 主 TechDesign §10 里程碑② |
+| **W9–W10** | 接口冻结（2026-10-13 已完成）→ 接 `WsSource`；假服务端联调通过 ✅（2026-10-16：真解码器端到端亦通过） | `MVP规格说明书` |
+| **②（10/27）** | **弹球 Demo 打通**：解码驱动画面，联调录屏归档 → 代码与自检已完成，**待录屏** | 主 TechDesign §10 里程碑② |
 | ③（11/10） | 顺手补：断线重连压测、1 h 长跑、观感打磨 | — |
 
 ---
@@ -312,7 +336,8 @@ game/
 ## 14. 已知技术债
 
 - **无 `typecheck` / `lint`**：与解码侧一致，当前未设置（`.json` 元数据里对应键留空，不编造命令）；
-- **`game/` 最终路径未定**：取决于 `bci-decoder/` 归属口径（§8、§16）；
+- ~~**`game/` 最终路径未定**~~ ✅ **已关闭（2026-10-15）**：定为 `bci-decoder/game/`（§8、§16）；
+- **`WebSocketSink` 启动失败原为静默**（2026-10-16 已修）：绑定失败现在立即抛 `RuntimeError`，并支持 `port=0` 由系统分配端口（证据 README §6.2）；
 - **视觉为演示级**：非产品级 UI，无美术资源、无动画特效；
 - **无打包分发**：答辩需现场 `pip install`；免安装分发留 ④；
 - **`t_wall` 延迟统计未接**：可选功能，暂只显示 `compute_ms`。
@@ -335,11 +360,12 @@ game/
 | 2 | ~~**`websockets` 能否装通**~~ ✅ **已关闭（2026-10-16）**：17.2 装通并端到端跑通 | —— | ✅ 已关闭 |
 | 3 | ~~**User level 口径**：PRD=A 与主 TechDesign=C 不一致~~ ✅ **已统一（2026-10-15）：全项目 User level = A**（主 TechDesign 已升 v1.1，由 C 改为 A；"团队实现水平 = C" 改记入 Constraints） | —— | ✅ 已关闭 |
 | 4 | 企业未来客户端是否 Unity（决定是否评估 LSL4Unity） | **不在 MVP 范围**，仅影响对外沟通与 ④ 规划 | 待企业确认 |
-| 5 | `confidence` → 手感的具体映射曲线（线性？分段？） | 观感调优，非验收项 | 游戏负责人自定，现场可调 |
+| 5 | ~~`confidence` → 手感的具体映射曲线~~ ✅ **已落地（2026-10-16）**：区间锁在 **1.0x–1.3x**（保证"单条位移 ≥ 窗口宽 1/6"的硬下限），当前实现为在区间内线性映射、只上调不降向；仍属**观感调优项**，现场可改 `config_game.yaml` | 观感调优，非验收项 | 游戏负责人自定 |
+| 6 | **真人带屏手感与现场演示（A8）未做**：headless 只能证明"消息 → 位移"通路正确 | **影响 F4 验收结论**（现为"代码完成、待现场验证"） | 黄凯森，里程碑② 前 |
 
 ---
 
-*Last Updated: 2026-10-15 ｜ Next Review: 里程碑 ②（10/27）前后复盘手感与降级演练*
+*Last Updated: 2026-10-16 ｜ Next Review: 里程碑 ②（10/27）前后复盘手感与降级演练*
 
 ---
 
@@ -356,9 +382,9 @@ game/
 - AI coding tool: AI 编码助手（vibe-coding 工作流，Part 4 施工）；人工负责跑测试、真机联调与验收
 - Constraints: 控制率仅 **2 条/秒**（窗口 2.0 s / 步长 0.5 s，**冻结不得改**）｜`idle` 必须表现为挡板**不动**｜字段不得增删｜Windows PowerShell 5.1 不用 `&&`｜不采集真人患者数据（伦理未走完）｜**不对外报告任何准确率**
 - Decisions: 弹球单独成文（本文件，2026-10-15）｜Demo 用 **Python + Pygame**（已由 `MVP规格说明书` 附录A L600 与学习路线图锁定，非"待定"）｜Unity 属"企业未来客户端"分支，不在 MVP｜键盘版与解码版**共用同一玩法与渲染**，只切 `input_source`｜玩法为 2 Hz 控制率设计，禁止快节奏连击｜未知 `cmd` 忽略并记日志、绝不崩
-- Open questions: 两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业客户端是否 Unity（不在 MVP 范围）｜`confidence` → 手感映射曲线｜（**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；User level 全项目统一为 A；`PRD-BCI-Decoder-MVP.md` 中"游戏端技术栈待定"失真句已同步更正；**已关闭 2026-10-16**：`websockets` ✅ 装通并端到端验证；`pygame` vs `pygame-ce` ✅ 定为 `pygame-ce`）
+- Open questions: 两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业客户端是否 Unity（不在 MVP 范围）｜（**已关闭 2026-10-16**：`websockets` ✅ 装通并端到端验证；`pygame` vs `pygame-ce` ✅ 定为 `pygame-ce`；`confidence` → 手感映射 ✅ 落地为 1.0x–1.3x；**新增未决**：真人带屏手感与现场演示（A8）未做——代码完成 ≠ F4 验收通过；**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；User level 全项目统一为 A；`PRD-BCI-Decoder-MVP.md` 中"游戏端技术栈待定"失真句已同步更正）
 - Research status: 游戏端对接方向**已核实**（WebSocket vs LSL：`research-BCI-Decoder.md` §2.6、§6）｜⚠️ `LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）**未定论**、主分支最后提交 2023-07-31、支持哪些 Unity 版本 `[未核实]` —— 采用前必须读 LICENSE 正文
-- Source files: docs/PRD-Game-MVP.md（游戏端 PRD：F4.1–F4.4 需求原文、Look & Feel、Wireframe、A7/A8 成功指标、降级与红线口径）｜docs/MVP规格说明书.md（§4.2 字段、§4.3 输出通道、§4.4 控制消息、§7.1 架构、§11.1–11.3、附录A 第 5 步）｜docs/PRD-BCI-Decoder-MVP.md（§F4、§F5、Look & Feel、Wireframe）｜docs/TechDesign-BCI-Decoder-MVP.md｜docs/research-BCI-Decoder.md｜docs/大一学生学习路线图.md｜docs/脑控游戏方向专题建议.md｜docs/PRD-TechDesign-一致性复核.md
+- Source files: docs/PRD-Game-MVP.md（游戏端 PRD：F4.1–F4.4 需求原文、Look & Feel、Wireframe、A7/A8 成功指标、降级与红线口径）｜docs/MVP规格说明书.md（§4.2 字段、§4.3 输出通道、§4.4 控制消息、§7.1 架构、§11.1–11.3、附录A 第 5 步）｜docs/PRD-BCI-Decoder-MVP.md（§F4、§F5、Look & Feel、Wireframe）｜docs/TechDesign-BCI-Decoder-MVP.md｜docs/research-BCI-Decoder.md｜docs/大一学生学习路线图.md｜docs/脑控游戏方向专题建议.md｜docs/MVP_PRD.md
 
 ```json
 {
@@ -373,7 +399,9 @@ game/
   "commands": {
     "setup": "pip install pygame-ce websockets",
     "dev": "python game\\pong.py --input keyboard",
+    "dev_online": "python -m bci_decoder.cli run --config configs/demo_online.yaml --outputs websocket  ;  python game\\pong.py --input ws",
     "test": "python -m pytest game\\tests -q",
+    "test_all": "python -m pytest -q tests  ;  python -m pytest -q game\\tests",
     "typecheck": "",
     "lint": "",
     "build": ""

@@ -7,7 +7,7 @@
 > **工程细节的详版是** [`在线解码模块设计说明.md`](在线解码模块设计说明.md)；
 > **技术论证的详版是** [`详细技术路线.md`](详细技术路线.md)；**接口冻结以** [`MVP规格说明书.md`](MVP规格说明书.md) 第 4 节为准。
 > **游戏端（脑控弹球）已单独成文**：[`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md)。
-> **v1.1 变更**：修正 User level 口径（C→A）、补备选方案对比与成本明细、补三级降级与伪迹降级链、补 Part 3 结构合规（Handoff Context 与文末 JSON）、指向游戏端文档。依据见 [`PRD-TechDesign-一致性复核.md`](PRD-TechDesign-一致性复核.md)。
+> **v1.1 变更**：修正 User level 口径（C→A）、补备选方案对比与成本明细、补三级降级与伪迹降级链、补 Part 3 结构合规（Handoff Context 与文末 JSON）、指向游戏端文档。依据见 [`MVP_PRD.md`](MVP_PRD.md)。
 
 ---
 
@@ -391,7 +391,7 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 - Decisions: MVP 用**频带功率 + LDA**（不用深度学习；黎曼延后至④）｜传输用 **WebSocket**（LSL 延后至④）｜本地单进程、不做 Docker｜数据源以 mock/replay 为主，lsl 留接口不启用｜模型产物存 `artifacts/`（不入库）｜**脑控弹球单独成文** `TechDesign-Game-MVP.md`｜降级优先 `jsonl` 轮询（零新依赖）｜`state` 仅表达稳定化阶段，不得用于改玩法
 - Open questions: （已关闭 2026-10-16：`websockets` ✅ 已装通并端到端跑通）｜企业设备型号/通道顺序/LSL 流名称待书面确认｜真实基线评测协议（数据集与指标口径）｜企业未来客户端是否 Unity（不在 MVP 范围）｜`bci-decoder/` 归属口径 ✅ 已拍板为团队成果（2026-10-15）｜`game/` 位置 ✅ 已定案 `bci-decoder/game/`
 - Research status: 已核实——因果滤波必要性、窗口长度是延迟瓶颈（非算法）、WebSocket vs LSL 取舍、`pylsl`/`moabb` 可用性、合成数据 CV 必然接近 100% ｜⚠️ 未定论——`LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）、支持哪些 Unity 版本 `[未核实]` ｜未核实——真实设备型号与通道顺序（待企业确认）
-- Source files: docs/PRD-BCI-Decoder-MVP.md｜docs/MVP规格说明书.md（§4 字段与控制消息、§11.1–11.3 证据/降级/明确不做、附录A 验收五步）｜docs/TechDesign-Game-MVP.md｜docs/在线解码模块设计说明.md｜docs/详细技术路线.md｜docs/research-BCI-Decoder.md｜docs/PRD-TechDesign-一致性复核.md｜REVIEW-CHECKLIST.md｜agent_docs/tech_stack.md、agent_docs/testing.md｜AGENTS.md、MEMORY.md
+- Source files: docs/PRD-BCI-Decoder-MVP.md｜docs/MVP规格说明书.md（§4 字段与控制消息、§11.1–11.3 证据/降级/明确不做、附录A 验收五步）｜docs/TechDesign-Game-MVP.md｜docs/在线解码模块设计说明.md｜docs/详细技术路线.md｜docs/research-BCI-Decoder.md｜docs/MVP_PRD.md｜REVIEW-CHECKLIST.md｜agent_docs/tech_stack.md、agent_docs/testing.md｜AGENTS.md、MEMORY.md
 
 ```json
 {
