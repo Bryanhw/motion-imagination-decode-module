@@ -3,9 +3,10 @@
 > 翔宇医疗校企合作项目 · 把脑电中的**运动想象意图**实时解码成**可被游戏直接调用的消息流**。
 > 配套 Demo：**脑控弹球**（先键盘版完整可玩，再换成解码消息驱动画面）。
 
-**当前状态（2026-10-15）**：里程碑 ①（10/13 文档）✅ 已交付；里程碑 ②（10/27 可运行 MVP）🔄 进行中。
-解码链路（`sources → buffer → pipeline → outputs`）**已跑通**，`pytest` **14/14 通过**，已产出演示模型与输出文件。
-**未完成**：WebSocket 端到端联调、LSL、脑控弹球、校准流程、Docker。
+**当前状态（2026-10-16）**：里程碑 ①（10/13 文档）✅ 已交付；里程碑 ②（10/27 可运行 MVP）🔄 进行中。
+解码链路（`sources → buffer → pipeline → outputs`）**已跑通**，`pytest` **16/16 通过**（`bci-decoder/tests`），已产出演示模型与输出文件。
+**WebSocket 输出已端到端跑通**（2026-10-16 实测：解码器 `--outputs websocket` ← 客户端收到消息、字段契约一致；`websockets 17.2` 与 `pygame-ce 2.5.8` 已装入 `.venv`）。
+**未完成**：LSL、脑控弹球（`bci-decoder/game/` 尚未创建）、校准流程、Docker。
 
 ---
 
@@ -29,14 +30,14 @@
 > 完整命令清单见 [`docs/MVP规格说明书.md`](docs/MVP规格说明书.md) **附录 A**。
 
 ```powershell
-# 1) 跑测试（当前 14/14 通过）
+# 1) 跑测试（当前 bci-decoder/tests 16/16 通过）
 .venv\Scripts\python.exe -m pytest
 
 # 2) 启动解码器，输出到 WebSocket（游戏端联调用）
 .venv\Scripts\python.exe -m bci_decoder.cli run --config configs/demo_online.yaml --outputs websocket
 
 # 3) 游戏端（⚠️ bci-decoder/game/ 尚未创建，以下命令尚不可用）
-pip install pygame websockets
+pip install pygame-ce websockets
 python game\pong.py --input keyboard      # 键盘版：不需要解码器
 python game\pong.py --input ws            # 解码版：需先启动第 2 步
 ```

@@ -30,6 +30,7 @@ class WebSocketSink(Sink):
         self._clients: set = set()
         self._loop = asyncio.new_event_loop()
         self._ready = threading.Event()
+        self._stop = asyncio.Event()   # 由 close() 唤醒，使 _serve 正常退出
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
         self._ready.wait(timeout=5.0)
@@ -47,7 +48,7 @@ class WebSocketSink(Sink):
 
         async with websockets.serve(self._handler, self.host, self.port):
             self._ready.set()
-            await asyncio.Future()   # 永久运行
+            await self._stop.wait()   # close() 前一直服务
 
     async def _handler(self, websocket) -> None:
         self._clients.add(websocket)
@@ -59,10 +60,13 @@ class WebSocketSink(Sink):
 
     # ---- 对外接口 ----
     def emit(self, out: DecoderOutput) -> None:
-        if not self._clients:
+        if not self._clients or self._loop.is_closed():
             return
         payload = json.dumps(out.to_dict(), ensure_ascii=False)
-        asyncio.run_coroutine_threadsafe(self._broadcast(payload), self._loop)
+        try:
+            asyncio.run_coroutine_threadsafe(self._broadcast(payload), self._loop)
+        except RuntimeError:
+            pass   # 关停竞态：丢弃本次发送，不打断调用方
 
     async def _broadcast(self, payload: str) -> None:
         if not self._clients:
@@ -73,7 +77,23 @@ class WebSocketSink(Sink):
         )
 
     def close(self) -> None:
+        """优雅关停（幂等）：唤醒服务协程 → 等线程收尾 → 关闭事件循环。
+
+        直接 stop() 会让 serve() 的上下文管理器在已关闭的循环上收尾，
+        退出时抛出一串 RuntimeError；这里改为正常退出该上下文。
+        """
         try:
-            self._loop.call_soon_threadsafe(self._loop.stop)
+            self._clients.clear()
+            if not self._loop.is_closed():
+                self._loop.call_soon_threadsafe(self._stop.set)
+        except Exception:
+            pass
+        try:
+            self._thread.join(timeout=3.0)
+        except Exception:
+            pass
+        try:
+            if not self._loop.is_closed():
+                self._loop.close()
         except Exception:
             pass

@@ -339,8 +339,8 @@
 ### 开放问题（Open Questions）
 - ✅ **已拍板（2026-10-15）**：`bci-decoder/` 算**团队成果**（团队在 AI 编码助手辅助下实现），**计入项目进度**——见 [`Start项目落地评估.md`](Start项目落地评估.md) §5.1 方案 A。
 - 企业的脑电**设备型号 / 通道顺序 / LSL 流名称**（需**书面**确认）。
-- **游戏端技术栈** ✅ **已定（2026-10-15）：Python + Pygame**。Unity 属"企业未来客户端"分支、不在 MVP，因此**不评估** `LSL4Unity`；传输仍按 WebSocket（LSL 留到里程碑 ④）。详见 `docs/TechDesign-Game-MVP.md` 与 `docs/PRD-Game-MVP.md`。
-- `websockets` 依赖**能否安装并跑通**（第 1 周必须验证）。
+- **游戏端技术栈** ✅ **已定（2026-10-15）：Python + Pygame**（实现用 **`pygame-ce`**：上游 `pygame` 无 Python 3.14 wheel，2026-10-16 实测；import 名仍为 `pygame`）。Unity 属"企业未来客户端"分支、不在 MVP，因此**不评估** `LSL4Unity`；传输仍按 WebSocket（LSL 留到里程碑 ④）。详见 `docs/TechDesign-Game-MVP.md` 与 `docs/PRD-Game-MVP.md`。
+- ~~`websockets` 依赖**能否安装并跑通**（第 1 周必须验证）~~ ✅ **已关闭（2026-10-16）**：17.2 装通并端到端跑通（`--outputs websocket` ← 客户端收消息、字段契约一致）。
 - 里程碑 ③ 的**评测协议**：用哪个数据集、什么指标口径、**数据集许可与获取方式**（须在 ③ 前单独确认）。
 - ~~本文 **Look & Feel 的 4 个词**是提议值，待团队确认或替换。~~ → **已于 2026-10-15 确认保留**（干净 · 跟手 · 可复现 · 诚实），不再是开放问题。
 
@@ -476,14 +476,14 @@ After this PRD is approved:
 - Stage: prd
 - App name: BCI-Decoder
 - User level: A  (A = vibe coder, B = developer, C = in-between)
-- Target platform: desktop（Windows 普通笔记本，无独立显卡；交付物为 Python 模块；**游戏端技术栈已定 Python + Pygame**，见 `docs/TechDesign-Game-MVP.md`）
+- Target platform: desktop（Windows 普通笔记本，无独立显卡；交付物为 Python 模块；**游戏端技术栈已定 Python + Pygame（实现用 `pygame-ce`）**，见 `docs/TechDesign-Game-MVP.md`）
 - Budget: 全免费优先（￥0，全部依赖须开源；不用 conda 生态、不引付费云服务）
 - Timeline: 10 周（2026-10-13 → 2026-12-15）；MVP 硬节点 10/27，不可延
 - AI in product scope: no（产品内不含任何 LLM / 深度学习；AI 仅用于辅助开发）
 - Research status: Partial research —— 框架生态、因果滤波、延迟结构、工具链与许可证已核实（官方来源，访问日期 2026-10-15）；"换模型/上 GPU 对端到端延迟帮助有限"未找到公开依据；用户抱怨类证据未取得；深度学习工具箱与商业同类沿用既有核实（本轮未复核）；部分许可证与数据集许可待确认
 - Constraints: 类别 2 类（左手/右手）+ idle｜滑窗 2.0 s、步长 0.5 s｜250 Hz / 8 通道｜通道顺序 C3,Cz,C4,CP3,CP4,P3,P4,Oz 不可变更｜单次计算耗时 p95 < 50 ms｜未训练或不可信时恒输出 idle｜MVP 阶段不对外报告任何准确率｜不采真人数据（伦理未走完）
 - Decisions: 只做在线解码模块（游戏画面归游戏端）｜特征用频带功率(16 维) + LDA｜在线必须因果滤波（sosfilt + 跨块 zi）｜伪迹只标记不丢弃、超阈值降级为 idle｜输出多通道 console + jsonl + websocket｜游戏与算法并行开工，首选形态「脑控弹球」｜接口契约自 2026-10-13 冻结，变更走 MVP 规格说明书第 9 节
-- Open questions: bci-decoder/ 归属 ✅ 已拍板为团队成果（2026-10-15）｜游戏端技术栈 ✅ **已定 Python + Pygame**（Unity 属"企业未来客户端"分支，不在 MVP）｜企业设备型号 / 通道顺序 / LSL 流名称待书面确认｜websockets 依赖能否安装并跑通｜里程碑 ③ 真实评测协议（数据集与指标口径，含数据集许可）
+- Open questions: bci-decoder/ 归属 ✅ 已拍板为团队成果（2026-10-15）｜游戏端技术栈 ✅ **已定 Python + Pygame**（Unity 属"企业未来客户端"分支，不在 MVP）｜企业设备型号 / 通道顺序 / LSL 流名称待书面确认｜（已关闭 2026-10-16：websockets 依赖 ✅ 已装通并端到端跑通；游戏端用 `pygame-ce`）｜里程碑 ③ 真实评测协议（数据集与指标口径，含数据集许可）
 - Source files: docs/research-BCI-Decoder.md（findings，Partial research）、docs/research-request-BCI-Decoder.md → docs/PRD-BCI-Decoder-MVP.md
 
 ---

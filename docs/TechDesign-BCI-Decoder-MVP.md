@@ -58,13 +58,13 @@
 | 配置 | PyYAML 6.0.3 | 单文件配置 |
 | 模型持久化 | joblib 1.6.0 | 保存/加载 LDA |
 | 测试 | pytest 9.1.1 | 单元 + 端到端 |
-| 实时通信 | **websockets**（**尚未安装**） | F5 的关键依赖 |
+| 实时通信 | **websockets**（✅ 已装通并端到端验证，17.2，2026-10-16） | F5 的关键依赖 |
 | 设备接入 | **pylsl**（尚未安装，④ 阶段） | 真实设备 LSL 流 |
 | GPU | **不需要** | 计算量极小（p95 数毫秒） |
 | 明确不引入 | 深度学习框架、Docker、Web 框架、消息队列 | 见 §3；MVP 拒绝无谓依赖 |
 
 > **依赖现状（2026-10-15 核实）**：venv 内已装 numpy / scipy / scikit-learn / PyYAML / joblib / pytest；
-> **`websockets`、`mne`、`moabb`、`pyriemann`、`pylsl` 均未安装**。
+> **`mne`、`moabb`、`pyriemann`、`pylsl` 均未安装**（`websockets` 已于 2026-10-16 装通并端到端验证）。
 
 ---
 
@@ -86,7 +86,7 @@
 
 | 候选 | 优势 | 代价 / 风险 | 结论 |
 |---|---|---|---|
-| **WebSocket（本机 127.0.0.1）** | 轻量、协议自研可读（就是 §5.2 的 JSON）；Python 客户端 5 行；**与"本地单进程、不联网"取向一致** | 需装 `websockets`（**尚未验证，最大不确定性**） | ✅ **采用（MVP 的 F5 主路径）** |
+| **WebSocket（本机 127.0.0.1）** | 轻量、协议自研可读（就是 §5.2 的 JSON）；Python 客户端 5 行；**与"本地单进程、不联网"取向一致** | ~~需装 `websockets`（尚未验证，最大不确定性）~~ ✅ **已验证（2026-10-16，17.2 装通并端到端跑通）** | ✅ **采用（MVP 的 F5 主路径）** |
 | LSL（Lab Streaming Layer） | 脑电界事实标准；企业侧设备生态成熟；天然多消费者 | 需 `pylsl` + 设备端配合；企业设备型号/流名称**尚未书面确认**；调试链路更长 | ⏳ ④ 阶段（真实设备与对外集成） |
 | 文件轮询（`jsonl` tail） | **零新依赖**，一定能跑通 | 有落盘延迟，非实时 | ✅ 作为**降级路径**保留（见 §9） |
 
@@ -322,7 +322,7 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 |---|---|---|---|
 | Python / NumPy / SciPy / scikit-learn / PyYAML / joblib / pytest | **￥0** | 软件（开源） | 全部开源免费；许可证类型以各项目 LICENSE 为准（对外交付前需核对） |
 | Pygame（游戏端） | **￥0** | 软件（开源） | 同上；演示级使用 |
-| `websockets` | **￥0** | 软件（开源） | 同上；**能否装通尚未验证**（技术风险，非成本风险） |
+| `websockets` | **￥0** | 软件（开源） | 同上；~~能否装通尚未验证~~ ✅ **已验证**（2026-10-16，17.2 装通并端到端跑通） |
 | 运行硬件（笔记本） | **￥0 新增** | 已有资产 | 团队自有笔记本；**要求无独立显卡**（本项目不需 GPU），非新增采购 |
 | GPU / 云服务 / 服务器 | **￥0** | 不采用 | 明确不引入（§2 明确排除项） |
 | 采集设备（脑电帽/放大器） | **不报价** | 企业提供 | 由翔宇医疗提供；型号与通道顺序**待企业书面确认**（【未决】）；若需自购属企业决策，不计入本项目预算 |
@@ -349,7 +349,7 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 
 | 风险 | 影响 | 缓解 |
 |---|---|---|
-| **`websockets` 能否装通未验证** | 阻塞 F5 + 游戏联调（两个 must-have） | **第 1 周就验**；不通立即走 §9 B 级降级（`jsonl` 轮询），不停工 |
+| ~~**`websockets` 能否装通未验证**~~ ✅ **已排除（2026-10-16）**：17.2 装通并端到端跑通（CLI `--outputs websocket` → 客户端收消息、字段契约一致） | ~~阻塞 F5 + 游戏联调~~ | —— |
 | **通道顺序错** | 稳定输出相反结果，且"看起来很像成功" | 从第一天锁定顺序；`show-config` 核对；CONTRIBUTING/README 写明 |
 | **误把合成数据效果当成绩** | 触碰红线（学术诚信） | §7/§10 红线提示；代码注释 + 演示脚本检查 |
 | **窗口长度被"顺手改小"** | 破坏游戏节奏与验收口径，且需重新训练 | 2.0 s 冻结；改动走 `MVP规格说明书` 第 9 节变更流程 |
@@ -363,7 +363,7 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 
 | # | 日期 | 技术目标 | 已知技术债 |
 |---|---|---|---|
-| ② | 10/27 | 链路 + 稳定化 + WebSocket + 弹球 Demo 打通 | `websockets` 未验证；`game/` 最终路径未定 |
+| ② | 10/27 | 链路 + 稳定化 + WebSocket + 弹球 Demo 打通 | ~~`websockets` 未验证~~ ✅ 已跑通（2026-10-16）；`game/` 最终路径 ✅ 已定 = `bci-decoder/game/` |
 | ③ | 11/10 | `moabb` + BCI IV 2a 真实基线；伪在线一致性 < 5% | 需引入 `mne` / `moabb` |
 | ④ | 12/01 | 黎曼 + 欧氏对齐、校准流程、LSL、稳定性 | 设备型号未确认 |
 | ⑥ | 12/15 | Docker / 一键部署、交付说明 | `vibe.project.json` 与 CI 尚无 |
@@ -385,11 +385,11 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 - Budget: ￥0 新增货币支出（全开源；详见 §11 成本明细，人力计入课程学分）
 - Timeline: 10 周（2026-10-13 – 2026-12-15）；MVP 硬节点 **10/27**（里程碑 ②）
 - AI in product scope: none（产品内无 AI：确定性信号处理链路，无深度学习/LLM/GPU）
-- Chosen stack: Python 3.14.7 + NumPy 2.5.3 + SciPy 1.18.1 + scikit-learn 1.9.1（LDA）+ PyYAML 6.0.3 + joblib 1.6.0 + pytest 9.1.1；`websockets`（待装，F5 关键）；`pylsl`（④）；游戏端 Pygame（另见 TechDesign-Game-MVP.md）
+- Chosen stack: Python 3.14.7 + NumPy 2.5.3 + SciPy 1.18.1 + scikit-learn 1.9.1（LDA）+ PyYAML 6.0.3 + joblib 1.6.0 + pytest 9.1.1；`websockets`（✅ 已装并跑通，17.2，F5 关键）；`pylsl`（④）；游戏端 Pygame（另见 TechDesign-Game-MVP.md）
 - AI coding tool: AI 编码助手辅助实现与测试（`AGENTS.md` 体系 / vibe-coding 工作流）；人工负责跑测试、真机联调与验收
 - Constraints: 命令必须在 `bci-decoder/` 内执行（扁平布局，`python -m bci_decoder.cli` 免安装）｜Windows PowerShell 5.1 **禁止 `&&`**｜滤波必须因果且跨 chunk 保状态（**禁止在线用 `filtfilt`**）｜环形缓冲固定容量｜未训练恒输出 `idle`｜**输出字段不得增删**｜滑窗 **2.0 s** / 步长 **0.5 s** **冻结不得改**｜通道顺序 `C3,Cz,C4,CP3,CP4,P3,P4,Oz` **不得重排**｜p95 < 50 ms｜调度抖动 < 10 ms｜**不采集真实患者数据**（伦理未走完）｜**MVP 不对外报告任何准确率**｜团队实现水平：C（大一学生，按此深度写注释与文档）
 - Decisions: MVP 用**频带功率 + LDA**（不用深度学习；黎曼延后至④）｜传输用 **WebSocket**（LSL 延后至④）｜本地单进程、不做 Docker｜数据源以 mock/replay 为主，lsl 留接口不启用｜模型产物存 `artifacts/`（不入库）｜**脑控弹球单独成文** `TechDesign-Game-MVP.md`｜降级优先 `jsonl` 轮询（零新依赖）｜`state` 仅表达稳定化阶段，不得用于改玩法
-- Open questions: `websockets` 能否装通（第 1 周必验）｜企业设备型号/通道顺序/LSL 流名称待书面确认｜真实基线评测协议（数据集与指标口径）｜企业未来客户端是否 Unity（不在 MVP 范围）｜`bci-decoder/` 归属口径 ✅ 已拍板为团队成果（2026-10-15）｜`game/` 位置 ✅ 已定案 `bci-decoder/game/`
+- Open questions: （已关闭 2026-10-16：`websockets` ✅ 已装通并端到端跑通）｜企业设备型号/通道顺序/LSL 流名称待书面确认｜真实基线评测协议（数据集与指标口径）｜企业未来客户端是否 Unity（不在 MVP 范围）｜`bci-decoder/` 归属口径 ✅ 已拍板为团队成果（2026-10-15）｜`game/` 位置 ✅ 已定案 `bci-decoder/game/`
 - Research status: 已核实——因果滤波必要性、窗口长度是延迟瓶颈（非算法）、WebSocket vs LSL 取舍、`pylsl`/`moabb` 可用性、合成数据 CV 必然接近 100% ｜⚠️ 未定论——`LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）、支持哪些 Unity 版本 `[未核实]` ｜未核实——真实设备型号与通道顺序（待企业确认）
 - Source files: docs/PRD-BCI-Decoder-MVP.md｜docs/MVP规格说明书.md（§4 字段与控制消息、§11.1–11.3 证据/降级/明确不做、附录A 验收五步）｜docs/TechDesign-Game-MVP.md｜docs/在线解码模块设计说明.md｜docs/详细技术路线.md｜docs/research-BCI-Decoder.md｜docs/PRD-TechDesign-一致性复核.md｜REVIEW-CHECKLIST.md｜agent_docs/tech_stack.md、agent_docs/testing.md｜AGENTS.md、MEMORY.md
 
@@ -399,7 +399,7 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
   "documentType": "techdesign",
   "appName": "BCI-Decoder",
   "stack": {
-    "backend": "Python 3.14.7 + NumPy 2.5.3 + SciPy 1.18.1 + scikit-learn 1.9.1 + PyYAML 6.0.3 + joblib 1.6.0 + pytest 9.1.1；实时通信 websockets（待安装），设备接入 pylsl（④）",
+    "backend": "Python 3.14.7 + NumPy 2.5.3 + SciPy 1.18.1 + scikit-learn 1.9.1 + PyYAML 6.0.3 + joblib 1.6.0 + pytest 9.1.1；实时通信 websockets（✅ 已装通并端到端验证，17.2），设备接入 pylsl（④）",
     "frontend": "无（headless 模块，无 UI；唯一用户界面在 game/ 脑控弹球，见 TechDesign-Game-MVP.md）",
     "deployment": "本地单进程（Windows 笔记本，无 GPU），无服务器/无云服务；MVP 不做容器（Docker 归里程碑 ⑥）"
   },

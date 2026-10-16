@@ -2,21 +2,21 @@
 
 > **当前状态、已定决策、下一步**。每个会话结束时更新本文件；
 > 长期规则见 `AGENTS.md`，项目细节见 `agent_docs/`。
-> **最后更新：2026-10-15**
+> **最后更新：2026-10-16**
 
 ## 一句话现状
 
 项目处于**立项完成、工程起步**阶段。里程碑 ①（10/13 文档）已交付，里程碑 ② 🔄 进行中；
-仓库内已有**本团队的可运行解码链路**（`bci-decoder/`，14 项测试通过、已产出模型与输出文件），
+仓库内已有**本团队的可运行解码链路**（`bci-decoder/`，16 项测试通过、已产出模型与输出文件），
 **归属已拍板（2026-10-15）：属于团队成果，计入项目进度**。
-**仍未完成**：WebSocket、LSL、脑控弹球、校准流程、Docker。
+**仍未完成**：LSL、脑控弹球（`bci-decoder/game/` 尚未创建）、校准流程、Docker（**WebSocket 输出已于 2026-10-16 端到端跑通**）。
 
 ## 里程碑状态
 
 | # | 日期 | 目标 | 状态 |
 |---|---|---|---|
 | ① | 10/13 · W7 | 立项与 MVP 规格（文档） | ✅ 文档已交付（`MVP规格说明书` **v1.1**、`项目章程`、`需求确认记录`） |
-| ② | 10/27 · W9 | **可运行 MVP**（F1–F5 + 延迟实测） | 🔄 进行中（解码链路**已跑通**、`pytest` **14/14**；WebSocket / 弹球游戏 / 校准流程未完成） |
+| ② | 10/27 · W9 | **可运行 MVP**（F1–F5 + 延迟实测） | 🔄 进行中（解码链路**已跑通**、`pytest` **16/16**；**WebSocket 输出已端到端跑通**，2026-10-16；弹球游戏 / 校准流程未完成） |
 | ③ | 11/10 · W11 | 真实基线（`moabb` + BCI IV 2a，Kappa > 0.3）+ 用户反馈 | ⏳ 未开始 |
 | ④ | 12/01 · W14 | Beta（校准流程、黎曼、LSL、稳定性） | ⏳ 未开始 |
 | ⑤ | 12/08 · W15 | Demo Day | ⏳ 未开始 |
@@ -44,9 +44,9 @@
 
 ## 环境事实（已核实）
 
-- `bci-decoder/.venv`：**Python 3.14.7**；已装 numpy 2.5.3 / scipy 1.18.1 / scikit-learn 1.9.1 / PyYAML 6.0.3 / joblib 1.6.0 / pytest 9.1.1
-- **未安装**：`websockets`（F5 的关键依赖）、`mne`、`moabb`、`pyriemann`、`pylsl`
-- `python -m pytest` → **14 项全部通过**（2026-10-15 复核，2.24 s；证据存 `docs/evidence/W7_1013/pytest_20261015.txt`）
+- `bci-decoder/.venv`：**Python 3.14.7**；已装 numpy 2.5.3 / scipy 1.18.1 / scikit-learn 1.9.1 / PyYAML 6.0.3 / joblib 1.6.0 / pytest 9.1.1 / **websockets 17.2** / **pygame-ce 2.5.8**
+- **未安装**：`mne`、`moabb`、`pyriemann`、`pylsl`（里程碑 ③/④ 前装好；`websockets` 已于 2026-10-16 装通并验证）
+- `python -m pytest` → **16 项全部通过**（2026-10-16 复核，2.35 s；口径 = `bci-decoder/tests`；从仓库根跑会额外收集 `docs/learning/` 的 12 个学习用例，共 28。2026-10-15 的 14 项快照见 `docs/evidence/W7_1013/pytest_20261015.txt`）
 - `bci-decoder/artifacts/` 内已有 `demo_lda.joblib` 与 `decoder_output.jsonl`
 - 全局 `python` **没有** pytest —— 必须用 `.venv\Scripts\python.exe`
 - 仓库**已是 Git 仓库**（2026-10-15）：远端 `origin` = **https://github.com/Bryanhw/motion-imagination-decode-module**（**公开仓库**），`main` 与 `origin/main` 同步；入库提交 **`7ce8d08`**（89 文件 / 12,317 行），父提交为远端原有 `4ea612c`（**快进推送，未覆盖、未强推**）；提交身份 **`Bryanhw <yhw20070910@outlook.com>`（仅仓库级 `git config`，未改全局）**；`.gitignore` 已实测生效（`.venv/`、`artifacts/`、`.pytest_cache/`、`.deepworks/`、`uploads/`、`.tools/*.pdf` 均被忽略）
@@ -58,20 +58,20 @@
 1. ~~拍板 `bci-decoder/` 的归属口径~~ ✅ **已完成**（2026-10-15：团队成果、计入进度）；~~改完旧文档表述~~ ✅ **已完成**（全库复核，残留命中均为合法的历史引述/决策记录）。
 2. ~~校准文档与仓库事实的 6 处不一致~~ ✅ **已完成**（§5.2 六条已逐条处置，处置结果记于该节表格下方）。
 3. ~~建 `docs/evidence/W7_1013/`~~ ✅ **已完成**；~~`git init` + 首次提交~~ ✅ **已完成**（2026-10-15：`7ce8d08` 已推送至 `origin/main`，公开仓库地址见「环境事实」）。
-4. 里程碑 ② 主攻：**`websockets` 跑通** + **脑控弹球（先键盘版）** + **校准流程骨架**。
+4. 里程碑 ② 主攻：~~**`websockets` 跑通**~~ ✅ **已完成（2026-10-16）** + **脑控弹球（先键盘版，`bci-decoder/game/` 尚未创建）** + **校准流程骨架**。
 
 ## 开放问题
 
 - ✅ **已拍板（2026-10-15）：`bci-decoder/` ＝ 本团队成果**（团队在 AI 编码助手辅助下实现），**计入项目进度**。全库旧表述（"他人参考骨架 / 不计入进度"）**已逐处更正完毕**（`docs/Start项目落地评估.md` §5.1 方案 A）；残留命中均为合法的历史引述/决策记录。**注意**：归属更正不等于"未完成的部分已完成"（WebSocket / LSL / 弹球 / 校准 / Docker 仍未做）。
 - 企业设备型号 / 通道顺序 / LSL 流名称（需书面确认）。
 - ✅ **已定（2026-10-15）**：Demo 游戏端 = **Python + Pygame**（`docs/TechDesign-Game-MVP.md`）；Unity 属"企业未来客户端"分支，不在 MVP。
-- `websockets` 能否安装并跑通？
+- ✅ **已关闭（2026-10-16）**：`websockets 17.2` 装通并端到端跑通（F5.1：解码器 `--outputs websocket` ← 客户端收消息、字段契约逐条一致）。
 - 里程碑 ③ 的评测协议（用哪个数据集、什么指标口径）。
 - ✅ **已拍板（2026-10-15）**：**User level 统一为 A**（A/B/C 指"交付物面向谁"，不是团队水平）；"团队实现水平 = C" 改记入 TechDesign 的 Constraints。**已核实**（2026-10-15）：`docs/项目章程.md`、`docs/需求确认记录.md` 中**并无** User level 字段，复核报告原"仍记 C"一句系未经核实的推断，已在报告中更正。
 - ✅ **已授权且已执行（2026-10-15）**：`docs/TechDesign-BCI-Decoder-MVP.md` 由 v1.0 修至 **v1.1**，复核报告 §6 的 14 项全部落地（含 Part 3 结构合规）。**校验**：417 行、文末 JSON 解析通过、顺序 `正文 → 页脚 → Handoff Context → JSON`、Handoff 14 字段。
 - ✅ **红线残留已修复（2026-10-15）**：`bci-decoder/scripts/bootstrap_demo.py` 已在交叉验证输出行后与 JSON 输出前各加一行合成数据警示（**禁止对外报告准确率**）。**验证**：`python -m pytest` → **14 passed**、`py_compile` 通过。文档侧另有 TechDesign v1.1 §7/§10/§12 三处红线提示。
 - 【待定】PRD must-have「脑控弹球」无技术落地设计 → ✅ 已定：**单独成文** `docs/TechDesign-Game-MVP.md`（2026-10-15）。`game/` 最终路径已定案：**`bci-decoder/game/`**（依据 `MVP规格说明书` 附录 A 先 `cd bci-decoder` 再 `python game\pong.py`；**团队可再议**，改动须同步两处文档）。
-- 【待验证】`websockets` 能否安装跑通（F5 最大不确定性，第 1 周必须验；不通则游戏端走 jsonl 轮询降级）。
+- ~~【待验证】`websockets` 能否安装跑通~~ ✅ **已验证（2026-10-16）**：装通并端到端跑通；`jsonl` 轮询降级方案仍保留备用。**新增定案**：游戏端用 **`pygame-ce`**（上游 `pygame` 无 Python 3.14 wheel）。
 
 ## 最近变更
 
@@ -93,3 +93,4 @@
 | 2026-10-15 | **游戏端 PRD 成文**：新建 `docs/PRD-Game-MVP.md`（v1.0，446 行 / 29,513 字节），与 `docs/TechDesign-Game-MVP.md` 成对。按 **Part 2（PRD-MVP）产出契约**：17 个 h2 与兄弟 PRD `PRD-BCI-Decoder-MVP.md` 完全同序（Product Overview → Who It's For → The Problem We're Solving → User Journey → MVP Features → Out of Scope → How We'll Know It's Working → Look & Feel → Technical Considerations → AI / Automation Scope → Quality Standards → Budget & Constraints → Open Questions & Assumptions → Launch Strategy → Definition of Done → Next Steps），页脚 `Document created` / `Status: Draft — Ready for Technical Design` → `## Handoff Context` **12 字段** → **文末 10 键 JSON**。**内容全部取自已核实事实源**（`MVP规格说明书` §2.1/§3.1 F4.1–F4.4、F5.3、§4.2 字段、§4.4 控制消息、§4.5 状态机、§6.1 A7/A8、§6.3 测试口径、§10.1 里程碑表、§11.2 降级、附录A 第 5 步；`TechDesign-Game-MVP.md` 的栈/线框图/命令；`PRD-BCI-Decoder-MVP.md` 的 Look & Feel 与成功指标）。**明确化一处边界**：`confidence` 仅在 `label ∈ {left,right}` 时参与调速，`idle` 时挡板速度恒为 0（源自 TechDesign §6 语义陷阱的落实，非新增需求）。**校验**（`.deepworks/tmp/check_game_prd.py`，45 项全绿）：JSON 文末唯一且 10 键同序可解析、`appName=BCI-Decoder-Game`、h2 与兄弟 PRD 同序、Handoff 12 字段与兄弟 PRD 一致、**线框图与 `TechDesign-Game-MVP.md` 逐字一致**、字段串与冻结契约逐字一致、3 条命令与 TechDesign 的 JSON 元数据一致、无占位符、**无准确率数字**（全文唯一百分号为红线句「交叉验证 100%（必然结果）」）。**未写业务代码。** |
 | 2026-10-15 | **接入 Git 远端并完成首次推送**（用户指定仓库名 `motion-imagination-decode-module`）。① `git init -b main`，仓库根 = 工作区根目录；② **关闭 `core.autocrlf`**（系统默认 `true`，会在提交/检出时改写行尾字节）→ 设为 `false`，保持仓库现有字节原样；③ `git remote add origin` → **https://github.com/Bryanhw/motion-imagination-decode-module**；④ 远端**已有 1 个提交**（`4ea612c Initial commit`，仅 `README.md`）→ 先 `git fetch` 再 `git checkout -B main origin/main` **把对方提交接为父提交**，之后在它之上提交，**避免覆盖他人内容与强推**；⑤ 提交身份 `Bryanhw <yhw20070910@outlook.com>`（**仅仓库级** `git config`，未动全局）；⑥ 推送前做**隐私与体积体检**：邮箱 / 手机号 / 密钥扫描 **0 命中**；最大文件为 `docs/` 三个正式 PDF 交付件（1.1 / 0.8 / 0.7 MB）。**结果**：**`7ce8d08`（89 文件 / 12,317 行）已推送**，输出 `4ea612c..7ce8d08 main -> main`，退出码 0，工作区干净、`main` 与 `origin/main` 同步。**同步更正三处已失真口径**：`项目章程` §5.2 仓库行 / 里程碑表 ① 行 / 检查清单「建 Git 仓库」项，`Start项目落地评估.md` §5.2 处置 ③ 与 ③′ / §6 前置项 / §7 边界项，`MEMORY.md` 环境事实与下一步。**未写业务代码。** |
 | 2026-10-15 | **失真口径同步收尾 + 仓库首页 README**（用户选定：①"两处都更正"→实做同类残留共 6 处；②顺带清理项只选"补根 README.md"，**未选**删除 `.pytest_cache`、**未选**移出 AI 协作层；③提交方式 = **只提交不推送**）。**① 口径更正 6 处（均已核实原文行，补丁通道 6/6 OK）**：`PRD-BCI-Decoder-MVP.md` —— Handoff `Target platform`「游戏端技术栈待定」→ 已定 Python+Pygame（Unity 属企业未来客户端分支）、Handoff `Open questions`「游戏端用 Unity 还是自研 Python」→ 已关闭并注明 Unity 归属、正文「游戏端技术栈」条、Next Steps 第 4 条加 `docs/PRD-Game-MVP.md` / `docs/TechDesign-Game-MVP.md` 交叉链接；`TechDesign-Game-MVP.md` —— §16 第 1 条（`game/` 路径同文矛盾）→ ✅ 已定案 `bci-decoder/game/` 关闭、§16 第 3 条（User level）→ ✅ 全项目统一为 A 关闭、Handoff `User level` 删去"主 TechDesign 标 C 属残留差异"、Handoff `Open questions` 移除两处已关闭项并保留真正开放项（`websockets` 能否装通优先、两套"三级降级"字母冲突、Unity 企业分支、分辨率适配、`confidence` 映射曲线、`pygame` vs `pygame-ce`）；`PRD-Game-MVP.md` —— Open Questions #2/#8 标记已关闭（`game/` 路径已定案、主 PRD 失真句已同步）、Next Steps #3/#4 改为"已定案/已完成"、Handoff `User level` 与 `Open questions` 同步。**② 新增根 `README.md`**（一页项目入口：一句话 + 当前状态、目录结构与纪律、快速开始命令（含"`bci-decoder/game/` 尚未创建、命令暂不可用"警示与 PowerShell 5.1 不用 `&&`、必须用 `.venv\Scripts\python.exe`）、文档导航表、7 条红线、协作约定；覆盖远端自带通用 README）。**③ 删除仓库根重复副本 `MVP_PRD`**（22,129 B；SHA256 `0C1074620B9009B5D5CDDF460C3F730B5D6FBEFFA0730FBE4C78E4D6D7FC8FA8` 与 `docs/PRD-TechDesign-一致性复核.md` **完全相同**，删除前后 docs 副本哈希未变、**无信息丢失**）。**校验**：`.deepworks/tmp/check_game_prd.py` **45 项全绿（FAILS: none）**；三份文档 `json` 块均解析通过（PRD-BCI 534 行、TechDesign-Game 384 行、PRD-Game 446 行 / 29,455 字节）；残留扫描显示旧口径只剩**历史性引述**（`research-BCI-Decoder.md` / `research-request-BCI-Decoder.md` 研究阶段 Handoff 的 `Target platform` 与 `Open questions`、`TechDesign-Game-MVP.md` §7 对措辞漂移的说明、`PRD-Game-MVP.md` 的关闭留痕）——**未同步，属历史记录不属当前契约**。另：仓库内原有 `README.md` 为远端占位存根（仅 2 行 `# -` / `共用的脑机项目仓库`，Git 初始化时由对方 `4ea612c Initial commit` 带入），已被本页取代（用户选定"补根 README.md"，覆盖存根）。**提交**：`05d2350`（6 文件 / +535 / −13，含 `docs/PRD-Game-MVP.md` 新增）——**仅本地提交，按用户选定未推送**，`main` 领先 `origin/main` 1 个提交。**未写业务代码。** |
+| 2026-10-16 | **F5.1 依赖实测与 WebSocket 端到端跑通 + 两处契约缺口修复**（用户指令「请继续」）。**① 依赖实测**：`websockets 17.2` ✅ 装通（cp314 wheel）；**上游 `pygame` 无 Python 3.14 wheel**（`pip install --dry-run --only-binary=:all: pygame` → `ERROR: Could not find a version ... (from versions: none)`），`pygame-ce 2.5.8` ✅ 装通（import 名仍为 `pygame`、`IS_CE=1`、SDL 2.32.10）→ **游戏端依赖定案 = `pygame-ce`**；两者均装入 `bci-decoder/.venv`（不入库；pip 缓存为用户既有配置 `d:\pip-cache`，同在 D 盘，用户已确认无 C 盘/全局污染）。**② 补上两处契约缺口**：文档 6 处写的 `--outputs websocket` 在 `cli.py` 中**原本不存在** → 给 `run` 子命令新增 `--outputs`（逗号/空格分隔，覆盖 `cfg.output.sinks`，不传则沿用配置）；`outputs/websocket.py` 关停改为**幂等优雅流程**（`_stop` Event + `async with websockets.serve` + `call_soon_threadsafe` + `join(3.0)` + `loop.is_closed()` 守卫），消除退出噪音（`Task was destroyed but it is pending!` / `RuntimeError: no running event loop` / `coroutine ... was never awaited`）。**③ 新增正式回归测试** `bci-decoder/tests/test_websocket_sink.py`（2 个用例：9 字段契约 + `label_id ⟺ idle`；close 幂等且关停后 emit 静默）→ **`pytest` 14/14 → 16/16**。**④ 证据**：sink 级 `verify_ws_end2end.py` **27/27 FAILS=0**；CLI 级 `verify_cli_ws.py` **21/21 FAILS=0 EXITCODE=0**（短跑退出码 0、日志 `输出通道=['websocket']`、无 Traceback；长跑客户端实收 5 条，样例 `{"t_data": 77.996, "label": "idle", "label_id": -1, "confidence": 0.6459, "probs": [0.0, 1.0], "state": "running", "compute_ms": 4.535, "window_seconds": 2.0}`）；pygame-ce headless 冒烟 120 帧无异常。**⑤ 文档口径回写 88 处**（8 批补丁：`patch_dep_verify.json` 26 + `patch_count_fix.json` 24 + `patch_ws_fact.json` 10 + `patch_ws_fact2.json` 2 + `patch_ws_fact3.json` 3 + `patch_ws_fact4.json` 1 + `patch_ws_fact5.json` 20 + `patch_ws_fact6.json` 2）：`README.md`、`AGENTS.md`、`MEMORY.md`、`agent_docs/tech_stack.md`、`MVP规格说明书.md` §0/§8/§9、`PRD-BCI-Decoder-MVP.md`、`PRD-Game-MVP.md`（Open Q #1/#7 关闭）、`TechDesign-Game-MVP.md`（§5 栈表、风险表、§16、Handoff）、`在线解码模块设计说明.md`、`详细技术路线.md`、`项目章程.md`、`项目计划书.md`、`脑机接口运动想象解码项目规划.md`、`与天津大学脑机方向技术交流问题清单.md`、`PRD-TechDesign-一致性复核.md` —— 统一为 `websockets` ✅ 已验证、`pygame-ce` 定案、`pip install pygame-ce websockets`、测试计数 **16/16**。**未写业务代码**（除上述 CLI/输出通道修复与新增测试）。 |

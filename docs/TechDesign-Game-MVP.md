@@ -102,8 +102,8 @@
 | 组件 | 选择 | 说明 |
 |---|---|---|
 | 语言/运行时 | **Python 3.14.7** | 与解码器同一虚拟环境 `bci-decoder/.venv` |
-| 游戏窗口/渲染 | **Pygame**（`pygame-ce` 亦可） | 双缓冲、60 FPS、无需独显 |
-| WS 客户端 | **`websockets`**（asyncio） | ⚠️ 该依赖**能否安装跑通尚未验证**（F5 关键风险） |
+| 游戏窗口/渲染 | **`pygame-ce`**（import 名仍为 `pygame`） | 双缓冲、60 FPS、无需独显；**上游 `pygame` 无 Python 3.14 wheel**（2026-10-16 实测），故用社区版 |
+| WS 客户端 | **`websockets`**（asyncio，17.2） | ✅ **已装通并端到端验证**（2026-10-16；F5 关键风险已消除） |
 | 配置 | 命令行参数 + 一个小的 `game/config_game.yaml`（可选） | 手感参数可调 |
 | 不引入 | 物理引擎、GUI 框架（Qt/Tk）、Node/构建工具 | 明确排除，避免无谓依赖 |
 
@@ -234,7 +234,7 @@ game/
 
 | 用途 | 命令 |
 |---|---|
-| **setup** | `pip install pygame websockets` |
+| **setup** | `pip install pygame-ce websockets` |
 | **dev（键盘版，不需要解码器）** | `python game\pong.py --input keyboard` |
 | **dev（解码版）** | 先 `python -m bci_decoder.cli run --config configs/demo_online.yaml --outputs websocket`，再 `python game\pong.py --input ws` |
 | **dev（降级：读 jsonl）** | `python game\pong.py --input jsonl --file artifacts\decoder_output.jsonl` |
@@ -289,7 +289,7 @@ game/
 
 | 风险 | 影响 | 缓解 |
 |---|---|---|
-| **`websockets` 装不上/跑不通** | 阻塞 F5 + F4.2，直接影响 must-have | **第 1 周就验**（`research-BCI-Decoder.md` 第 1 周任务）；不通立即走 B 级降级（jsonl），不耽误游戏端 |
+| ~~**`websockets` 装不上/跑不通**~~ ✅ **已排除（2026-10-16）**：17.2 装通并端到端验证 | ~~阻塞 F5 + F4.2~~ | —— |
 | **游戏与算法不同步** | 画面延迟明显、指令滞后 | 并行开工（键盘版先行）；接口用冻结契约，不互相等 |
 | **玩家抱怨"太慢/不跟手"** | 演示观感差 | 玩法按 2 Hz 设计 + 插值动画 + 大位移量（§6）；这是**物理限制不是 bug**，要在演示话术里讲清 |
 | **把合成数据效果当成绩展示** | 触碰红线 R-1，学术诚信问题 | §7 视觉原则 2 + §11 红线；代码里加注释 |
@@ -332,7 +332,7 @@ game/
 | # | 问题 | 影响 | 归属 |
 |---|---|---|---|
 | 1 | ~~**`game/` 最终落在哪**：仓库根 vs `bci-decoder/game/`~~ ✅ **已定案（2026-10-15）：`bci-decoder/game/`** —— 依据 `MVP规格说明书` 附录A（先 `cd bci-decoder` 再 `python game\pong.py`）、`MEMORY.md` 决策表与游戏端 PRD；详见本文 §8。团队可再议，改动须同步 `MVP规格说明书` 附录A 与两份文档 | —— | ✅ 已关闭 |
-| 2 | **`websockets` 能否装通** | 阻塞 F5/F4.2；不通则 B 级降级 | 第 1 周验证 |
+| 2 | ~~**`websockets` 能否装通**~~ ✅ **已关闭（2026-10-16）**：17.2 装通并端到端跑通 | —— | ✅ 已关闭 |
 | 3 | ~~**User level 口径**：PRD=A 与主 TechDesign=C 不一致~~ ✅ **已统一（2026-10-15）：全项目 User level = A**（主 TechDesign 已升 v1.1，由 C 改为 A；"团队实现水平 = C" 改记入 Constraints） | —— | ✅ 已关闭 |
 | 4 | 企业未来客户端是否 Unity（决定是否评估 LSL4Unity） | **不在 MVP 范围**，仅影响对外沟通与 ④ 规划 | 待企业确认 |
 | 5 | `confidence` → 手感的具体映射曲线（线性？分段？） | 观感调优，非验收项 | 游戏负责人自定，现场可调 |
@@ -352,11 +352,11 @@ game/
 - Budget: ￥0（Pygame / websockets 均开源免费；无美术与外包成本）
 - Timeline: W8（10/20）键盘版完整 → 里程碑②（10/27）解码驱动画面打通；与 F1 算法**并行开工**
 - AI in product scope: none（产品内不使用 AI/LLM/模型推理；游戏端为确定性消费者，只收 JSON 查表移动挡板）
-- Chosen stack: Python 3.14.7 + Pygame（渲染/主循环）+ websockets（asyncio 客户端）+ PyYAML（可选配置）
+- Chosen stack: Python 3.14.7 + `pygame-ce`（渲染/主循环，import 名 `pygame`）+ websockets（asyncio 客户端，17.2 已验证）+ PyYAML（可选配置）
 - AI coding tool: AI 编码助手（vibe-coding 工作流，Part 4 施工）；人工负责跑测试、真机联调与验收
 - Constraints: 控制率仅 **2 条/秒**（窗口 2.0 s / 步长 0.5 s，**冻结不得改**）｜`idle` 必须表现为挡板**不动**｜字段不得增删｜Windows PowerShell 5.1 不用 `&&`｜不采集真人患者数据（伦理未走完）｜**不对外报告任何准确率**
 - Decisions: 弹球单独成文（本文件，2026-10-15）｜Demo 用 **Python + Pygame**（已由 `MVP规格说明书` 附录A L600 与学习路线图锁定，非"待定"）｜Unity 属"企业未来客户端"分支，不在 MVP｜键盘版与解码版**共用同一玩法与渲染**，只切 `input_source`｜玩法为 2 Hz 控制率设计，禁止快节奏连击｜未知 `cmd` 忽略并记日志、绝不崩
-- Open questions: `websockets` 能否装通（F5 最大不确定性）｜两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业客户端是否 Unity（不在 MVP 范围）｜`confidence` → 手感映射曲线｜pygame vs pygame-ce｜（**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；User level 全项目统一为 A；`PRD-BCI-Decoder-MVP.md` 中"游戏端技术栈待定"失真句已同步更正）
+- Open questions: 两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业客户端是否 Unity（不在 MVP 范围）｜`confidence` → 手感映射曲线｜（**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；User level 全项目统一为 A；`PRD-BCI-Decoder-MVP.md` 中"游戏端技术栈待定"失真句已同步更正；**已关闭 2026-10-16**：`websockets` ✅ 装通并端到端验证；`pygame` vs `pygame-ce` ✅ 定为 `pygame-ce`）
 - Research status: 游戏端对接方向**已核实**（WebSocket vs LSL：`research-BCI-Decoder.md` §2.6、§6）｜⚠️ `LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）**未定论**、主分支最后提交 2023-07-31、支持哪些 Unity 版本 `[未核实]` —— 采用前必须读 LICENSE 正文
 - Source files: docs/PRD-Game-MVP.md（游戏端 PRD：F4.1–F4.4 需求原文、Look & Feel、Wireframe、A7/A8 成功指标、降级与红线口径）｜docs/MVP规格说明书.md（§4.2 字段、§4.3 输出通道、§4.4 控制消息、§7.1 架构、§11.1–11.3、附录A 第 5 步）｜docs/PRD-BCI-Decoder-MVP.md（§F4、§F5、Look & Feel、Wireframe）｜docs/TechDesign-BCI-Decoder-MVP.md｜docs/research-BCI-Decoder.md｜docs/大一学生学习路线图.md｜docs/脑控游戏方向专题建议.md｜docs/PRD-TechDesign-一致性复核.md
 
@@ -371,7 +371,7 @@ game/
     "deployment": "本地单进程桌面窗口（Windows 笔记本，与解码器同机），MVP 不做容器与打包"
   },
   "commands": {
-    "setup": "pip install pygame websockets",
+    "setup": "pip install pygame-ce websockets",
     "dev": "python game\\pong.py --input keyboard",
     "test": "python -m pytest game\\tests -q",
     "typecheck": "",

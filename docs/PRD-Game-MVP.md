@@ -84,7 +84,7 @@
 
 **2. First Use（键盘版，W8 = 10/20 目标）**
 ```
-pip install pygame websockets
+pip install pygame-ce websockets
 python game\pong.py --input keyboard
 ```
 窗口起来，方向键控制挡板，接住球得分、漏球失分，能重开。**此步骤不需要解码器、不需要脑电、不需要模型。**
@@ -268,7 +268,7 @@ python game\pong.py --input ws
 | 维度 | 结论 |
 |---|---|
 | **Platform** | Windows 普通笔记本**单机桌面窗口**（无独立显卡），与解码器**同机**运行 |
-| **Chosen stack** | **已定**：Python 3.14.7（`bci-decoder/.venv`）+ **Pygame**（渲染/主循环）+ **websockets**（asyncio 客户端）+ PyYAML（可选配置）。依据 `MVP规格说明书` 附录A 与学习路线图，**非"待定"** |
+| **Chosen stack** | **已定**：Python 3.14.7（`bci-decoder/.venv`）+ **`pygame-ce`**（渲染/主循环，import 名 `pygame`，2026-10-16 实测装通）+ **websockets**（asyncio 客户端，17.2，已端到端验证）+ PyYAML（可选配置）。依据 `MVP规格说明书` 附录A 与学习路线图，**非"待定"** |
 | **输入源可切换** | `--input keyboard｜ws｜jsonl`，三者实现同一接口，**共用同一套玩法与渲染**；降级不改玩法代码 |
 | **Responsive** | 窗口尺寸适配演示机/投影；**具体分辨率与缩放待定（见 Open Questions）** |
 | **Performance** | 主循环 60 FPS；控制率 **2 条/秒**（窗口 2.0 s / 步长 0.5 s，**冻结不得改**）；指令到达即开始插值；游戏端不得成为延迟瓶颈 |
@@ -322,13 +322,13 @@ python game\pong.py --input ws
 
 | # | 问题 | 影响 | 归属 |
 |---|---|---|---|
-| 1 | **`websockets` 能否在本机装通** | 阻塞 F5 / F4.2；不通则走 `jsonl` 降级 | 第 1 周验证（F5 最大不确定性） |
+| 1 | ~~**`websockets` 能否在本机装通**~~ ✅ **已验证（2026-10-16）**：`websockets 17.2` 装通并端到端跑通（解码器 `--outputs websocket` ← 客户端收 5 条消息、字段契约一致） | —— | ✅ 已关闭 |
 | 2 | ~~**`game/` 最终路径**~~ ✅ **已定案（2026-10-15）：`bci-decoder/game/`** —— 依据 `MVP规格说明书` 附录A；`TechDesign-Game-MVP.md` §8 与 §16 第 1 条已同步一致 | —— | ✅ 已关闭 |
 | 3 | **两套"三级降级"字母冲突**：`MVP规格说明书` §11.2 的 A/B/C 是"**进度降级**"（砍功能保闭环），PRD/TechDesign 的 A/B/C 是"**依赖降级**"（WebSocket 不通走文件轮询）——同字母不同轴，易误读 | 现场降级口径可能被搞混 | 需团队拍板（建议改名区分，如"进度档 / 依赖档"） |
 | 4 | **企业未来客户端是否 Unity** | **不在 MVP 范围**，仅影响对外沟通与里程碑 ④ 规划 | 待企业确认 |
 | 5 | **分辨率 / 投影适配值**（窗口尺寸、缩放） | 影响"后排看得清"的可验证性 | 演示前自定 |
 | 6 | **`confidence` → 手感映射曲线**（线性？分段？） | 观感调优，**非验收项** | 游戏负责人自定，现场可调 |
-| 7 | `pygame` vs `pygame-ce` | 依赖选择，影响 setup 命令 | 第 1 周定 |
+| 7 | ~~`pygame` vs `pygame-ce`~~ ✅ **已定（2026-10-16）：用 `pygame-ce`** —— Python 3.14.7 上**上游 `pygame` 无 cp314 wheel**（`from versions: none`），`pygame-ce 2.5.8` 有 cp314 wheel 且已装通冒烟（import 名仍为 `pygame`、`IS_CE=1`） | —— | ✅ 已关闭 |
 | 8 | ~~主 PRD 残留失真句~~ ✅ **已同步更正（2026-10-15）**：`PRD-BCI-Decoder-MVP.md` 的 Handoff「游戏端技术栈待定」已改为「已定 Python + Pygame」，Open Questions 的「Unity 还是自研 Python」已关闭，Next Steps 已加指向本文件的链接 | —— | ✅ 已关闭 |
 | 9 | 可选增强（音效、历史最高分）是否纳入 | 非验收项 | 交付后按余量决定 |
 
@@ -371,7 +371,7 @@ python game\pong.py --input ws
 ## Next Steps
 
 1. 本 PRD 定稿后，按 [`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md) 施工：**先做完整键盘版**（不等 F1）；
-2. 第 1 周验证 `websockets` 能否在本机装通并跑通；
+2. ~~第 1 周验证 `websockets` 能否在本机装通并跑通~~ ✅ **已完成（2026-10-16）**：见 Open Questions #1；`pygame-ce` 定案见 #7；
 3. 拍板 Open Questions #3（两套降级字母的命名）；#2 `game/` 路径已定案关闭；
 4. ~~同步残留失真句~~ ✅ **已完成**（2026-10-15）：`PRD-BCI-Decoder-MVP.md` 的「游戏端技术栈待定 / Unity 还是 Python」与 `TechDesign-Game-MVP.md` §16 第 1、3 条均已更正；
 5. 用 AI 助手按 `AGENTS.md` 施工；每完成一项跑最小可用测试；
@@ -394,7 +394,7 @@ python game\pong.py --input ws
 - Research status: 游戏端对接方向已核实（WebSocket vs LSL：`docs/research-BCI-Decoder.md` §2.6、§6）；⚠️ `LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）未定论、主分支最后提交 2023-07-31 —— 采用前必须读 LICENSE 正文；弹球玩法本身无外部研究依赖
 - Constraints: 控制率仅 2 条/秒（窗口 2.0 s / 步长 0.5 s，冻结不得改）｜idle 必须表现为挡板不动，且 idle 时不得用 confidence 参与移动｜输出字段不得增删，label_id == -1 当且仅当 label == "idle"｜类别固定 2 类 + idle｜MVP 阶段不对外报告任何准确率｜不采集真人患者数据、游戏端不联网上传｜Windows PowerShell 5.1 不用 `&&`
 - Decisions: 弹球端单独走 PRD → TechDesign（本文件 + `TechDesign-Game-MVP.md`，2026-10-15）｜技术栈**已定** Python 3.14.7 + Pygame + websockets（非"待定"）｜键盘版与解码版**共用同一玩法与渲染**，只切 `input_source`（keyboard | ws | jsonl）｜`game/` 工作口径 = `bci-decoder/game/`（依据 `MVP规格说明书` 附录A）｜未知 cmd / 畸形消息忽略并记日志、绝不崩溃｜游戏端是**可替换的消费者**，与 F1 解耦、可并行开工
-- Open questions: `websockets` 能否装通（阻塞 F4.2 / F5，第 1 周验证）｜两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业未来客户端是否 Unity（不在 MVP）｜分辨率/投影适配值｜confidence → 手感映射曲线｜pygame vs pygame-ce｜（**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；`PRD-BCI-Decoder-MVP.md` 失真句已同步更正）
+- Open questions: 两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业未来客户端是否 Unity（不在 MVP）｜分辨率/投影适配值｜confidence → 手感映射曲线｜（**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；`PRD-BCI-Decoder-MVP.md` 失真句已同步更正；**已关闭 2026-10-16**：`websockets` ✅ 装通并端到端跑通、`pygame` vs `pygame-ce` ✅ 定为 `pygame-ce`）
 - Source files: docs/MVP规格说明书.md（§2.1 F4、§3.1 F4.1–F4.4、§4.2 字段、§4.4 控制消息、§4.5 状态机、§6.1 A7/A8、§6.3 测试口径、§10.1 里程碑、§11.2 降级、附录A 第 5 步）｜docs/TechDesign-Game-MVP.md｜docs/PRD-BCI-Decoder-MVP.md（§F4、§F5、Look & Feel、Wireframe）｜docs/PRD-TechDesign-一致性复核.md（P1-2）｜docs/research-BCI-Decoder.md
 
 ---

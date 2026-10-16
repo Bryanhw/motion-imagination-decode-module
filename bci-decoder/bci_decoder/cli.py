@@ -3,6 +3,7 @@
 常用命令：
     python -m bci_decoder.cli run --config configs/default.yaml            # mock 源自检
     python -m bci_decoder.cli run --config configs/default.yaml --chunks 200
+    python -m bci_decoder.cli run --config configs/demo_online.yaml --outputs websocket
     python -m bci_decoder.cli benchmark --config configs/default.yaml       # 延迟压测（不限速）
     python -m bci_decoder.cli show-config --config configs/default.yaml
 """
@@ -27,6 +28,9 @@ def cmd_run(args) -> int:
     cfg = _load(args)
     if args.chunks is not None:
         cfg.source.realtime = False
+    # --outputs 覆盖 config 里的 output.sinks（逗号或空格分隔；不传则沿用配置）
+    if args.outputs:
+        cfg.output.sinks = [s for s in args.outputs.replace(",", " ").split() if s]
     engine = DecoderEngine(cfg)
     sinks = build_sinks(cfg.output)
     print(f"[bci-decoder] 数据源={cfg.source.kind}  窗口={cfg.window.window_seconds}s  "
@@ -69,6 +73,11 @@ def build_parser() -> argparse.ArgumentParser:
         sp = sub.add_parser(name, help=help_text)
         sp.add_argument("--config", default="configs/default.yaml", help="配置文件路径")
         sp.add_argument("--chunks", type=int, default=None, help="最多处理的数据块数")
+        if name == "run":
+            sp.add_argument(
+                "--outputs", default=None,
+                help="输出通道，逗号或空格分隔（console,jsonl,websocket）；不传则用配置里的 output.sinks",
+            )
         sp.set_defaults(func=fn)
     return p
 

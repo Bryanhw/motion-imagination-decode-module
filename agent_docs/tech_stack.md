@@ -16,7 +16,7 @@
 
 **已安装**：`numpy 2.5.3`、`scipy 1.18.1`、`scikit-learn 1.9.1`、`PyYAML 6.0.3`、`joblib 1.6.0`、`pytest 9.1.1`
 
-**未安装（注意）**：`websockets`（F5 关键依赖）、`mne`、`moabb`、`pyriemann`、`pylsl`
+**未安装（注意）**：`mne`、`moabb`、`pyriemann`、`pylsl`（`websockets` 已于 2026-10-16 装通并端到端验证）
 
 > ⚠️ **坑**：全局 `python`（`C:\Users\yhw\AppData\Local\Python\pythoncore-3.14-64`）**没有 pytest**。
 > 直接跑 `python -m pytest` 会报 `No module named pytest`。**必须激活 venv**，或显式用
@@ -99,7 +99,7 @@ python -m bci_decoder.cli run --config configs/demo_online.yaml --outputs websoc
 | 配置 | PyYAML | 所有参数集中在 `configs/*.yaml` |
 | 持久化 | joblib | 模型存 `artifacts/*.joblib` |
 | 测试 | pytest | 单元 + 端到端 |
-| 实时通信 | websockets（**未装**） | F5 |
+| 实时通信 | websockets（✅ **已装并跑通**，17.2） | F5 |
 | 设备接入 | pylsl（**未装**，④ 阶段） | 真实 LSL 流 |
 
 **后期（里程碑 ③④）才考虑**：`mne`、`moabb`（公开数据集评测）、`pyriemann`（黎曼几何）。
@@ -151,7 +151,7 @@ bci-decoder/
 | 项 | 现状 |
 |---|---|
 | Python 版本 | **3.14.7**（`bci-decoder/.venv`）；`requirements.txt` 已声明 3.10+ 下限 |
-| 依赖安装 | 核心依赖已装（`pytest` **14/14** 通过）；`websockets` / `pylsl` 等**未装**（第 1 周必验） |
+| 依赖安装 | 核心依赖已装（`pytest` **16/16** 通过）；`websockets` ✅ **已装并跑通**（17.2，2026-10-16 F5.1 端到端）、`pygame-ce` ✅ 已装（2.5.8，**上游 `pygame` 无 Python 3.14 wheel**）；`pylsl` **未装**（里程碑 ④ 前必验） |
 | 命令示例所在 shell | **PowerShell 5.1**，不能用 `&&`；文档围栏已由 ```bash``` 统一为 ```powershell``` |
 | `bci-decoder/` 归属 | ✅ 已拍板（2026-10-15）：**本团队成果、计入项目进度** |
 | `game/` 位置 | ✅ 已定案：`bci-decoder/game/` |
