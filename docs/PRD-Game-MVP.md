@@ -2,10 +2,10 @@
 
 > **Step 2 产出（配套文档）**（对照 vibe-coding-prompt-template 的 "Start a project"）
 > **应用名**：`BCI-Decoder-Game`（弹球端；主项目 `BCI-Decoder`）
-> **文件名**：`docs/PRD-Game-MVP.md`（沿用既有配对命名 `TechDesign-Game-MVP.md`，与 `PRD-BCI-Decoder-MVP.md` 同级）
+> **文件名**：`docs/PRD-Game-MVP.md`（沿用既有配对命名 `TechDesign-Game-MVP.md`，与 `MVP_PRD.md` 同级）
 > **版本**：v1.0（2026-10-15）
 > **定位**：本文件**只管游戏端**（脑控弹球的玩法、界面、输入源与演示体验）。解码侧的字段与链路以 [`MVP规格说明书.md`](MVP规格说明书.md) 第 4 节（冻结契约）为准；实现设计见 [`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md)。
-> **为什么单独成文**：脑控弹球是主 PRD 的 must-have（F4），但主 PRD 与主 TechDesign 都没有它的落地设计（复核结论 [`MVP_PRD.md`](MVP_PRD.md) P1-2）。游戏端因此**单独走一遍 PRD → TechDesign**。
+> **为什么单独成文**：脑控弹球是主 PRD 的 must-have（F4），但主 PRD 与主 TechDesign 都没有它的落地设计（复核结论 [`一致性复核-PRD-TechDesign.md`](一致性复核-PRD-TechDesign.md) P1-2）。游戏端因此**单独走一遍 PRD → TechDesign**。
 > **负责人**：黄凯森（数据评测 + 游戏）；**必须与算法并行开工，不等 F1 完成**（`MVP规格说明书` L35、L60）。
 > **范围与验收的唯一依据**：`docs/MVP规格说明书.md`（本文件若与它冲突，以它为准）。
 > **实现状态（2026-10-16，AI 编码助手辅助实施 + 人工跑测试）**：F4.1–F4.4 与 F5.3 的**代码已落地并通过工程自检**
@@ -262,7 +262,7 @@ python game\pong.py --input ws
 │ {"label":"left","confidence":0.83}    │
 └───────────────────────────────────────┘
 ```
-（与 `PRD-BCI-Decoder-MVP.md` §Simple Wireframe 及 `TechDesign-Game-MVP.md` §7 保持一致，**不得各自漂移**）
+（与 `MVP_PRD.md` §Simple Wireframe 及 `TechDesign-Game-MVP.md` §7 保持一致，**不得各自漂移**）
 
 ---
 
@@ -332,7 +332,7 @@ python game\pong.py --input ws
 | 5 | **分辨率 / 投影适配值**（窗口尺寸、缩放） | 影响"后排看得清"的可验证性 | 演示前自定 |
 | 6 | ~~**`confidence` → 手感映射曲线**（线性？分段？）~~ ✅ **已落地（2026-10-16）**：区间锁 **1.0x–1.3x**（0.7x 起会使单条位移低于"窗口宽 1/6"的硬下限），当前在区间内按 `confidence` 线性上调；仍属观感调优项，现场可改 `config_game.yaml` | 观感调优，**非验收项** | 游戏负责人自定 |
 | 7 | ~~`pygame` vs `pygame-ce`~~ ✅ **已定（2026-10-16）：用 `pygame-ce`** —— Python 3.14.7 上**上游 `pygame` 无 cp314 wheel**（`from versions: none`），`pygame-ce 2.5.8` 有 cp314 wheel 且已装通冒烟（import 名仍为 `pygame`、`IS_CE=1`） | —— | ✅ 已关闭 |
-| 8 | ~~主 PRD 残留失真句~~ ✅ **已同步更正（2026-10-15）**：`PRD-BCI-Decoder-MVP.md` 的 Handoff「游戏端技术栈待定」已改为「已定 Python + Pygame」，Open Questions 的「Unity 还是自研 Python」已关闭，Next Steps 已加指向本文件的链接 | —— | ✅ 已关闭 |
+| 8 | ~~主 PRD 残留失真句~~ ✅ **已同步更正（2026-10-15）**：`MVP_PRD.md` 的 Handoff「游戏端技术栈待定」已改为「已定 Python + Pygame」，Open Questions 的「Unity 还是自研 Python」已关闭，Next Steps 已加指向本文件的链接 | —— | ✅ 已关闭 |
 | 9 | 可选增强（音效、历史最高分）是否纳入 | 非验收项 | 交付后按余量决定 |
 | 10 | **真人带屏手感与现场演示（A8）未做**；联调录屏（A7）未做 —— headless 自检只证明"消息 → 位移"通路正确，证明不了"跟手/好看" | **影响 F4 验收结论**（当前只能声明"代码完成、工程自检通过"） | 黄凯森，里程碑②（10/27）前 |
 
@@ -377,7 +377,7 @@ python game\pong.py --input ws
 1. 本 PRD 定稿后，按 [`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md) 施工：**先做完整键盘版**（不等 F1）；
 2. ~~第 1 周验证 `websockets` 能否在本机装通并跑通~~ ✅ **已完成（2026-10-16）**：见 Open Questions #1；`pygame-ce` 定案见 #7；
 3. 拍板 Open Questions #3（两套降级字母的命名）；#2 `game/` 路径已定案关闭；
-4. ~~同步残留失真句~~ ✅ **已完成**（2026-10-15）：`PRD-BCI-Decoder-MVP.md` 的「游戏端技术栈待定 / Unity 还是 Python」与 `TechDesign-Game-MVP.md` §16 第 1、3 条均已更正；
+4. ~~同步残留失真句~~ ✅ **已完成**（2026-10-15）：`MVP_PRD.md` 的「游戏端技术栈待定 / Unity 还是 Python」与 `TechDesign-Game-MVP.md` §16 第 1、3 条均已更正；
 5. 用 AI 助手按 `AGENTS.md` 施工；每完成一项跑最小可用测试；
 6. 10/27 前 24 h 齐备 `docs/evidence/W9_1027/`；
 7. **下一个具体动作（人工，不占 AI 时间）**：接显示器跑一次 `python game\pong.py --input keyboard` → 再配解码器跑 `--input ws` → 录屏归档（补 A7/A8 证据；工程自检证据见 `docs/evidence/W7_1016/`）。
@@ -391,7 +391,7 @@ python game\pong.py --input ws
 <!-- Machine-readable summary for the next workflow step. Do not delete; the next prompt in the workflow reads this block. -->
 - Stage: prd
 - App name: BCI-Decoder-Game
-- User level: A  (A = vibe coder, B = developer, C = in-between) —— 全项目已统一为 A（与 `PRD-BCI-Decoder-MVP.md`、主 TechDesign v1.1 一致）
+- User level: A  (A = vibe coder, B = developer, C = in-between) —— 全项目已统一为 A（与 `MVP_PRD.md`、主 TechDesign v1.1 一致）
 - Target platform: desktop（Windows 普通笔记本，无独立显卡；单机桌面窗口，与解码器同机，只连本地回环 WebSocket）
 - Budget: 全免费优先（￥0；Pygame / websockets 开源免费；无美术与外包成本）
 - Timeline: 10 周（2026-10-13 → 2026-12-15）；W8（10/20）键盘版完整 → 里程碑 ②（10/27）解码驱动画面打通；**与 F1 算法并行开工，MVP 硬节点不可延**
@@ -399,8 +399,8 @@ python game\pong.py --input ws
 - Research status: 游戏端对接方向已核实（WebSocket vs LSL：`docs/research-BCI-Decoder.md` §2.6、§6）；⚠️ `LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）未定论、主分支最后提交 2023-07-31 —— 采用前必须读 LICENSE 正文；弹球玩法本身无外部研究依赖
 - Constraints: 控制率仅 2 条/秒（窗口 2.0 s / 步长 0.5 s，冻结不得改）｜idle 必须表现为挡板不动，且 idle 时不得用 confidence 参与移动｜输出字段不得增删，label_id == -1 当且仅当 label == "idle"｜类别固定 2 类 + idle｜MVP 阶段不对外报告任何准确率｜不采集真人患者数据、游戏端不联网上传｜Windows PowerShell 5.1 不用 `&&`
 - Decisions: 弹球端单独走 PRD → TechDesign（本文件 + `TechDesign-Game-MVP.md`，2026-10-15）｜技术栈**已定** Python 3.14.7 + Pygame + websockets（非"待定"）｜键盘版与解码版**共用同一玩法与渲染**，只切 `input_source`（keyboard | ws | jsonl）｜`game/` 工作口径 = `bci-decoder/game/`（依据 `MVP规格说明书` 附录A）｜未知 cmd / 畸形消息忽略并记日志、绝不崩溃｜游戏端是**可替换的消费者**，与 F1 解耦、可并行开工
-- Open questions: 两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业未来客户端是否 Unity（不在 MVP）｜分辨率/投影适配值｜（**已关闭 2026-10-16**：`websockets` ✅ 装通并端到端跑通、`pygame` vs `pygame-ce` ✅ 定为 `pygame-ce`、`confidence` → 手感映射 ✅ 落地 1.0x–1.3x；**新增未决**：F4 代码与工程自检已完成，但 A7 联调录屏 / A8 真人现场演示**未做**；**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；`PRD-BCI-Decoder-MVP.md` 失真句已同步更正）
-- Source files: docs/MVP规格说明书.md（§2.1 F4、§3.1 F4.1–F4.4、§4.2 字段、§4.4 控制消息、§4.5 状态机、§6.1 A7/A8、§6.3 测试口径、§10.1 里程碑、§11.2 降级、附录A 第 5 步）｜docs/TechDesign-Game-MVP.md｜docs/PRD-BCI-Decoder-MVP.md（§F4、§F5、Look & Feel、Wireframe）｜docs/MVP_PRD.md（P1-2）｜docs/research-BCI-Decoder.md
+- Open questions: 两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业未来客户端是否 Unity（不在 MVP）｜分辨率/投影适配值｜（**已关闭 2026-10-16**：`websockets` ✅ 装通并端到端跑通、`pygame` vs `pygame-ce` ✅ 定为 `pygame-ce`、`confidence` → 手感映射 ✅ 落地 1.0x–1.3x；**新增未决**：F4 代码与工程自检已完成，但 A7 联调录屏 / A8 真人现场演示**未做**；**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；`MVP_PRD.md` 失真句已同步更正）
+- Source files: docs/MVP规格说明书.md（§2.1 F4、§3.1 F4.1–F4.4、§4.2 字段、§4.4 控制消息、§4.5 状态机、§6.1 A7/A8、§6.3 测试口径、§10.1 里程碑、§11.2 降级、附录A 第 5 步）｜docs/TechDesign-Game-MVP.md｜docs/MVP_PRD.md（§F4、§F5、Look & Feel、Wireframe）｜docs/一致性复核-PRD-TechDesign.md（P1-2）｜docs/research-BCI-Decoder.md
 
 ---
 

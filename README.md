@@ -53,7 +53,7 @@
 | 想了解 | 看这里 |
 |---|---|
 | **范围与验收的唯一依据** | [`docs/MVP规格说明书.md`](docs/MVP规格说明书.md) |
-| 解码模块：需求 / 设计 | [`docs/PRD-BCI-Decoder-MVP.md`](docs/PRD-BCI-Decoder-MVP.md) · [`docs/TechDesign-BCI-Decoder-MVP.md`](docs/TechDesign-BCI-Decoder-MVP.md) |
+| 解码模块：需求 / 设计 | [`docs/MVP_PRD.md`](docs/MVP_PRD.md) · [`docs/TechDesign-BCI-Decoder-MVP.md`](docs/TechDesign-BCI-Decoder-MVP.md) |
 | 游戏端：需求 / 设计 | [`docs/PRD-Game-MVP.md`](docs/PRD-Game-MVP.md) · [`docs/TechDesign-Game-MVP.md`](docs/TechDesign-Game-MVP.md) |
 | 技术与研究论证 | [`docs/详细技术路线.md`](docs/详细技术路线.md) · [`docs/research-BCI-Decoder.md`](docs/research-BCI-Decoder.md) |
 | 团队与纪律 | [`docs/项目章程.md`](docs/项目章程.md) |

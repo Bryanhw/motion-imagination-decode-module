@@ -2,7 +2,7 @@
 
 > **合并版 findings**（2026-10-15 由两份 findings 合并而成，已去重并保留双方独有内容）
 >
-> - **本文件是本 findings 的唯一副本**，位于文档管线位置 `docs/`，与 `PRD-BCI-Decoder-MVP.md`、`TechDesign-BCI-Decoder-MVP.md` 并列。
+> - **本文件是本 findings 的唯一副本**，位于文档管线位置 `docs/`，与 `MVP_PRD.md`、`TechDesign-BCI-Decoder-MVP.md` 并列。
 > - 原交付副本 `outputs/research-BCI-Decoder.md` 已于 2026-10-15 按用户要求**删除**（两份相同内容重复维护会产生分歧）；**本文件即最终版**。
 > - 被合并的两份来源：`docs/research-BCI-Decoder.md`（初版）+ `outputs/research-BCI-Decoder.md`（联网检索版，**该副本已删除**）。
 > - **口径：A（零基础 / vibe coder）**——全文按零基础可执行的标准写。

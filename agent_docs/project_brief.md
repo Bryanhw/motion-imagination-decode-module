@@ -81,7 +81,7 @@
 | 想看什么 | 看哪个文件 |
 |---|---|
 | 范围与验收的**唯一依据** | `docs/MVP规格说明书.md` |
-| 契约版 PRD / 技术设计 | `docs/PRD-BCI-Decoder-MVP.md`、`docs/TechDesign-BCI-Decoder-MVP.md` |
+| 契约版 PRD / 技术设计 | `docs/MVP_PRD.md`、`docs/TechDesign-BCI-Decoder-MVP.md` |
 | 工程实现细节 | `docs/在线解码模块设计说明.md` |
 | 技术论证 | `docs/详细技术路线.md` |
 | 团队与纪律 | `docs/项目章程.md` |

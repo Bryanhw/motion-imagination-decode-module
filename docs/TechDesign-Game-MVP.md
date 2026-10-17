@@ -4,7 +4,7 @@
 > **应用名**：`BCI-Decoder-Game`（弹球端；与 `BCI-Decoder` 同一项目）
 > **版本**：v1.0（2026-10-15）
 > **定位**：本文件**只管游戏端**（`game/`）。**游戏端 PRD 见** [`PRD-Game-MVP.md`](PRD-Game-MVP.md)（2026-10-15）；解码侧设计见 [`TechDesign-BCI-Decoder-MVP.md`](TechDesign-BCI-Decoder-MVP.md)；**接口冻结以** [`MVP规格说明书.md`](MVP规格说明书.md) 第 4 节为准。
-> **为什么单独成文**：脑控弹球是 PRD 的 must-have（F4），但主 TechDesign 里没有它的落地设计（目录树无游戏端、无启动命令）。复核结论见 [`MVP_PRD.md`](MVP_PRD.md) P1-2。
+> **为什么单独成文**：脑控弹球是 PRD 的 must-have（F4），但主 TechDesign 里没有它的落地设计（目录树无游戏端、无启动命令）。复核结论见 [`一致性复核-PRD-TechDesign.md`](一致性复核-PRD-TechDesign.md) P1-2。
 > **负责人**：黄凯森（数据评测 + 游戏）；**必须与算法并行开工，不等 F1 完成**（`MVP规格说明书` L35、L60）。
 
 > **实现状态（2026-10-16，AI 编码助手辅助实施 + 人工跑测试）**：**代码已落地并通过工程自检**。
@@ -373,7 +373,7 @@ game/                                  # 实现状态 2026-10-16：以下 6 个�
 
 - Stage: techdesign
 - App name: BCI-Decoder-Game（脑控弹球 · 游戏端；主项目 BCI-Decoder）
-- User level: A（零基础 vibe coder；与主 TechDesign v1.1 及 `PRD-BCI-Decoder-MVP.md` 一致——全项目 User level 已统一为 A，"团队实现水平 = C" 记入 Constraints）
+- User level: A（零基础 vibe coder；与主 TechDesign v1.1 及 `MVP_PRD.md` 一致——全项目 User level 已统一为 A，"团队实现水平 = C" 记入 Constraints）
 - Target platform: desktop（Windows 普通笔记本，无独立显卡；本地单进程桌面窗口，与解码器同机）
 - Budget: ￥0（Pygame / websockets 均开源免费；无美术与外包成本）
 - Timeline: W8（10/20）键盘版完整 → 里程碑②（10/27）解码驱动画面打通；与 F1 算法**并行开工**
@@ -382,9 +382,9 @@ game/                                  # 实现状态 2026-10-16：以下 6 个�
 - AI coding tool: AI 编码助手（vibe-coding 工作流，Part 4 施工）；人工负责跑测试、真机联调与验收
 - Constraints: 控制率仅 **2 条/秒**（窗口 2.0 s / 步长 0.5 s，**冻结不得改**）｜`idle` 必须表现为挡板**不动**｜字段不得增删｜Windows PowerShell 5.1 不用 `&&`｜不采集真人患者数据（伦理未走完）｜**不对外报告任何准确率**
 - Decisions: 弹球单独成文（本文件，2026-10-15）｜Demo 用 **Python + Pygame**（已由 `MVP规格说明书` 附录A L600 与学习路线图锁定，非"待定"）｜Unity 属"企业未来客户端"分支，不在 MVP｜键盘版与解码版**共用同一玩法与渲染**，只切 `input_source`｜玩法为 2 Hz 控制率设计，禁止快节奏连击｜未知 `cmd` 忽略并记日志、绝不崩
-- Open questions: 两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业客户端是否 Unity（不在 MVP 范围）｜（**已关闭 2026-10-16**：`websockets` ✅ 装通并端到端验证；`pygame` vs `pygame-ce` ✅ 定为 `pygame-ce`；`confidence` → 手感映射 ✅ 落地为 1.0x–1.3x；**新增未决**：真人带屏手感与现场演示（A8）未做——代码完成 ≠ F4 验收通过；**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；User level 全项目统一为 A；`PRD-BCI-Decoder-MVP.md` 中"游戏端技术栈待定"失真句已同步更正）
+- Open questions: 两套"三级降级"字母冲突（进度降级 vs 依赖降级，建议改名区分）｜企业客户端是否 Unity（不在 MVP 范围）｜（**已关闭 2026-10-16**：`websockets` ✅ 装通并端到端验证；`pygame` vs `pygame-ce` ✅ 定为 `pygame-ce`；`confidence` → 手感映射 ✅ 落地为 1.0x–1.3x；**新增未决**：真人带屏手感与现场演示（A8）未做——代码完成 ≠ F4 验收通过；**已关闭 2026-10-15**：`game/` 路径 = `bci-decoder/game/`；User level 全项目统一为 A；`MVP_PRD.md` 中"游戏端技术栈待定"失真句已同步更正）
 - Research status: 游戏端对接方向**已核实**（WebSocket vs LSL：`research-BCI-Decoder.md` §2.6、§6）｜⚠️ `LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）**未定论**、主分支最后提交 2023-07-31、支持哪些 Unity 版本 `[未核实]` —— 采用前必须读 LICENSE 正文
-- Source files: docs/PRD-Game-MVP.md（游戏端 PRD：F4.1–F4.4 需求原文、Look & Feel、Wireframe、A7/A8 成功指标、降级与红线口径）｜docs/MVP规格说明书.md（§4.2 字段、§4.3 输出通道、§4.4 控制消息、§7.1 架构、§11.1–11.3、附录A 第 5 步）｜docs/PRD-BCI-Decoder-MVP.md（§F4、§F5、Look & Feel、Wireframe）｜docs/TechDesign-BCI-Decoder-MVP.md｜docs/research-BCI-Decoder.md｜docs/大一学生学习路线图.md｜docs/脑控游戏方向专题建议.md｜docs/MVP_PRD.md
+- Source files: docs/PRD-Game-MVP.md（游戏端 PRD：F4.1–F4.4 需求原文、Look & Feel、Wireframe、A7/A8 成功指标、降级与红线口径）｜docs/MVP规格说明书.md（§4.2 字段、§4.3 输出通道、§4.4 控制消息、§7.1 架构、§11.1–11.3、附录A 第 5 步）｜docs/MVP_PRD.md（§F4、§F5、Look & Feel、Wireframe）｜docs/TechDesign-BCI-Decoder-MVP.md｜docs/research-BCI-Decoder.md｜docs/大一学生学习路线图.md｜docs/脑控游戏方向专题建议.md｜docs/一致性复核-PRD-TechDesign.md
 
 ```json
 {

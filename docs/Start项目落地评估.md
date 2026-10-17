@@ -62,7 +62,7 @@
 |---|---|---|
 | `docs/Start项目落地评估.md` | — | 本文件（改进评估） |
 | `docs/research-BCI-Decoder.md` | Step 1 | 研究结论汇总 + 核实状态标注 |
-| `docs/PRD-BCI-Decoder-MVP.md` | Step 2 | 契约版 PRD（含 Handoff Context + JSON 元数据） |
+| `docs/MVP_PRD.md` | Step 2 | 契约版 PRD（含 Handoff Context + JSON 元数据） |
 | `docs/TechDesign-BCI-Decoder-MVP.md` | Step 3 | 契约版技术设计（含命令清单 + JSON 元数据） |
 | `AGENTS.md` | Step 4 | AI 助手的长期规则入口 |
 | `MEMORY.md` | Step 4 | 当前进度 / 决策 / 下一步 |
