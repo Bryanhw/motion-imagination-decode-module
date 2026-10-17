@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import socket
 import threading
 import time
 
@@ -22,12 +21,6 @@ FROZEN_FIELDS = {
     "t_data", "t_wall", "label", "label_id", "confidence",
     "probs", "state", "compute_ms", "window_seconds",
 }
-
-
-def _free_port() -> int:
-    with socket.socket() as s:
-        s.bind(("127.0.0.1", 0))
-        return int(s.getsockname()[1])
 
 
 def _make_output(i: int, label: str, label_id: int, confidence: float, probs: list) -> DecoderOutput:
@@ -55,7 +48,7 @@ def _collect(port: int, count: int, connected: threading.Event) -> list:
     async def _run() -> list:
         got = []
         async with websockets.connect(f"ws://127.0.0.1:{port}") as ws:
-            connected.set()                        # 已登记连接，主线程可以开始发了
+            connected.set()                        # 客户端侧握手完成（服务端登记见下方等待）
             for _ in range(count):
                 raw = await asyncio.wait_for(ws.recv(), timeout=10.0)
                 got.append(json.loads(raw))
@@ -66,8 +59,9 @@ def _collect(port: int, count: int, connected: threading.Event) -> list:
 
 def test_websocket_sink_broadcasts_frozen_contract():
     """广播的每条消息字段 == 冻结契约，且 label_id == -1 当且仅当 label == idle。"""
-    port = _free_port()
-    sink = WebSocketSink("127.0.0.1", port)
+    sink = WebSocketSink("127.0.0.1", 0)          # 端口交给操作系统分配，测试不做端口探测
+    port = sink.port
+    assert port > 0
 
     results = {}
     connected = threading.Event()
@@ -82,6 +76,12 @@ def test_websocket_sink_broadcasts_frozen_contract():
     t = threading.Thread(target=_client, daemon=True)
     t.start()
     assert connected.wait(timeout=5.0), "客户端未能在 5s 内连上输出端口"
+    # 握手完成 ≠ 服务端已受理：`emit()` 在没有已登记客户端时按设计静默丢弃。
+    # 不等 `client_count > 0` 就发，会偶发丢首条消息（实测 3/20 次超时）。
+    _deadline = time.time() + 5.0
+    while sink.client_count == 0 and time.time() < _deadline:
+        time.sleep(0.001)
+    assert sink.client_count > 0, "客户端已连上、但服务端始终未登记该连接"
     try:
         for i, (label, label_id, conf, probs) in enumerate(CASES):
             sink.emit(_make_output(i, label, label_id, conf, probs))
@@ -105,8 +105,18 @@ def test_websocket_sink_broadcasts_frozen_contract():
 
 def test_websocket_sink_close_is_idempotent_and_safe_after_close():
     """close() 可重复调用；关闭后 emit 不应抛异常（游戏/CLI 退出路径）。"""
-    port = _free_port()
-    sink = WebSocketSink("127.0.0.1", port)
+    sink = WebSocketSink("127.0.0.1", 0)
     sink.close()
     sink.close()                                    # 幂等
     sink.emit(_make_output(0, "idle", -1, 0.0, [0.5, 0.5]))   # 关停后发送：静默丢弃
+
+
+def test_websocket_sink_reports_bind_failure_instead_of_failing_silently():
+    """端口被占用时必须立刻抛错，而不是静默不服务（现场演示的"连不上却无异常"）。"""
+    holder = WebSocketSink("127.0.0.1", 0)
+    try:
+        with pytest.raises(RuntimeError) as excinfo:
+            WebSocketSink("127.0.0.1", holder.port)
+        assert "启动失败" in str(excinfo.value) or "超时" in str(excinfo.value)
+    finally:
+        holder.close()
