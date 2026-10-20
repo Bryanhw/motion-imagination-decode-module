@@ -1,5 +1,6 @@
 # Local EEG recordings are large and must not be committed.
 /data/
+/artifacts/
 
 # Python environments and generated files
 .venv/
