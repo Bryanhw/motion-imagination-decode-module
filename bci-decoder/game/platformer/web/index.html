@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111f40">
+  <title>MI Pixel Run 闯关游戏正式版 v1.0</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand"><span class="badge">MI</span><div><h1>PIXEL RUN</h1><p>闯关游戏正式版 v1.0 · 第一关</p></div></div>
+      <div class="toolbar">
+        <label class="mode">输入模式 <select id="mode"><option value="keyboard">键盘模拟</option><option value="replay">数据回放</option></select></label>
+        <button id="fullscreen" class="icon-button" title="全屏 (F)">⛶ <span>全屏</span></button>
+      </div>
+    </header>
+    <section id="stage" class="stage" aria-label="游戏画面">
+      <canvas id="game" width="320" height="180"></canvas>
+      <div class="hud"><span id="coins">金币 0/6</span><span class="status"><span class="live-dot"></span><span id="source">键盘模拟</span><b id="action">待机</b></span></div>
+      <div id="screen" class="screen">
+        <div class="card"><div class="eyebrow">闯关游戏正式版 v1.0 · 第一关</div><h2 id="title">准备好出发了吗？</h2><p id="message">W 持续前进 · D 单独点按即可向前跳跃</p><button id="start" class="primary">开始游戏 <span>↗</span></button><div class="hint">也可以按 Enter 开始　·　F 全屏</div></div>
+      </div>
+    </section>
+    <footer><div class="keys"><kbd>W</kbd><span>按住前进</span><kbd>D</kbd><span>按下一次跳跃</span><kbd>R</kbd><span>重新开始</span></div><div class="disclaimer">当前为键盘模拟或静态数据回放，不是实时脑控。</div></footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>

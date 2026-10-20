@@ -16,6 +16,7 @@ data/
 *.npy
 *.onnx
 *.jsonl
+!bci-decoder/game/platformer/replay_demo.jsonl
 
 # —— 本地工具与运行时状态（脚本入库，产物不入库）——
 .deepworks/

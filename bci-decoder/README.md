@@ -49,6 +49,21 @@ python -m bci_decoder.cli benchmark --config configs/demo_online.yaml --chunks 6
 
 ---
 
+## 横版闯关游戏正式版 v1.0
+
+仓库同时包含独立的 MI Pixel Run 横版像素平台游戏，原脑控弹球代码仍保留在 `game/`。本正式版可用键盘完整试玩，也能从 JSONL 示例驱动同一输入与物理逻辑：
+
+```powershell
+# 在 bci-decoder/ 目录运行
+.venv\Scripts\python.exe -m game.platformer.main --mode keyboard
+.venv\Scripts\python.exe -m game.platformer.main --mode replay
+.venv\Scripts\python.exe -m pytest -q game\platformer\tests
+```
+
+Windows 浏览器版可双击 `game\platformer\start_game.ps1`，地址为 `http://localhost:8766/`。玩法、安装和输入契约见 [`game/platformer/README.md`](game/platformer/README.md) 与 [`game/platformer/INTERFACE.md`](game/platformer/INTERFACE.md)。当前为键盘模拟或数据回放，**没有实时脑电设备或解码接入**。
+
+---
+
 ## 目录结构
 
 ```

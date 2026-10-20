@@ -11,6 +11,7 @@
 **归属已拍板（2026-10-15）：属于团队成果，计入项目进度**。
 **游戏端（脑控弹球，`bci-decoder/game/`）代码已写完并通过工程自检**（2026-10-16：单测 39/39、端到端 39 项断言全绿，
 含"解码器运行中被杀"），**但 A7 联调录屏 / A8 真人现场演示未做 → F4 尚不能判定验收通过**。
+另新增**横版闯关游戏正式版 v1.0**（`bci-decoder/game/platformer/`）：键盘和 JSONL 回放版本，未接入实时解码器。
 **仍未完成**：LSL、校准流程、Docker（**WebSocket 输出已于 2026-10-16 端到端跑通**）。
 
 ## 里程碑状态
@@ -87,6 +88,7 @@
 
 | 日期 | 变更 |
 |---|---|
+| 2026-10-20 | 新增横版闯关游戏正式版 v1.0：放在 `bci-decoder/game/platformer/`，与现有弹球并列。键盘模拟与契约 JSONL 回放共用输入层；浏览器试玩用 8766 端口，避开解码 WebSocket 的 8765 端口。单次 D 越障、输入去重/超时、物理和金币均有自动检查；当前没有实时脑电设备或解码接入。 |
 | 2026-10-15 | 按 vibe-coding-prompt-template 的 "Start a project" 流程补齐 agent 层：新增 `AGENTS.md`、`MEMORY.md`、`REVIEW-CHECKLIST.md`、`agent_docs/*`，以及 `docs/research-BCI-Decoder.md`、`docs/MVP_PRD.md`、`docs/TechDesign-BCI-Decoder-MVP.md`、`docs/Start项目落地评估.md`。**未改动任何现有文档、未写业务代码。** |
 | 2026-10-15 | 按 vibe-coding-prompt-template **Part 1（Deep Research Prompt Builder）** 流程生成研究请求：`outputs/research-request-BCI-Decoder.md`（A 零基础口径、聚焦"在线解码链路与延迟"、全免费优先、AI 仅用于辅助开发）。**该文件是研究请求，不是研究结果**；未改动现有文档、未写业务代码。 |
 | 2026-10-15 | 执行上述研究请求，产出研究发现：`outputs/research-BCI-Decoder.md`（联网检索，全部来源访问日期 2026-10-15）。研究状态：**Partial research**。三条可核实结论：①**在线因果滤波有官方依据**（SciPy `filtfilt` 零相位；`sosfilt` 单次前向 + `zi` 可跨块保状态；MNE-LSL 在线滤波官方即"IIR causal filter"）；②**延迟结构**官方可核实机制为分块推送 `interval = chunk_size / sfreq` + `acquisition_delay`（StreamLSL 默认 0.001 s）+ 回调阻塞会推迟采集；③**"换模型/上 GPU 对端到端延迟帮助有限"未找到公开依据**，对外措辞需收敛为"当前 2.0 s 窗口下计算耗时为毫秒级"。**未改动任何现有文档、未写业务代码。** |

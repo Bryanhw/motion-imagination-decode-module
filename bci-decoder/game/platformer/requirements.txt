@@ -1,0 +1,2 @@
+# The game dependency is optional; the EEG data validation environment stays independent.
+pygame-ce>=2.5,<3.0

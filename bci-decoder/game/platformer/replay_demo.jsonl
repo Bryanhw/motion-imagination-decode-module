@@ -1,0 +1,6 @@
+{"version":1,"sequence":1,"intent":"LEFT_HAND","source":"replay","timestamp":0.0}
+{"version":1,"sequence":2,"intent":"RIGHT_HAND","source":"replay","timestamp":0.75}
+{"version":1,"sequence":3,"intent":"NONE","source":"replay","timestamp":1.5}
+{"version":1,"sequence":4,"intent":"LEFT_HAND","source":"replay","timestamp":2.25}
+{"version":1,"sequence":5,"intent":"RIGHT_HAND","source":"replay","timestamp":3.0}
+{"version":1,"sequence":6,"intent":"NONE","source":"replay","timestamp":3.75}
