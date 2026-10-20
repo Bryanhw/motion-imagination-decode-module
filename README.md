@@ -7,7 +7,8 @@
 ```text
 motion-imagery-eeg/
 ├─ data/                 本地 EDF 数据（Git 忽略，不提交）
-├─ scripts/check_data.py 检查 EDF 可读性、通道和事件标记
+├─ check_data.py        读取一份 EDF 并打印基础信息
+├─ scripts/             保留后续数据获取与扩展脚本
 ├─ .gitignore            忽略数据、虚拟环境、缓存和模型文件
 ├─ requirements.txt      Python 依赖
 └─ README.md             本说明
@@ -109,3 +110,16 @@ py scripts\check_data.py
 ## 数据与 Git
 
 `data/` 已加入 `.gitignore`。EDF 文件体积较大，只保留在各自电脑的本地数据目录，不要提交到 Git。虚拟环境、Python 缓存和常见模型文件也会被忽略。
+
+
+## 入门练习：读取第一份脑电记录
+
+PhysioNet 第 4 次运行（S001R04）是左右拳运动想象任务。EDF 注释中 `T0` 表示休息开始，`T1` 表示左拳想象开始，`T2` 表示右拳想象开始。
+
+在项目根目录启用虚拟环境后，运行：
+
+```powershell
+python check_data.py
+```
+
+程序会用 MNE 读取 `data/S001R04.edf`，打印文件大小、采样率、EEG 通道数和前几个名称、记录时长，以及 T0/T1/T2 数量。文件缺失或读取失败时会显示错误提示。此练习只读数据和查看标记，不做滤波、事件定位、CSP/LDA 或游戏开发。
