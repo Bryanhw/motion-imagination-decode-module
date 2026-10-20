@@ -48,9 +48,12 @@
 - [ ] 在线路径中**不存在** `filtfilt`
 
 ### 3.3 特征
-- [ ] 维度正确（频带功率 = 16 维）
+- [ ] **CSP 路线**：`CSPExtractor.fit` 后 `transform` 维度 = `csp_components`（demo = 4 维）
+- [ ] **空间滤波矩阵 W 随模型保存/加载**（`demo_csp.joblib`），`save → load` 后输出与训练时一致
+- [ ] **通道顺序绑定**：CSP 的 W 行序与训练通道顺序一致，绝不重排（`C3, Cz, C4, CP3, CP4, P3, P4, Oz`）
 - [ ] 对数变换后无 `NaN` / `Inf`
 - [ ] 全零输入不崩溃、不产生 NaN
+- [ ] 未训练（无 `features.model_path`）时在线链路给出明确报错/降级，不静默乱报
 
 ### 3.4 分类器
 - [ ] 具备 `predict_proba`
