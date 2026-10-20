@@ -46,3 +46,26 @@ def test_mock_signal_carries_class_information():
         chunk = next(src.stream())
     f = ex.transform(chunk.data)
     assert np.all(np.isfinite(f))
+
+
+def test_latency_history_stays_bounded_and_reports_recent_samples(monkeypatch):
+    """超过容量后仍继续解码；统计明确反映最近样本，不能冒充全程分布。"""
+    from bci_decoder import core
+
+    monkeypatch.setattr(core, "LATENCY_HISTORY_LIMIT", 32)
+    cfg = _cfg()
+    engine = DecoderEngine(cfg)
+    observed = []
+    for index, chunk in enumerate(build_source(cfg.source).stream()):
+        observed.extend(out.compute_ms for out in engine.push(chunk))
+        if index >= 100:
+            break
+
+    assert engine.n_outputs == len(observed) > 32
+    assert len(engine.compute_times_ms) == engine.compute_times_ms.maxlen == 32
+    np.testing.assert_array_equal(list(engine.compute_times_ms), observed[-32:])
+    report = engine.latency_report()
+    assert report["n"] == 32
+    assert report["n_total"] == len(observed)
+    assert report["sample_scope"] == "latest_32_decisions"
+    assert report["p95_ms"] == float(np.percentile(observed[-32:], 95))

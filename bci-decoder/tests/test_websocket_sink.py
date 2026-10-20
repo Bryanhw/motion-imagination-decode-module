@@ -55,7 +55,7 @@ def _collect(port: int, count: int, connected: threading.Event) -> list:
     async def _run() -> list:
         got = []
         async with websockets.connect(f"ws://127.0.0.1:{port}") as ws:
-            connected.set()                        # 已登记连接，主线程可以开始发了
+            connected.set()                        # 客户端握手完成；服务端订阅登记仍需单独等待
             for _ in range(count):
                 raw = await asyncio.wait_for(ws.recv(), timeout=10.0)
                 got.append(json.loads(raw))
@@ -64,8 +64,19 @@ def _collect(port: int, count: int, connected: threading.Event) -> list:
     return asyncio.run(_run())
 
 
-def test_websocket_sink_broadcasts_frozen_contract():
+@pytest.mark.parametrize("registration_delay", [0.0, 0.05], ids=["normal", "delayed-registration"])
+def test_websocket_sink_broadcasts_frozen_contract(monkeypatch, registration_delay):
     """广播的每条消息字段 == 冻结契约，且 label_id == -1 当且仅当 label == idle。"""
+    if registration_delay:
+        original_handler = WebSocketSink._handler
+
+        async def delayed_handler(self, websocket):
+            # 模拟握手完成后，服务端尚未执行到订阅登记的合法调度顺序。
+            await asyncio.sleep(registration_delay)
+            await original_handler(self, websocket)
+
+        monkeypatch.setattr(WebSocketSink, "_handler", delayed_handler)
+
     port = _free_port()
     sink = WebSocketSink("127.0.0.1", port)
 
@@ -81,8 +92,24 @@ def test_websocket_sink_broadcasts_frozen_contract():
 
     t = threading.Thread(target=_client, daemon=True)
     t.start()
-    assert connected.wait(timeout=5.0), "客户端未能在 5s 内连上输出端口"
     try:
+        assert connected.wait(timeout=5.0), "客户端未能在 5s 内连上输出端口"
+        assert "error" not in results, results.get("error")
+
+        async def wait_for_subscription():
+            async def wait_until_registered():
+                while not sink._clients:
+                    await asyncio.sleep(0.001)
+
+            await asyncio.wait_for(wait_until_registered(), timeout=5.0)
+
+        # 在服务端事件循环上确认订阅就绪，避免 emit 在无订阅者时按约定丢弃消息。
+        ready = asyncio.run_coroutine_threadsafe(wait_for_subscription(), sink._loop)
+        try:
+            ready.result(timeout=6.0)
+        finally:
+            ready.cancel()
+
         for i, (label, label_id, conf, probs) in enumerate(CASES):
             sink.emit(_make_output(i, label, label_id, conf, probs))
         t.join(timeout=15)

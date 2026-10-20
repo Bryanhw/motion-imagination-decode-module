@@ -1,0 +1,26 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.14, pytest-9.1.1, pluggy-1.7.0 -- D:\项目16\motion-imagination-decode-module\bci-decoder\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\项目16\motion-imagination-decode-module\bci-decoder
+configfile: pytest.ini
+testpaths: tests
+collecting ... collected 16 items
+
+tests/test_buffer.py::test_append_and_get_last PASSED                    [  6%]
+tests/test_buffer.py::test_wraparound_overwrites_oldest PASSED           [ 12%]
+tests/test_buffer.py::test_get_last_more_than_available PASSED           [ 18%]
+tests/test_buffer.py::test_timestamps PASSED                             [ 25%]
+tests/test_buffer.py::test_channel_mismatch_raises PASSED                [ 31%]
+tests/test_engine.py::test_engine_produces_outputs PASSED                [ 37%]
+tests/test_engine.py::test_mock_signal_carries_class_information PASSED  [ 43%]
+tests/test_pipeline.py::test_preprocessor_shape_and_streaming_state PASSED [ 50%]
+tests/test_pipeline.py::test_bandpower_feature_dimension PASSED          [ 56%]
+tests/test_pipeline.py::test_covariance_feature_dimension PASSED         [ 62%]
+tests/test_pipeline.py::test_lda_train_and_predict_proba PASSED          [ 68%]
+tests/test_pipeline.py::test_untrained_classifier_is_uniform PASSED      [ 75%]
+tests/test_pipeline.py::test_stabilizer_requires_consistency PASSED      [ 81%]
+tests/test_pipeline.py::test_stabilizer_low_confidence_gives_idle PASSED [ 87%]
+tests/test_websocket_sink.py::test_websocket_sink_broadcasts_frozen_contract PASSED [ 93%]
+tests/test_websocket_sink.py::test_websocket_sink_close_is_idempotent_and_safe_after_close PASSED [100%]
+
+============================= 16 passed in 3.32s ==============================

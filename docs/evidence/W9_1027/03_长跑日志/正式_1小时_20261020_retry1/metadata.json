@@ -1,0 +1,14 @@
+{
+  "pid": 44868,
+  "python": "3.12.14 (main, Sep  1 2026, 14:17:39) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "D:\\项目16\\motion-imagination-decode-module\\bci-decoder\\.venv\\Scripts\\python.exe",
+  "started_at": "2026-10-20T21:21:43.010815+08:00",
+  "requested_seconds": 3600.0,
+  "report_every_seconds": 30.0,
+  "source": "mock",
+  "realtime": false,
+  "mode": "decoder core only; no console/jsonl/websocket output sinks",
+  "rss_method": "Windows K32GetProcessMemoryInfo.WorkingSetSize",
+  "timing_history": "bounded engine history; per-report statistics use available recent new samples",
+  "timing_history_limit": 8192
+}

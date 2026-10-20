@@ -1,0 +1,18 @@
+{
+  "review_date": "2026-10-20",
+  "status": "passed_for_tested_decoder_core",
+  "scope": "local Python 3.12.14; mock source; bounded latency history; no game or WebSocket output sinks",
+  "original_artifact": "artifacts/soak_1h_20261020_retry1",
+  "actual_seconds": 3600.0018698999993,
+  "chunks": 8635367,
+  "outputs": 1727073,
+  "progress_samples": 121,
+  "max_retained_latency_samples": 8192,
+  "max_recent_sample_p95_ms": 3.3222750029381127,
+  "combined_full_hour_p95_available": false,
+  "memory_review": "no obvious unbounded RSS accumulation observed; WorkingSet is affected by OS paging and is not proof against every type of leak",
+  "original_summary_preserved": true,
+  "latest_team_main_version_verified": false,
+  "game_integration_verified": false,
+  "first_incomplete_run_used": false
+}

@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import time
+from collections import deque
 from typing import Iterable
 
 import numpy as np
@@ -29,6 +30,9 @@ from .pipeline.postprocess import DecisionStabilizer
 from .pipeline.preprocess import Preprocessor
 from .sources import Source, build_source
 from .types import DecoderOutput, EEGChunk
+
+
+LATENCY_HISTORY_LIMIT = 8192
 
 
 class DecoderEngine:
@@ -50,7 +54,8 @@ class DecoderEngine:
         self.class_names = list(cfg.classifier.classes)
 
         self._since_last = 0
-        self.compute_times_ms: list[float] = []
+        # 长跑时固定统计内存；短 benchmark 未满容量时仍保留全部样本。
+        self.compute_times_ms: deque[float] = deque(maxlen=LATENCY_HISTORY_LIMIT)
         self.n_outputs = 0
 
     # ---- 单次推进 ----
@@ -119,8 +124,8 @@ class DecoderEngine:
     def latency_report(self) -> dict:
         if not self.compute_times_ms:
             return {"n": 0}
-        arr = np.asarray(self.compute_times_ms)
-        return {
+        arr = np.asarray(self.compute_times_ms, dtype=float)
+        report = {
             "n": int(arr.size),
             "mean_ms": float(arr.mean()),
             "p50_ms": float(np.percentile(arr, 50)),
@@ -129,3 +134,8 @@ class DecoderEngine:
             "window_seconds": self.cfg.window.window_seconds,
             "est_e2e_p95_ms": float(np.percentile(arr, 95) + self.cfg.window.window_seconds * 1000),
         }
+        if self.n_outputs > arr.size:
+            # 这是 CLI 的统计报告，不是冻结的逐条决策消息。
+            report["n_total"] = self.n_outputs
+            report["sample_scope"] = f"latest_{LATENCY_HISTORY_LIMIT}_decisions"
+        return report
