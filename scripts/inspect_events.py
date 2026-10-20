@@ -1,6 +1,7 @@
 """Locate left/right imagery events and extract simple EEG segments."""
 from pathlib import Path
 import sys
+from eeg_events import LABELS, imagery_events
 
 try:
     import mne
@@ -16,7 +17,6 @@ FIGURE_PATH = PROJECT_ROOT / "data" / "continuous_vs_epochs.png"
 # 起步参数：先观察提示后第 1 到第 3 秒，共 2 秒；这不是最佳设置结论。
 EPOCH_START = 1.0
 EPOCH_END = 3.0
-LABELS = {"T1": "左手想象", "T2": "右手想象"}
 
 
 def main() -> int:
@@ -38,9 +38,9 @@ def main() -> int:
     print("事件代码映射：" + ", ".join(f"{name}={number}" for name, number in event_id.items()))
 
     # 只保留左右手想象提示。事件第一列是样本序号，除以采样率得到秒数。
-    wanted = {name: event_id[name] for name in LABELS if name in event_id}
-    selected_events = [event for event in events if event[2] in wanted.values()]
-    if not selected_events or len(wanted) != 2:
+    try:
+        selected_events, wanted = imagery_events(raw)
+    except ValueError:
         print("错误：没有同时找到 T1 和 T2。请检查 EDF 文件和事件注释。")
         raw.close()
         return 1
