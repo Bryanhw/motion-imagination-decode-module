@@ -1,0 +1,44 @@
+﻿[bci-decoder] 数据源=replay  窗口=2.0s  步长=0.5s  类别=['left', 'right']
+[bci-decoder] 输出通道=['console']
+[    1.996s] idle   conf=1.00  probs=[0.00 1.00]  compute=5.0ms  win=2.0s state=running
+[    1.996s] idle   conf=1.00  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+[    1.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+[    1.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.7ms  win=2.0s state=running
+[    2.496s] right  conf=1.00  probs=[0.00 1.00]  compute=1.1ms  win=2.0s state=running
+[    2.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.8ms  win=2.0s state=running
+[    3.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.7ms  win=2.0s state=running
+[    3.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+[    4.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+[    4.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.7ms  win=2.0s state=running
+[    5.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[    5.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[    6.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[    6.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[    7.496s] right  conf=1.00  probs=[0.00 1.00]  compute=1.0ms  win=2.0s state=running
+[    7.996s] right  conf=1.00  probs=[0.00 1.00]  compute=1.2ms  win=2.0s state=running
+[    8.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.9ms  win=2.0s state=running
+[    8.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.8ms  win=2.0s state=running
+[    9.496s] right  conf=1.00  probs=[0.00 1.00]  compute=1.0ms  win=2.0s state=running
+[    9.996s] right  conf=1.00  probs=[0.00 1.00]  compute=1.1ms  win=2.0s state=running
+[   10.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.8ms  win=2.0s state=running
+[   10.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.8ms  win=2.0s state=running
+[   11.496s] right  conf=1.00  probs=[0.00 1.00]  compute=1.1ms  win=2.0s state=running
+[   11.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.8ms  win=2.0s state=running
+[   12.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+[   12.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.7ms  win=2.0s state=running
+[   13.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.8ms  win=2.0s state=running
+[   13.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.7ms  win=2.0s state=running
+[   14.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[   14.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[   15.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[   15.996s] right  conf=1.00  probs=[0.00 1.00]  compute=1.0ms  win=2.0s state=running
+[   16.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.8ms  win=2.0s state=running
+[   16.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.7ms  win=2.0s state=running
+[   17.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+[   17.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.7ms  win=2.0s state=running
+[   18.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[   18.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.8ms  win=2.0s state=running
+[   19.496s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[   19.996s] right  conf=1.00  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[bci-decoder] 决策次数=40
+[bci-decoder] 计算耗时统计: {"n": 40, "mean_ms": 0.8341374996234663, "p50_ms": 0.7043499790597707, "p95_ms": 1.1370950291166082, "max_ms": 4.973799979779869, "window_seconds": 2.0, "est_e2e_p95_ms": 2001.1370950291166}

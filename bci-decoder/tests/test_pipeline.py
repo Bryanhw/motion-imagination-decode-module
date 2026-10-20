@@ -1,13 +1,14 @@
 """流水线单元测试：滤波器状态连续性、特征维度、分类器接口。"""
 
 import numpy as np
+import pytest
 
-from bci_decoder.config import PreprocessConfig
+from bci_decoder.config import DEFAULT_CH_NAMES, PostprocessConfig, PreprocessConfig
 from bci_decoder.pipeline.classifier import LDAClassifier, UntrainedClassifier
-from bci_decoder.pipeline.features import BandPowerExtractor, CovarianceExtractor
+from bci_decoder.pipeline.features import BandPowerExtractor, CovarianceExtractor, CSPExtractor
 from bci_decoder.pipeline.postprocess import DecisionStabilizer
-from bci_decoder.config import PostprocessConfig
 from bci_decoder.pipeline.preprocess import Preprocessor
+from bci_decoder.synth import synthesize_dataset
 
 
 def test_preprocessor_shape_and_streaming_state():
@@ -37,6 +38,50 @@ def test_covariance_feature_dimension():
     x = np.random.default_rng(2).standard_normal((4, 500))
     f = ex.transform(x)
     assert f.shape == (10,)  # 上三角 4*5/2
+
+
+def test_csp_fit_dimension_and_class_separability():
+    """CSP：fit 后 transform 输出 (n_components,) 且两类特征在至少一维可分（工程自检，非性能评估）。"""
+    trials, labels = synthesize_dataset(
+        n_per_class=20, ch_names=DEFAULT_CH_NAMES, seconds=2.0, sfreq=250.0, seed=0
+    )
+    ex = CSPExtractor(n_components=4).fit(np.stack(trials), labels)
+    assert ex.trained
+    assert ex.filters_.shape == (4, len(DEFAULT_CH_NAMES))  # (n_components, 8 通道)
+    f0 = ex.transform(trials[0])
+    assert f0.shape == (4,)
+    assert np.all(np.isfinite(f0))
+    # 通道顺序敏感：W 的行序与训练通道顺序绑定，特征应体现两类差异（自检口径）
+    feats = np.stack([ex.transform(t) for t in trials])
+    m0 = feats[labels == 0].mean(axis=0)
+    m1 = feats[labels == 1].mean(axis=0)
+    assert np.any(np.abs(m0 - m1) > 0.1)
+
+
+def test_csp_save_load_roundtrip(tmp_path):
+    trials, labels = synthesize_dataset(
+        n_per_class=15, ch_names=DEFAULT_CH_NAMES, seconds=1.0, sfreq=250.0, seed=1
+    )
+    ex = CSPExtractor(n_components=4).fit(np.stack(trials), labels)
+    p = tmp_path / "csp.joblib"
+    ex.save(str(p))
+    ex2 = CSPExtractor.load(str(p))
+    assert np.allclose(ex.transform(trials[0]), ex2.transform(trials[0]), atol=1e-12)
+
+
+def test_csp_requires_training_before_transform():
+    ex = CSPExtractor(n_components=4)
+    with pytest.raises(RuntimeError):
+        ex.transform(np.zeros((8, 500)))
+
+
+def test_csp_rejects_non_binary_labels():
+    rng = np.random.default_rng(4)
+    x = np.stack([rng.standard_normal((8, 500)) for _ in range(6)])
+    y = np.array([0, 0, 0, 1, 1, 2])
+    ex = CSPExtractor(n_components=4)
+    with pytest.raises(ValueError):
+        ex.fit(x, y)
 
 
 def test_lda_train_and_predict_proba():

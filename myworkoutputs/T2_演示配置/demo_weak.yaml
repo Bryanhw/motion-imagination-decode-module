@@ -1,0 +1,53 @@
+# 演示配置 · 弱信号（实验配置）：低信噪比输入→置信度应低于门限→idle
+# ⚠️ 已知限制（2026-10-20 验证）：当前 demo 模型(CSP+LDA)对弱/噪声/任意输入
+#    均武断判为单侧高置信(right conf≈1.0)，CSP 的 log-variance 归一化抹掉信噪比；
+#    使本配置无法稳定输出 idle。属于核心模型缺陷（OOD 不降置信），待核心改进后复验。
+#    详见 myworkoutputs/T2_演示配置/2c_弱信号OOD高置信缺陷纪要_阎浩文.md
+# 前置：data/sample_weak.npy（低 SNR 合成样本，工程自检用，不评价算法性能）
+# 验证：python -m bci_decoder.cli run --config configs/demo_weak.yaml --chunks 200
+#   → 目标：台面 label 全程 idle；当前实测无法稳定达成（见纪要）
+
+source:
+  kind: replay
+  sfreq: 250.0
+  ch_names: [C3, Cz, C4, CP3, CP4, P3, P4, Oz]
+  path: "data/sample_weak.npy"
+  chunk_samples: 25
+  realtime: false
+  speed: 1.0
+  loop: false
+
+preprocess:
+  l_freq: 8.0
+  h_freq: 30.0
+  notch_freq: 50.0
+  notch_q: 30.0
+  filter_order: 4
+  car: true
+  artifact_ptp_uv: 200.0
+
+features:
+  kind: csp
+  csp_components: 4
+  csp_reg: 1e-4
+  model_path: "artifacts/demo_csp.joblib"
+
+classifier:
+  kind: lda
+  classes: [left, right]
+  model_path: "artifacts/demo_lda.joblib"
+
+postprocess:
+  vote_window: 3
+  ema_alpha: 0.4
+  min_confidence: 0.6
+  idle_label: idle
+
+window:
+  window_seconds: 2.0
+  step_seconds: 0.5
+
+output:
+  sinks: [console]
+  ws_host: "127.0.0.1"
+  ws_port: 8765

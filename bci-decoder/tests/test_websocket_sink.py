@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import socket
 import threading
 import time
 
@@ -22,12 +21,6 @@ FROZEN_FIELDS = {
     "t_data", "t_wall", "label", "label_id", "confidence",
     "probs", "state", "compute_ms", "window_seconds",
 }
-
-
-def _free_port() -> int:
-    with socket.socket() as s:
-        s.bind(("127.0.0.1", 0))
-        return int(s.getsockname()[1])
 
 
 def _make_output(i: int, label: str, label_id: int, confidence: float, probs: list) -> DecoderOutput:
@@ -77,8 +70,9 @@ def test_websocket_sink_broadcasts_frozen_contract(monkeypatch, registration_del
 
         monkeypatch.setattr(WebSocketSink, "_handler", delayed_handler)
 
-    port = _free_port()
-    sink = WebSocketSink("127.0.0.1", port)
+    sink = WebSocketSink("127.0.0.1", 0)          # 端口交给操作系统分配，测试不做端口探测
+    port = sink.port
+    assert port > 0
 
     results = {}
     connected = threading.Event()
@@ -98,7 +92,7 @@ def test_websocket_sink_broadcasts_frozen_contract(monkeypatch, registration_del
 
         async def wait_for_subscription():
             async def wait_until_registered():
-                while not sink._clients:
+                while sink.client_count == 0:
                     await asyncio.sleep(0.001)
 
             await asyncio.wait_for(wait_until_registered(), timeout=5.0)
@@ -132,8 +126,18 @@ def test_websocket_sink_broadcasts_frozen_contract(monkeypatch, registration_del
 
 def test_websocket_sink_close_is_idempotent_and_safe_after_close():
     """close() 可重复调用；关闭后 emit 不应抛异常（游戏/CLI 退出路径）。"""
-    port = _free_port()
-    sink = WebSocketSink("127.0.0.1", port)
+    sink = WebSocketSink("127.0.0.1", 0)
     sink.close()
     sink.close()                                    # 幂等
     sink.emit(_make_output(0, "idle", -1, 0.0, [0.5, 0.5]))   # 关停后发送：静默丢弃
+
+
+def test_websocket_sink_reports_bind_failure_instead_of_failing_silently():
+    """端口被占用时必须立刻抛错，而不是静默不服务（现场演示的"连不上却无异常"）。"""
+    holder = WebSocketSink("127.0.0.1", 0)
+    try:
+        with pytest.raises(RuntimeError) as excinfo:
+            WebSocketSink("127.0.0.1", holder.port)
+        assert "启动失败" in str(excinfo.value) or "超时" in str(excinfo.value)
+    finally:
+        holder.close()

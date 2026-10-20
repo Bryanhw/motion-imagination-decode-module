@@ -11,6 +11,7 @@ artifacts/
 *.joblib
 *.onnx
 *.jsonl
+!game/platformer/replay_demo.jsonl
 
 # 编辑器
 .vscode/
