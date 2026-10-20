@@ -18,6 +18,12 @@ data/
 *.jsonl
 !bci-decoder/game/platformer/replay_demo.jsonl
 
+# 课程要求：仅放行已核验的合成演示模型和样本交付副本；运行目录仍忽略。
+!/deliverables/W9_1027/wsx/models/csp/demo_csp.joblib
+!/deliverables/W9_1027/wsx/models/csp/demo_lda.joblib
+!/deliverables/W9_1027/wsx/models/bandpower_history/demo_lda.joblib
+!/deliverables/W9_1027/wsx/inputs/sample_continuous.npy
+
 # —— 本地工具与运行时状态（脚本入库，产物不入库）——
 .deepworks/
 .opencode-router/

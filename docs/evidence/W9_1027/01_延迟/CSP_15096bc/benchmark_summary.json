@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-21",
+  "owner": "王释贤",
+  "source_commit": "15096bc46c257a3685df3bc01cd8a026f913da99",
+  "config": "configs/demo_online.yaml",
+  "feature_kind": "csp",
+  "source": "mock",
+  "chunks_per_run": 600,
+  "python": "3.12.14",
+  "runs": [
+    {
+      "n": 120,
+      "mean_ms": 0.2572600000955087,
+      "p50_ms": 0.20959999892511405,
+      "p95_ms": 0.31166500048129814,
+      "max_ms": 3.900800002156757,
+      "window_seconds": 2.0,
+      "est_e2e_p95_ms": 2000.3116650004813
+    },
+    {
+      "n": 120,
+      "mean_ms": 0.24691083338742223,
+      "p50_ms": 0.20745000074384734,
+      "p95_ms": 0.31961000167939346,
+      "max_ms": 2.7647000024444424,
+      "window_seconds": 2.0,
+      "est_e2e_p95_ms": 2000.3196100016794
+    },
+    {
+      "n": 120,
+      "mean_ms": 0.537889999395702,
+      "p50_ms": 0.40100000114762224,
+      "p95_ms": 0.9085699955903691,
+      "max_ms": 5.448500000056811,
+      "window_seconds": 2.0,
+      "est_e2e_p95_ms": 2000.9085699955904
+    }
+  ],
+  "aggregation": "median of three per-run p95 values; not pooled p95",
+  "median_p95_ms": 0.31961000167939346,
+  "all_runs_p95_below_50ms": true,
+  "actual_game_end_to_end_measured": false,
+  "timing_scope": "window retrieval, feature extraction, LDA and decision stabilization; excludes preprocessing, buffer write, transport and rendering",
+  "artifacts_uploaded": false
+}
