@@ -41,11 +41,15 @@ class PreprocessConfig:
 
 @dataclass
 class FeatureConfig:
-    kind: str = "bandpower"            # bandpower | covariance
+    kind: str = "bandpower"            # csp(当前路线) | bandpower(旧默认) | covariance(备用)
     bands: Dict[str, List[float]] = field(
         default_factory=lambda: {"mu": [8.0, 13.0], "beta": [13.0, 30.0]}
     )
     covariance_shrinkage: float = 0.1
+    # ---- CSP（当前技术路线，见 docs/详细技术路线.md）----
+    csp_components: int = 4            # 空间滤波器个数（2 对）→ 特征维数 = csp_components
+    csp_reg: float = 1e-4              # 平均协方差的收缩正则，增强数值稳定
+    model_path: str = ""               # 训练好的 CSP 模型路径（含空间滤波矩阵 W）
 
 
 @dataclass

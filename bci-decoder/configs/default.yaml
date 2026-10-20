@@ -24,16 +24,19 @@ preprocess:
   artifact_ptp_uv: 200.0
 
 features:
-  kind: bandpower       # bandpower | covariance
+  kind: csp             # csp(当前路线) | bandpower(旧默认) | covariance(备用)
   bands:
     mu: [8.0, 13.0]
     beta: [13.0, 30.0]
   covariance_shrinkage: 0.1
+  csp_components: 4      # 空间滤波器个数（2 对）→ 特征维数 = csp_components
+  csp_reg: 1e-4          # 平均协方差收缩正则
+  model_path: "artifacts/demo_csp.joblib"   # 训练好的 CSP 模型（含空间滤波矩阵 W）
 
 classifier:
   kind: lda             # lda | onnx | untrained
   classes: [left, right]
-  model_path: ""        # 训练好的 .joblib 路径
+  model_path: "artifacts/demo_lda.joblib"   # 训练好的 .joblib 路径
   onnx_path: ""
 
 postprocess:

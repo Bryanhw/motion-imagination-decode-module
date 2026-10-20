@@ -19,10 +19,10 @@ preprocess:
   artifact_ptp_uv: 200.0
 
 features:
-  kind: bandpower
-  bands:
-    mu: [8.0, 13.0]
-    beta: [13.0, 30.0]
+  kind: csp
+  csp_components: 4
+  csp_reg: 1e-4
+  model_path: "artifacts/demo_csp.joblib"
 
 classifier:
   kind: lda

@@ -62,7 +62,7 @@ bci-decoder/
 │   ├── synth.py              # 合成数据（仅供自检）
 │   ├── pipeline/
 │   │   ├── preprocess.py     # 因果滤波 + CAR + 伪迹标记
-│   │   ├── features.py       # 频带功率 / 协方差 / 欧氏对齐
+│   │   ├── features.py       # CSP(当前路线) / 频带功率 / 协方差
 │   │   ├── classifier.py     # LDA / ONNX / 占位
 │   │   └── postprocess.py    # 平滑 + 投票 + 置信度门限
 │   ├── sources/              # mock / replay / lsl

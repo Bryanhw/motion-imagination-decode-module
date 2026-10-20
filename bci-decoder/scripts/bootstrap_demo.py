@@ -1,4 +1,4 @@
-"""端到端自检脚本：验证"数据 → 特征 → 模型 → 在线解码"整条链路是否贯通。
+﻿"""端到端自检脚本：验证"数据 → 特征 → 模型 → 在线解码"整条链路是否贯通。
 
 它做四件事：
 1. 生成合成 trial（无真实数据时也能跑）
@@ -24,22 +24,32 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from bci_decoder.config import Config, DEFAULT_CH_NAMES, PreprocessConfig  # noqa: E402
 from bci_decoder.pipeline.classifier import LDAClassifier  # noqa: E402
-from bci_decoder.pipeline.features import build_feature_extractor  # noqa: E402
+from bci_decoder.pipeline.features import CSPExtractor, build_feature_extractor  # noqa: E402
 from bci_decoder.pipeline.preprocess import Preprocessor  # noqa: E402
 from bci_decoder.synth import synthesize_dataset  # noqa: E402
 
 
-def extract_features(trials, cfg: Config):
-    """对每个 trial 独立跑一遍预处理+特征，模拟在线窗口。"""
+def extract_features(trials, cfg: Config, labels=None):
+    """对每个 trial 独立跑一遍预处理+特征，模拟在线窗口。
+
+    CSP 路线：CSP 是有状态特征，先用全部（预处理后的）窗口 fit 学到空间滤波矩阵 W，
+    再逐个 transform；保证训练/推理完全一致。bandpower/covariance 无状态，直接逐 trial 提取。
+    """
     n_ch = len(cfg.source.ch_names)
     pre = Preprocessor(cfg.preprocess, n_ch, cfg.source.sfreq)
-    ex = build_feature_extractor(cfg.features, cfg.source.sfreq)
-    feats = []
+    # 训练阶段总是从零学习（忽略 config 里可能存在的已训练 model_path，改为不加载）
+    import dataclasses
+
+    fcfg = dataclasses.replace(cfg.features, model_path="")
+    ex = build_feature_extractor(fcfg, cfg.source.sfreq)
+    cleaned = []
     for tr in trials:
         clean, _ = pre.process(tr)
-        feats.append(ex.transform(clean))
+        cleaned.append(clean)
         pre.reset()          # trial 之间互相独立，重置滤波状态
-    return np.asarray(feats)
+    if isinstance(ex, CSPExtractor) and not ex.trained:
+        ex.fit(np.stack(cleaned), np.asarray(labels))
+    return np.asarray([ex.transform(c) for c in cleaned]), ex
 
 
 def main() -> int:
@@ -50,6 +60,8 @@ def main() -> int:
     ap.add_argument("--labels", default="", help="标签 .npy，长度等于 trial 数")
     ap.add_argument("--trial-seconds", type=float, default=2.0)
     ap.add_argument("--out", default="artifacts/demo_lda.joblib")
+    ap.add_argument("--out-csp", default="artifacts/demo_csp.joblib",
+                    help="CSP 空间滤波模型输出路径（kind=csp 时保存）")
     args = ap.parse_args()
 
     cfg = Config.load(args.config) if os.path.exists(args.config) else Config()
@@ -71,7 +83,7 @@ def main() -> int:
         )
         print(f"[bootstrap] 使用合成自检数据：{len(trials)} 个 trial（不可用于性能评估）")
 
-    x = extract_features(trials, cfg)
+    x, extractor = extract_features(trials, cfg, labels)
     print(f"[bootstrap] 特征维度：{x.shape}")
 
     # 交叉验证：看流水线是否真的携带可分信息
@@ -83,12 +95,16 @@ def main() -> int:
     pipe = Pipeline([("scaler", StandardScaler()), ("lda", LinearDiscriminantAnalysis())])
     scores = cross_val_score(pipe, x, labels, cv=5)
     print(f"[bootstrap] 5折交叉验证准确率：{scores.mean():.3f} ± {scores.std():.3f}")
-    print("[bootstrap] ⚠️ 上列数字来自合成数据自检（mock/synth），不是算法成绩，禁止对外报告准确率（红线 R-1）")
+    print("[bootstrap] 注意：上列数字来自合成数据自检（mock/synth），不是算法成绩，禁止对外报告准确率（红线 R-1）")
 
     clf = LDAClassifier().fit(x, labels)
     clf.save(args.out)
     print(f"[bootstrap] 模型已保存：{args.out}")
-    print("[bootstrap] ⚠️ 下方 cv_accuracy 同为合成数据自检值，仅用于确认流水线可跑通，不得作为性能指标")
+
+    if isinstance(extractor, CSPExtractor):
+        extractor.save(args.out_csp)
+        print(f"[bootstrap] CSP 空间滤波模型已保存：{args.out_csp}")
+    print("[bootstrap] 注意：下方 cv_accuracy 同为合成数据自检值，仅用于确认流水线可跑通，不得作为性能指标")
     print(json.dumps({
         "n_trials": int(len(labels)),
         "n_features": int(x.shape[1]),
