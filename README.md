@@ -1,0 +1,111 @@
+# 运动想象脑电数据准备与核验
+
+这是四名大一学生学习左右手运动想象 EEG 的独立入门项目。当前阶段只准备和核验公开数据，**尚未训练 CSP＋LDA 模型**。
+
+## 项目结构
+
+```text
+motion-imagery-eeg/
+├─ data/                 本地 EDF 数据（Git 忽略，不提交）
+├─ scripts/check_data.py 检查 EDF 可读性、通道和事件标记
+├─ .gitignore            忽略数据、虚拟环境、缓存和模型文件
+├─ requirements.txt      Python 依赖
+└─ README.md             本说明
+```
+
+## 数据来源和任务含义
+
+本项目使用 PhysioNet **EEG Motor Movement/Imagery Dataset，版本 1.0.0**，来源：[官方数据集页面](https://physionet.org/content/eegmmidb/1.0.0/)，文件直链位于 `https://physionet.org/files/eegmmidb/1.0.0/S001/`。
+
+每名受试者的第 4、8、12 次运行均为想象左拳或右拳运动。S001R04、S001R08、S001R12 因此都包含左右手（拳）运动想象任务。EDF 注释中：
+
+- `T0`：休息阶段开始；
+- `T1`：单侧拳任务中的左拳运动/想象开始；
+- `T2`：单侧拳任务中的右拳运动/想象开始。
+
+本数据集每份记录含 64 个 EEG 通道，采样率为 160 Hz。请引用数据集及其原始论文：
+
+> Schalk, G. (2009). *EEG Motor Movement/Imagery Dataset* (version 1.0.0). PhysioNet. https://doi.org/10.13026/C28G6P
+>
+> Schalk, G., McFarland, D. J., Hinterberger, T., Birbaumer, N., & Wolpaw, J. R. (2004). BCI2000: A General-Purpose Brain-Computer Interface (BCI) System. *IEEE Transactions on Biomedical Engineering*, 51(6), 1034–1043. https://doi.org/10.1109/TBME.2004.827072
+
+数据许可为 Open Data Commons Attribution License v1.0。使用或分享数据时请遵守许可并保留归属信息。
+
+## Windows 安装和运行
+
+### 1. 安装 Python
+
+安装 Python 3.10 或更新版本，建议从 [python.org](https://www.python.org/downloads/windows/) 下载。安装界面勾选 **Add python.exe to PATH**。打开新的 PowerShell，检查：
+
+```powershell
+py --version
+```
+
+如果 `py` 不可用，请重新安装 Python 并勾选加入 PATH；也可以在下方命令中把 `py` 换成 `python`。
+
+### 2. 进入项目并创建虚拟环境
+
+在 PowerShell 中运行（若项目放在别处，请调整路径）：
+
+```powershell
+cd "D:\CST AI\脑电运动想象\motion-imagery-eeg"
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+激活成功后，命令行前面会出现 `(.venv)`。如果 PowerShell 阻止激活脚本，可在当前窗口运行：
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+这只对当前 PowerShell 窗口生效。
+
+### 3. 安装依赖
+
+```powershell
+py -m pip install --upgrade pip
+py -m pip install -r requirements.txt
+```
+
+### 4. 获取三份 EDF
+
+脚本会尝试从 PhysioNet 下载指定的三个文件到 `data/`，不会遍历或下载整个数据集：
+
+```powershell
+py scripts\download_data.py
+```
+
+如果网络不通或自动下载失败，可用浏览器逐个下载以下链接，并将文件保存到项目的 `data` 文件夹（文件名保持不变）：
+
+- [S001R04.edf](https://physionet.org/files/eegmmidb/1.0.0/S001/S001R04.edf)
+- [S001R08.edf](https://physionet.org/files/eegmmidb/1.0.0/S001/S001R08.edf)
+- [S001R12.edf](https://physionet.org/files/eegmmidb/1.0.0/S001/S001R12.edf)
+
+### 5. 运行核验脚本
+
+```powershell
+py scripts\check_data.py
+```
+
+脚本逐个报告文件是否存在且能被 MNE 读取、采样率、通道数和名称/顺序、时长，以及 `T0`、`T1`、`T2` 注释数量；最后比较三份记录的采样率和通道顺序。任何文件缺失、读取失败、左右手标记缺失或跨文件不一致都会给出错误提示并以非零状态结束。
+
+### 6. 看懂输出
+
+正常情况下，三份文件应能读取，采样率为 160 Hz，含 64 个 EEG 通道；`T1` 和 `T2` 都应大于零，三份记录的采样率和通道顺序应一致。`T0` 是休息标记。具体数量以脚本在本机真实读到的数据为准。
+
+核验通过只表示数据文件和基本标记可用，**不代表已经完成信号处理、分类或模型训练**。
+
+## 常见错误
+
+- **找不到 `py` 或 `python`**：安装 Python 3 并勾选加入 PATH，重新打开 PowerShell。
+- **无法激活 `.venv`**：按上文在当前窗口设置 `ExecutionPolicy Bypass`，再激活。
+- **`No module named mne`**：确认虚拟环境已激活，再运行 `py -m pip install -r requirements.txt`。
+- **EDF 缺失**：检查文件是否在项目的 `data` 文件夹，名字是否准确；自动下载不可用时按上方链接手动下载。
+- **EDF 无法读取或标记缺失**：文件可能下载不完整或错误地保存了网页；重新下载对应 EDF 后再检查。
+- **下载超时/证书错误**：检查网络连接、系统日期和校园网访问限制，之后重试或使用浏览器手动下载。
+
+## 数据与 Git
+
+`data/` 已加入 `.gitignore`。EDF 文件体积较大，只保留在各自电脑的本地数据目录，不要提交到 Git。虚拟环境、Python 缓存和常见模型文件也会被忽略。

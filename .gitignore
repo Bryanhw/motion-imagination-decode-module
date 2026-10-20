@@ -1,0 +1,25 @@
+# Local EEG recordings are large and must not be committed.
+/data/
+
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Model artifacts and training outputs
+*.pkl
+*.pickle
+*.joblib
+*.model
+*.pt
+*.pth
+*.onnx
+models/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
