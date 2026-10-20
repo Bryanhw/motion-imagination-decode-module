@@ -123,3 +123,14 @@ python check_data.py
 ```
 
 程序会用 MNE 读取 `data/S001R04.edf`，打印文件大小、采样率、EEG 通道数和前几个名称、记录时长，以及 T0/T1/T2 数量。文件缺失或读取失败时会显示错误提示。此练习只读数据和查看标记，不做滤波、事件定位、CSP/LDA 或游戏开发。
+
+
+## 下一步：定位事件并截取片段
+
+运行：
+
+```powershell
+.\.venv\Scripts\python.exe scripts\inspect_events.py
+```
+
+脚本用 MNE 的 `events_from_annotations` 把 EDF 注释转成事件采样点，只取 T1/T2，并在提示后第 1 至第 3 秒切片。这个 2 秒窗口只是**起步参数**，尚未比较其他窗口，也不是最佳设置。程序打印事件时间、左右手次数、X/y 形状和边界丢弃数，并把连续波形示意图保存到 `data/continuous_vs_epochs.png`（图和 EDF 都被 Git 忽略）。MNE 在 160 Hz 下每秒有 160 个采样点；2 秒窗口因此有 320 个样本点（脚本用 `include_tmax=False` 排除右端点）。本阶段不训练分类器。
