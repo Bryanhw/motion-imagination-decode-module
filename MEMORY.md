@@ -82,7 +82,7 @@
 - 【待定】PRD must-have「脑控弹球」无技术落地设计 → ✅ 已定：**单独成文** `docs/TechDesign-Game-MVP.md`（2026-10-15）。`game/` 最终路径已定案：**`bci-decoder/game/`**（依据 `MVP规格说明书` 附录 A 先 `cd bci-decoder` 再 `python game\pong.py`；**团队可再议**，改动须同步两处文档）。
 - ~~【待验证】`websockets` 能否安装跑通~~ ✅ **已验证（2026-10-16）**：装通并端到端跑通；`jsonl` 轮询降级方案仍保留备用。**新增定案**：游戏端用 **`pygame-ce`**（上游 `pygame` 无 Python 3.14 wheel）。
 - ⚠️ **F4 尚不能判定验收通过（2026-10-16）**：代码与工程自检（单测 39/39、端到端 39 项断言）已完成，但 **A7 联调录屏、A8 真人现场演示与手感验证均未做**；headless 只能证明"消息 → 位移"通路正确，证明不了"跟手/好看"。
-- ✅ **已入库（2026-10-21）**：`bci-decoder/game/platformer/` 已由组长 merge 进 `origin/main`（`1a5098a`），游戏端主线确定。仍待推送：pong/runner/ws_client 等未跟踪项，推送与否待用户拍板（见「最近变更」2026-10-21 首行步骤 ③）。
+- ✅ **已入库（2026-10-21）**：`bci-decoder/game/platformer/` 已由组长 merge 进 `origin/main`（`1a5098a`），游戏端主线确定。**已拍板（2026-10-21）**：`pong.py/ws_client.py/render.py/input_source.py/config_game.yaml/test_ws_protocol.py` 及 `bci-decoder/tools/verify_game_headless.py` **不入库，保留为本地备选**（游戏主打继续用 `1a5098a` 提交中的 platformer 版本），保持未跟踪状态留在工作区。
 
 ## 最近变更
 
