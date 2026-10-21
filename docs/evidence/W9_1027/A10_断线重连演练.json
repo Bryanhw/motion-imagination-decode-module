@@ -1,0 +1,72 @@
+{
+  "schema": "bci-pong-report/1",
+  "input": "ws",
+  "input_status": {
+    "connected": false,
+    "received": 11251,
+    "malformed": 0,
+    "stale_dropped": 83,
+    "consistency_warnings": 0,
+    "unknown_cmd": 0,
+    "connects": 2,
+    "has_received_any": true,
+    "seconds_since_last": 0.06601770000997931,
+    "stale": false,
+    "kind": "ws+keyboard",
+    "fallback": {
+      "kind": "keyboard",
+      "label": "idle",
+      "commands": 0
+    }
+  },
+  "headless": true,
+  "frames": 3600,
+  "fps_target": 60,
+  "duration_s": 104.094,
+  "score": 1,
+  "misses": 43,
+  "best": 1,
+  "commands": 2725,
+  "applied_commands": 348,
+  "rate_limited_commands": 1355,
+  "idle_commands": 1022,
+  "left_commands": 695,
+  "right_commands": 1008,
+  "labels_seen": {
+    "idle": 1022,
+    "right": 1008,
+    "left": 695
+  },
+  "notes_seen": {
+    "信号丢失": 1
+  },
+  "paddle": {
+    "start_x": 480.0,
+    "x": 729.17,
+    "min_x": 480.0,
+    "max_x": 906.53,
+    "travel_px": 426.53,
+    "step_px": 172.8,
+    "step_ratio": 0.18,
+    "interp_seconds": 0.5,
+    "width": 211.2
+  },
+  "ball": {
+    "radius": 12.0,
+    "speed": 260.0,
+    "live": true
+  },
+  "messages": {
+    "connected": false,
+    "received": 11251,
+    "malformed": 0,
+    "stale_dropped": 83,
+    "consistency_warnings": 0,
+    "unknown_cmd": 0,
+    "connects": 2,
+    "has_received_any": true,
+    "seconds_since_last": 0.06598519999533892,
+    "stale": false
+  },
+  "note": "本报告不含任何准确率指标：MVP 阶段不对外报告准确率（AGENTS.md 红线 6）"
+}

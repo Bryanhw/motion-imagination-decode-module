@@ -2,7 +2,7 @@
 
 > **当前状态、已定决策、下一步**。每个会话结束时更新本文件；
 > 长期规则见 `AGENTS.md`，项目细节见 `agent_docs/`。
-> **最后更新：2026-10-20**
+> **最后更新：2026-10-21**
 
 ## 一句话现状
 
@@ -11,7 +11,7 @@
 **归属已拍板（2026-10-15）：属于团队成果，计入项目进度**。
 **游戏端（脑控弹球，`bci-decoder/game/`）代码已写完并通过工程自检**（2026-10-16：单测 39/39、端到端 39 项断言全绿，
 含"解码器运行中被杀"），**但 A7 联调录屏 / A8 真人现场演示未做 → F4 尚不能判定验收通过**。
-另新增**横版闯关游戏正式版 v1.0**（`bci-decoder/game/platformer/`）：键盘和 JSONL 回放版本，未接入实时解码器。
+另**横版闯关游戏正式版 v1.0**（`bci-decoder/game/platformer/`，键盘和 JSONL 回放版本，未接入实时解码器）已**并入主线**（2026-10-21）为游戏端主打；**脑控弹球**（`game/pong.py`）与格子版备稿（`game/runner.py`）仍保留。
 **仍未完成**：LSL、校准流程、Docker（**WebSocket 输出已于 2026-10-16 端到端跑通**）。
 
 ## 里程碑状态
@@ -52,7 +52,7 @@
 - `bci-decoder/.venv`：**Python 3.14.7**；已装 numpy 2.5.3 / scipy 1.18.1 / scikit-learn 1.9.1 / PyYAML 6.0.3 / joblib 1.6.0 / pytest 9.1.1 / **websockets 17.2** / **pygame-ce 2.5.8**
 - **未安装**：`mne`、`moabb`、`pyriemann`、`pylsl`（里程碑 ③/④ 前装好；`websockets` 已于 2026-10-16 装通并验证）
 - `python -m pytest` → **17 项全部通过**（2026-10-16 复核；口径 = `bci-decoder/tests`；从仓库根跑会额外收集 `docs/learning/` 的 12 个学习用例共 29。2026-10-15 的 14 项快照见 `docs/evidence/W7_1013/pytest_20261015.txt`，16 项见 `docs/evidence/W7_1016/`）
-- 游戏端 `python -m pytest -q "game\tests"` → **39 项全部通过**（2026-10-16，须在 `bci-decoder/` 下显式传路径，`pytest.ini` 的 `testpaths = tests` 不会收集它）
+- 游戏端 `python -m pytest -q "game\tests"` → **39 项全部通过**（2026-10-16，须在 `bci-decoder/` 下显式传路径，`pytest.ini` 的 `testpaths = tests` 不会收集它）；**2026-10-21 合并 platformer 后**：`pytest -q game\platformer\tests game\tests` → **64 项全部通过**（platformer 14 + game/tests 50：含 runner 11 与 ws_protocol 39）
 - **端到端**：`bci-decoder/tests` 与 `game/tests` 之外，另有非交付物脚本 `.deepworks/tmp/verify_game_headless.py`（真解码器 → 游戏端 headless，四场景 **39 项断言**；`.deepworks/` 不入库）
 - `bci-decoder/artifacts/` 内已有 `demo_lda.joblib` 与 `decoder_output.jsonl`
 - 全局 `python` **没有** pytest —— 必须用 `.venv\Scripts\python.exe`
@@ -66,8 +66,8 @@
 2. ~~校准文档与仓库事实的 6 处不一致~~ ✅ **已完成**（§5.2 六条已逐条处置，处置结果记于该节表格下方）。
 3. ~~建 `docs/evidence/W7_1013/`~~ ✅ **已完成**；~~`git init` + 首次提交~~ ✅ **已完成**（2026-10-15：`7ce8d08` 已推送至 `origin/main`，公开仓库地址见「环境事实」）。
 4. 里程碑 ② 主攻：~~**`websockets` 跑通**~~ ✅ **已完成（2026-10-16）** + ~~**脑控弹球（先键盘版，`bci-decoder/game/` 尚未创建）**~~ ✅ **代码与工程自检已完成（2026-10-16，`bci-decoder/game/` 6 文件，测试 39/39）** + **校准流程骨架**（未开始）。
-5. **F4 收尾（人工，不占 AI 时间）**：接显示器跑键盘版 → 配解码器跑 `--input ws` → **录屏归档**（补 A7/A8，A8 是 F4 验收的关键一步）；同时做 **1 h 长跑** 与断线重连演练。
-6. **执行载体**：里程碑 ② 剩余工作（A1 全员跑通 / A7 / A8 / A10 / A4 / A5 / A9 / A11 / 校准骨架）已按人按天拆解为 **`docs/M2冲刺作战清单.md`**（2026-10-20）；前置项 = 组长先把 `bci-decoder/game/` 与 `bci-decoder/tools/` 代码推送上来（见「开放问题」末条）。
+5. **F4 收尾（人工，不占 AI 时间）**：接显示器跑键盘版 → 配解码器跑 `--input ws` → **录屏归档**（补 A7/A8，A8 是 F4 验收的关键一步）。A10（1 h 长跑 + 断线重连演练）已 2026-10-21 **全完成**。
+6. **执行载体**：里程碑 ② 剩余工作（A1 全员跑通 / A7 / A8 / A4 / A5 / A9 / A11 / 校准骨架）已按人按天拆解为 **`docs/M2冲刺作战清单.md`**（2026-10-20）；前置项 = 组长把 `bci-decoder/game/` 剩余文件（pong/runner/ws_client 等未跟踪项）推送上来（见「开放问题」末条）。A10 已全完成（长跑 + 断线重连），A7 只剩真人联调录屏。
 
 ## 开放问题
 
@@ -82,7 +82,7 @@
 - 【待定】PRD must-have「脑控弹球」无技术落地设计 → ✅ 已定：**单独成文** `docs/TechDesign-Game-MVP.md`（2026-10-15）。`game/` 最终路径已定案：**`bci-decoder/game/`**（依据 `MVP规格说明书` 附录 A 先 `cd bci-decoder` 再 `python game\pong.py`；**团队可再议**，改动须同步两处文档）。
 - ~~【待验证】`websockets` 能否安装跑通~~ ✅ **已验证（2026-10-16）**：装通并端到端跑通；`jsonl` 轮询降级方案仍保留备用。**新增定案**：游戏端用 **`pygame-ce`**（上游 `pygame` 无 Python 3.14 wheel）。
 - ⚠️ **F4 尚不能判定验收通过（2026-10-16）**：代码与工程自检（单测 39/39、端到端 39 项断言）已完成，但 **A7 联调录屏、A8 真人现场演示与手感验证均未做**；headless 只能证明"消息 → 位移"通路正确，证明不了"跟手/好看"。
-- 【待人工确认】下一轮推送范围：是否连同**游戏端代码**（`bci-decoder/game/`）一起推送到 `origin/main`（当前本地领先 `origin/main` 6 个提交，且新增未提交改动）。
+- ✅ **已入库（2026-10-21）**：`bci-decoder/game/platformer/` 已由组长 merge 进 `origin/main`（`1a5098a`），游戏端主线确定。仍待推送：pong/runner/ws_client 等未跟踪项，推送与否待用户拍板（见「最近变更」2026-10-21 首行步骤 ③）。
 
 ## 最近变更
 
@@ -119,3 +119,6 @@
 | 2026-10-20 | **特征路线切换为 CSP + LDA（代码已完成 + 全库文档同步）**。**背景**：用户决定把技术路线从「频带功率(16 维)+LDA」改为「CSP(共空间模式)+LDA」并同步仓库所有文件。**代码（此前已完成，pytest 17/17 → 22/22）**：`config.py` 新增 `csp_components=4` / `csp_reg=1e-4` / `model_path`，`FeatureConfig.kind` 默认仍保留 `bandpower`（不破测试）；`features.py` 新增 `CSPExtractor`（手写 numpy/scipy 联合对角化，不引 mne；`filters_` 形状 `(n_components, n_channels)`，transform = `W@x → log(var/var.sum())`，输出维度 = csp_components；未训练抛 RuntimeError、非二分类抛 ValueError；save/load）；`bootstrap_demo.py` 支持 CSP（训练期 `dataclasses.replace(...model_path="")` 强制从零学 W）、新增 `--out-csp`、移除两处 emoji 防 GBK 崩溃；`configs/{default,demo_online,demo_replay}.yaml` 切 `kind: csp` + `model_path: artifacts/demo_csp.joblib`；`core.py` 无需改动（经 `build_feature_extractor` 自动加载）；重训成功（80 trial、特征维度 (80,4)、合成自检 CV=1.000、`demo_csp.joblib` 539B + `demo_lda.joblib` 1797B，2026-10-20 9:55）；`cli run demo_online` 跑通（`compute p95≈0.86 ms`≪50 ms、两类别正确跟随、`benchmark est_e2e_p95=2000.86 ms` 由 2s 窗口主导）。**文档（本次会话完成）**：`MVP规格说明书.md` 升 **v1.1.3**（§0 状态行、项目进度 17/17→22/22、F1.8、§5.1 特征行 + 注、§7.1 链路图、§7.2 选型表、第 9 节变更记录追加 v1.1.3 行——**第 4 节接口契约未改动**，§5.1 其余冻结值不变）；`agent_docs/testing.md` §3.3 特征检查项改为 CSP（维度/往返/通道顺序/NaN/未训练降级）；`MEMORY.md` 决策表与本次变更行。**待办**：①B/C 批文档同步已全部完成（`MVP_PRD.md` 4 处、`TechDesign-BCI-Decoder-MVP.md` 5 处、`在线解码模块设计说明.md`、`详细技术路线.md`、`TechDesign-Game-MVP.md` 流程图、`与天大清单`、`需求确认记录.md` D6、`项目计划书.md`、`项目规划.md`、`学习路线图.md`（含 W8 本周行）、`research-BCI-Decoder.md`、`学习/骨架主链路导读.md`、`outputs/MVP冲刺计划_1027.md`、`bci-decoder/README.md` 树注释——历史快照 `一致性复核`、`research-request`、`Project-Proposal`（立项即 CSP）保持不动）；②全量回归（游戏端 39/39 + 端到端）；③git 提交（用户未催提交，本次仅改工作区，提交待用户指示）。 **红线自查**：本批不含任何对外准确率数字（合成 CV=1.000 仅在 MEMORY/register 以自检口径描述）。 |
 | 2026-10-20 | **D1 · T1 复现跑通完成（A1 预案之一，阎浩文）**。**环境现状**：`bci-decoder/game/` 6 文件 + `bci-decoder/tools/verify_game_headless.py` 已在本地工作区（组长已投放、尚未推送）；`docs/复现说明.md` 王释贤版**尚未产出**（T1 依赖阻塞项，按 `tech_stack.md` / `README.md` 命令口径照跑可独立复现）。**五项全过**：①解码端 `pytest` **22/22**（2.42 s）；②游戏端 `pytest -q "game\tests"` **39/39**（5.34 s）；③replay：`make_sample_data.py --seconds 60` 生成 `data/sample_continuous.npy`（形状 (8,15000)/8 通道/60 s）+ `cli run demo_replay --chunks 300` 完整回放、`left/right` 交替跟随、尾部 `p95≈1.38 ms`（2 s 窗主导端到端 ≈2001 ms）；④键盘版 headless：`pong.py --input keyboard --headless --max-frames 120 --report` 退出码 0、报告生成、输入源如实标注 keyboard；⑤**`--input ws` 端到端**：`tools/verify_game_headless.py` **checks=39 / FAILS=0**（A 全程在线 60 fps、左右均被驱动、位移 275/434 px；B 解码器中途被杀不崩、安全态 idle 生效、1200 帧；C 键盘；D jsonl 契约节奏 5/5）。**归档**：`docs/evidence/W9_1027/D1_20261020_复现跑通日志_阎浩文.md`（A1 四份记录之一；**不含准确率数字**）。本次未曾提交 Git（沿用"提交待用户指示"惯例）。**下一步 T2（D2 10/21）**：造 `data/sample_switch.npy` + 起草 `configs/demo_replay_switch.yaml` / `demo_weak.yaml` / `demo_nomodel.yaml`。 |
 | 2026-10-20 | **T2 演示配置（D1 提前动工）：2a/2b/2d 通过 + 2c 发现核心缺陷（已如实降级上报）。** 用户已建 `/myworkoutputs`（个人产出集中地，不入库）。**已完成**：①2a `data/sample_switch.npy`（(8,15000)/8 通道/60 s，`make_sample_data.py --label-period 4`，独立于 sample_continuous）；②2b `configs/demo_replay_switch.yaml`（replay→sample_switch）`--chunks 240` **左/右规律交替**；③2d `configs/demo_nomodel.yaml`（`features.kind: bandpower` + `classifier.kind: untrained` 均匀概率 0.5，**避免 model_path 指向不存在文件导致 joblib FileNotFoundError 崩溃**）`--chunks 200` **40/40 全 idle、首条即 idle、不崩、无随机指令**。**2c 核心缺陷（已实证、已上报，T2c 按"未达标·被阻塞"交付）**：demo 模型（CSP+LDA，bootstrap 产物）对**任意训练分布外输入（纯噪声/低 SNR/任意结构）均武断判为单侧 high-conf (`right`, conf≈0.96~1.00)**；根因 = ①CSP `log(var/var.sum())` 归一化抹掉信噪比，②LDA 对 OOD 特征不降置信（scikit `predict_proba` 饱和）；弱信号下发决数中 idle 仅 ~2/40（5%，由噪声偶然驱动，不可控）。**与红线"没把握不指挥"直接冲突**——需核心改进（OOD/距离门限/置信校准等，走 `MVP规格说明书` §9，不擅改）后再回验。**产物**：3 配置已在 `bci-decoder/configs/`；证据/纪要 `myworkoutputs/T2_演示配置/`（2b/2d 日志、`2c_弱信号OOD高置信缺陷纪要_阎浩文.md`、`_work/` 探测脚本）；`demo_weak.yaml` 头部注释已改为如实标注限制。**未提交 Git**。**下一步**：T2c 决策已由用户拍板走"降级交付"；后续 T3（D3 A3 录屏）/ T4 / T5 视清单推进。 |
+| 2026-10-21 | **横版闯关 MI Pixel Run v1.0 并入主线 + 游戏端全量自检 64/64**。git 合并 `origin/main`（fast-forward）→ `HEAD=1a5098a`（`feat(game): 发布横版闯关游戏正式版 v1.0`，19 文件 / 1011 行），`bci-decoder/game/platformer/` 正式成为**游戏端主打**；`game/pong.py`（脑控弹球，备选）与 `game/runner.py`（格子版，备稿）保留。**测试**：`pytest -q game\platformer\tests game\tests` → **64/64**（platformer 14 + runner 11 + ws_protocol 39）。**冒烟**：`start_game.ps1` 核心逻辑验证通过（`serve_web` 端口 8766 首试 HTTP 200、页面含游戏签名 `MI Pixel Run 闯关 v1.0`、进程可正常停）。**A10 证据归档**：`docs/evidence/W9_1027/A10_长跑日志.txt`（727.4 KB 完整日志副本，对应 `bci-decoder/artifacts/A10_evidence_20261021/`）；`docs/M2冲刺作战清单.md` 已更新为「A10 ✅ 两部分完成」（长跑见下行、断线重连见下行）。**步骤**：①本会话已完成**根 README** 快速开始第 3-4 条游戏段对齐（platformer 主打）；②`docs/M2冲刺作战清单.md` 相关行已更新；③若干新文件仍未提交（`git status` 见下）。 |
+| 2026-10-21 | **A10 断线重连演练：PASS（工程自检级，两段连接）。** 真实解码器（`demo_online.yaml` 合成源，红线 5）→ ws://127.0.0.1:8765 → `pong --input ws --headless`（3600 帧）：连接中**杀掉解码器进程** → 游戏不崩、进「信号丢失」安全态（`stale_dropped=83`、只发 `idle`，不编造方向）→ **重启解码器 → 自动重连（connects=2）续收**（received=11251 两段合计），**malformed=0、无 Traceback、退出码 0**。**checks=9/9 FAILS=0**。证据 `docs/evidence/W9_1027/A10_断线重连演练.md` + `.json`；脚本（非交付）`.deepworks/tmp/verify_a10_reconnect.py`。复现：终端 1 跑 decode ws，终端 2 跑 pong headless，中途杀/重启终端 1 即可。至此 **A10（1 h 长跑 + 断线重连）全完成** → `M2冲刺作战清单.md` D2 附加行已更新为「A10 ✅」。 |
+| 2026-10-21 | **A10 一小时长跑：PASS（跨 3600s）。** `demo_soak.yaml`（mock 无限源 + realtime:true + console sink）第四轮带 `ES_SYSTEM_REQUIRED` 防睡眠运行，**连续跑到 t_data=4183.996s（≈69.7 分钟）被 watchdog（`watch_soak.py`）判 PASS 后主动结束，无任何 error/traceback**。证据 `bci-decoder/artifacts/A10_evidence_20261021/`（`A10_r4_soak_4184s.log` 8370 行决策 / 8368 行 `state=running` / 0 error；`watch_r4.log` 末尾 `RESULTS PASS t_data>=3600`）。**关键教训（勿重蹈）**：`cli run` 重定向 stdout 到文件时 Python 默认**8KB 块缓冲**——日志"长时间不动"是没 flush，**不是进程卡死**；py-spy 抓到 `time.sleep(0.01)` 是主线程等待下一节拍的正常快照，**不能据此判死**（本轮曾据此误判"卡死在 696s"，实为缓冲假象）。真实判据 = watchdog 采样 t_data 推进 + 无 traceback。**配套验证**：纯 `MockSource(realtime=True)` 直测（exp6，无 cli/console）3600s 整 PASS（t_data=3600/wall=3600，1:1），证明 `_keep_rate` 节拍与"息屏但防睡眠"场景均可靠。**下一步**：A10 证据更新至作战清单状态；第四轮进程已由 watchdog 主动结束，无需清理。 |

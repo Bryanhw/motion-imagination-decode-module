@@ -3,13 +3,13 @@
 > 翔宇医疗校企合作项目 · 把脑电中的**运动想象意图**实时解码成**可被游戏直接调用的消息流**。
 > 配套 Demo：**脑控弹球**（先键盘版完整可玩，再换成解码消息驱动画面）。
 
-**当前状态（2026-10-16）**：里程碑 ①（10/13 文档）✅ 已交付；里程碑 ②（10/27 可运行 MVP）🔄 进行中。
+**当前状态（2026-10-21）**：里程碑 ①（10/13 文档）✅ 已交付；里程碑 ②（10/27 可运行 MVP）🔄 进行中。
 解码链路（`sources → buffer → pipeline → outputs`）**已跑通**，`pytest` **17/17 通过**（`bci-decoder/tests`），已产出演示模型与输出文件。
 **WebSocket 输出已端到端跑通**（2026-10-16 实测：解码器 `--outputs websocket` ← 客户端收到消息、字段契约一致；`websockets 17.2` 与 `pygame-ce 2.5.8` 已装入 `.venv`）。
-**游戏端（脑控弹球）代码已完成并通过工程自检**（`bci-decoder/game/`：单测 **39/39**、端到端 **39 项断言全绿**；**A7 联调录屏 / A8 真人现场验收未做 → F4 尚不能判定验收通过**）。
+**游戏端**：横版闯关 **MI Pixel Run v1.0**（`bci-decoder/game/platformer/`）为主打，已并入本仓库主线；脑控弹球（`game/pong.py`）与格子版（`game/runner.py`，备稿）仍保留。游戏端工程自检：platformer 14 + runner 11 + ws_protocol 39 = **64 项单测通过**。**A7 联调录屏 / A8 真人现场验收未做 → F4 尚不能判定验收通过**。
 **未完成**：LSL、校准流程、Docker。
 
-> **横版闯关游戏正式版 v1.0**：键盘模拟和 JSONL 回放版本位于 [`bci-decoder/game/platformer/`](bci-decoder/game/platformer/README.md)。当前没有实时脑电连接或解码功能。
+> **横版闯关游戏正式版 v1.0（主打）**：键盘模拟和 JSONL 回放版本位于 [`bci-decoder/game/platformer/`](bci-decoder/game/platformer/README.md)，已并入主线；当前没有实时脑电连接或解码功能。脑控弹球（`game/pong.py`）与格子版备稿（`game/runner.py`）仍保留。
 
 ---
 
@@ -17,8 +17,8 @@
 
 | 路径 | 说明 |
 |---|---|
-| `bci-decoder/` | **业务代码**（在线解码模块；`game/` 为脑控弹球游戏端，已实现） |
-| `bci-decoder/game/platformer/` | **横版闯关游戏正式版 v1.0**（键盘模拟 / JSONL 回放） |
+| `bci-decoder/` | **业务代码**（在线解码模块；`game/` 为游戏端：主打 platformer + 备稿 runner + 弹球 pong） |
+| `bci-decoder/game/platformer/` | **横版闯关游戏正式版 v1.0（主打）**（键盘模拟 / JSONL 回放） |
 | `docs/` | **文档体系**（规格、PRD、技术设计、研究、证据） |
 | `agent_docs/` · `AGENTS.md` · `MEMORY.md` | 给 AI 编码助手的协作层（长期规则 / 进度） |
 | `docs/evidence/` | 里程碑证据归档（`W{n}_{日期}/`） |
@@ -41,14 +41,15 @@
 # 2) 启动解码器，输出到 WebSocket（游戏端联调用）
 .venv\Scripts\python.exe -m bci_decoder.cli run --config configs/demo_online.yaml --outputs websocket
 
-# 3) 游戏端（bci-decoder/game/，2026-10-16 已实现）
+# 3) 游戏端（bci-decoder/game/，2026-10-21 已并主线）
+.venv\Scripts\python.exe -m game.platformer.main --mode keyboard   # 主打：MI Pixel Run 横版闯关，键盘模拟
+.venv\Scripts\python.exe -m game.platformer.main --mode replay      # 主打：JSONL 回放
+.venv\Scripts\python.exe -m pytest -q game\platformer\tests
+
+# 3b) 备选：脑控弹球 pong / 格子版备稿 runner（仍保留）
 .venv\Scripts\python.exe game\pong.py --input keyboard   # 键盘降级版（C 级演示，须明说不是脑控）
 .venv\Scripts\python.exe game\pong.py --input ws         # 解码驱动版：需先启动第 2 步
-
-# 3b) 横版闯关游戏正式版 v1.0（当前使用键盘或 JSONL 回放）
-.venv\Scripts\python.exe -m game.platformer.main --mode keyboard
-.venv\Scripts\python.exe -m game.platformer.main --mode replay
-.venv\Scripts\python.exe -m pytest -q game\platformer\tests
+.venv\Scripts\python.exe -m pytest -q "game\tests"           # 弹球 39 + runner 11（须在 bci-decoder 下显式传路径）
 
 # 4) headless 自检 + 出报告（无显示器也能跑，队友/CI 复现用）
 .venv\Scripts\python.exe game\pong.py --input ws --headless --max-frames 600 --report artifacts\pong_report.json
