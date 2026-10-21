@@ -1,5 +1,7 @@
 # 在线解码演示配置：加载 bootstrap_demo 训练出的模型，用 mock 源验证闭环
 # 用法：python -m bci_decoder.cli run --config configs/demo_online.yaml --chunks 200
+# OOD：2026-10-21 组长拍板开启（同 demo_weak 参数）；开启后域内回归证据见
+#      docs/evidence/W9_1027/2c_改进提案/D4_OOD域内回归_*.log
 
 source:
   kind: mock
@@ -34,6 +36,14 @@ postprocess:
   ema_alpha: 0.4
   min_confidence: 0.6
   idle_label: idle
+
+ood:
+  enabled: true
+  method: mahalanobis
+  chi2_quantile: 0.99
+  score_scale: 1.0
+  strength_floor_enabled: true
+  model_path: "artifacts/ood.joblib"
 
 window:
   window_seconds: 2.0

@@ -1,0 +1,56 @@
+# D5_OOD域内回归_demo_replay_switch (2026-10-21)
+# 配置: configs/demo_replay_switch.yaml  ood 块同 demo_weak 参数 (mahalanobis / chi2 0.99 / score_scale 1.0 / strength_floor true / artifacts/ood.joblib)
+# 列: t | label | conf | probs | compute(ms) | state
+# --- 开启 OOD 后决策序列 ---
+# [    1.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.6ms  win=2.0s state=running
+# [    1.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+# [    1.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+# [    1.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [    2.496s] left   conf=0.70  probs=[1.00 0.00]  compute=5.1ms  win=2.0s state=running
+# [    2.996s] left   conf=0.82  probs=[1.00 0.00]  compute=0.7ms  win=2.0s state=running
+# [    3.496s] left   conf=0.89  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+# [    3.996s] left   conf=0.94  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+# [    4.496s] left   conf=0.76  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [    4.996s] left   conf=0.66  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [    5.496s] idle   conf=0.59  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [    5.996s] idle   conf=0.56  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+# [    6.496s] idle   conf=0.67  probs=[0.00 1.00]  compute=1.1ms  win=2.0s state=running
+# [    6.996s] idle   conf=0.80  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [    7.496s] right  conf=0.88  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [    7.996s] right  conf=0.93  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [    8.496s] right  conf=0.76  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [    8.996s] right  conf=0.65  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [    9.496s] idle   conf=0.59  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [    9.996s] idle   conf=0.64  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+# [   10.496s] idle   conf=0.79  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+# [   10.996s] left   conf=0.87  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+# [   11.496s] left   conf=0.92  probs=[1.00 0.00]  compute=0.7ms  win=2.0s state=running
+# [   11.996s] left   conf=0.95  probs=[1.00 0.00]  compute=0.7ms  win=2.0s state=running
+# [   12.496s] left   conf=0.77  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+# [   12.996s] left   conf=0.66  probs=[0.50 0.50]  compute=0.4ms  win=2.0s state=running
+# [   13.496s] idle   conf=0.60  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [   13.996s] idle   conf=0.64  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [   14.496s] idle   conf=0.78  probs=[0.00 1.00]  compute=0.7ms  win=2.0s state=running
+# [   14.996s] right  conf=0.87  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [   15.496s] right  conf=0.92  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [   15.996s] right  conf=0.95  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [   16.496s] right  conf=0.77  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [   16.996s] right  conf=0.66  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [   17.496s] idle   conf=0.60  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [   17.996s] idle   conf=0.64  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+# [   18.496s] idle   conf=0.78  probs=[1.00 0.00]  compute=0.7ms  win=2.0s state=running
+# [   18.996s] left   conf=0.87  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+# [   19.496s] left   conf=0.92  probs=[1.00 0.00]  compute=0.8ms  win=2.0s state=running
+# [   19.996s] left   conf=0.95  probs=[1.00 0.00]  compute=0.7ms  win=2.0s state=running
+# [   20.496s] left   conf=0.77  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [   20.996s] left   conf=0.66  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [   21.496s] idle   conf=0.60  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [   21.996s] idle   conf=0.56  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+# [   22.496s] idle   conf=0.66  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [   22.996s] idle   conf=0.80  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+# [   23.496s] right  conf=0.88  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+# [   23.996s] right  conf=0.93  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+
+# 汇总: base -> ood
+#   p95_ms: 0.72 -> 0.79
+#   max_ms: 4.39 -> 5.05
