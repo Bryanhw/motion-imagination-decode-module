@@ -1,12 +1,15 @@
-# 演示配置 · 弱信号（实验配置）：低信噪比输入→置信度应低于门限→idle
-# ⚠️ 已知限制（2026-10-20 验证）：当前 demo 模型(CSP+LDA)对弱/噪声/任意输入
-#    均武断判为单侧高置信(right conf≈1.0)，CSP 的 log-variance 归一化抹掉信噪比；
-#    使本配置无法稳定输出 idle。属于核心模型缺陷（OOD 不降置信），待核心改进后复验。
-#    详见 myworkoutputs/T2_演示配置/2c_弱信号OOD高置信缺陷纪要_阎浩文.md
+# 演示配置 · 弱信号（实验配置）：低信噪比输入→域外检测→idle
+# 改进（2026-10-21，D2 提案落地）：启用域内检测 OOD。CSP 的 log-variance 归一化抹掉绝对
+#    功率，LDA 对分布外样本武断给出近 0/1 高置信，min_confidence 挡不住单类虚高（旧缺陷 2c）。
+#    OOD 在“特征→分类”之间判定：马氏距离（结构性异常）+ 信号强度下限（弱信号/近零输入），
+#    任一命中即喂均匀概率给稳定器→输出 idle；9 字段契约零改动。
+#    详见 docs/evidence/W9_1027/2c_改进提案/D2_20261021_2c_OOD域内检测实施细化_阎浩文.md
+#    ⚠️ ood.enabled=true 需先训练出 ood.joblib：python scripts/bootstrap_demo.py --config configs/demo_weak.yaml
+#    若模型缺失将优雅降级为不启用（见 core._build_ood），并在控制台打印告警。
 # 前置：data/sample_weak.npy（低 SNR 合成样本，工程自检用，不评价算法性能）
 #   python scripts/make_sample_data.py --out data/sample_weak.npy --seconds 60 --label-period 4 --snr-db -6
 # 验证：python -m bci_decoder.cli run --config configs/demo_weak.yaml --chunks 200
-#   → 目标：台面 label 全程 idle；当前实测无法稳定达成（见纪要）
+#   → 目标：台面 label 全程 idle（OOD 域外判定命中）
 
 source:
   kind: replay
@@ -43,6 +46,15 @@ postprocess:
   ema_alpha: 0.4
   min_confidence: 0.6
   idle_label: idle
+
+# 域内检测（2c 缺陷改进，D2 提案落地；本配置灰度开启，默认全局关）
+ood:
+  enabled: true
+  method: mahalanobis
+  chi2_quantile: 0.99
+  score_scale: 1.0
+  strength_floor_enabled: true
+  model_path: "artifacts/ood.joblib"
 
 window:
   window_seconds: 2.0

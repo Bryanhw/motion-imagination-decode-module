@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import os
 import time
 from typing import Iterable
 
@@ -25,6 +26,7 @@ from .buffer import RingBuffer
 from .config import Config
 from .pipeline.classifier import build_classifier
 from .pipeline.features import build_feature_extractor
+from .pipeline.ood import OODDetector
 from .pipeline.postprocess import DecisionStabilizer
 from .pipeline.preprocess import Preprocessor
 from .sources import Source, build_source
@@ -48,10 +50,35 @@ class DecoderEngine:
         self.classifier = classifier if classifier is not None else build_classifier(cfg.classifier)
         self.stabilizer = DecisionStabilizer(cfg.postprocess)
         self.class_names = list(cfg.classifier.classes)
+        self.ood = self._build_ood(cfg.ood)
 
         self._since_last = 0
         self.compute_times_ms: list[float] = []
         self.n_outputs = 0
+
+    # ---- 域内检测（OOD，默认关，灰度开） ----
+    @staticmethod
+    def _build_ood(occfg) -> OODDetector | None:
+        """按配置加载域内检测器；开启但模型缺失/加载失败时优雅降级为不启用。"""
+        if not getattr(occfg, "enabled", False):
+            return None
+        if not occfg.model_path or not os.path.exists(occfg.model_path):
+            print(f"[bci-decoder] ⚠️ ood.enabled=True 但未找到 model_path={occfg.model_path!r}，OOD 未启用")
+            return None
+        try:
+            det = OODDetector.load(occfg.model_path)
+            print(f"[bci-decoder] OOD 域内检测已启用：{occfg.model_path} "
+                  f"(method={det.method}, strength_floor={det.strength_floor_enabled})")
+            return det
+        except Exception as e:  # pragma: no cover
+            print(f"[bci-decoder] ⚠️ OOD 模型加载失败，降级为不启用：{e}")
+            return None
+
+    @staticmethod
+    def _window_strength(x: np.ndarray) -> float:
+        """在线窗口强度标量（µV）：跨通道 RMS 幅值。训练/在线必须同口径。"""
+        x = np.asarray(x, dtype=np.float64)
+        return float(np.sqrt(np.mean(np.var(x, axis=1))))
 
     # ---- 单次推进 ----
     def push(self, chunk: EEGChunk) -> list[DecoderOutput]:
@@ -68,7 +95,16 @@ class DecoderEngine:
 
             window = self.buffer.get_last(self.window_samples)
             feat = self.features.transform(window)
-            probs = self.classifier.predict_proba(feat)
+            if self.ood is not None:
+                strength = self._window_strength(window) if self.ood.strength_floor_enabled else None
+                ood = self.ood.is_outside(feat, strength)
+            else:
+                ood = False
+            if ood:
+                # 域外：喂均匀概率给稳定器，自然走 idle（9 字段契约零改动）
+                probs = np.full(len(self.class_names), 1.0 / len(self.class_names))
+            else:
+                probs = self.classifier.predict_proba(feat)
             label, conf = self.stabilizer.update(probs, self.class_names)
 
             compute_ms = (time.perf_counter() - t_start) * 1000.0

@@ -69,6 +69,18 @@ class PostprocessConfig:
 
 
 @dataclass
+class OODConfig:
+    """域内检测（OOD 高置信缺陷改进，2c）。默认关闭，灰度开启，不触碰冻结契约。"""
+
+    enabled: bool = False                  # 总开关：默认关，灰度开
+    method: str = "mahalanobis"           # mahalanobis | none
+    chi2_quantile: float = 0.99           # 卡方分位（理论域外阈值参考）
+    score_scale: float = 1.0              # 阈值系数（灰调试区间 0.8–1.2）
+    strength_floor_enabled: bool = False  # 信号强度下限判据（弱信号/近零输入兜底）
+    model_path: str = ""                  # OODDetector 产物路径 (.joblib)
+
+
+@dataclass
 class WindowConfig:
     window_seconds: float = 2.0        # 滑动窗长度
     step_seconds: float = 0.25         # 决策步长
@@ -89,6 +101,7 @@ class Config:
     features: FeatureConfig = field(default_factory=FeatureConfig)
     classifier: ClassifierConfig = field(default_factory=ClassifierConfig)
     postprocess: PostprocessConfig = field(default_factory=PostprocessConfig)
+    ood: OODConfig = field(default_factory=OODConfig)
     window: WindowConfig = field(default_factory=WindowConfig)
     output: OutputConfig = field(default_factory=OutputConfig)
 
@@ -115,6 +128,7 @@ class Config:
             features=sub(FeatureConfig, "features"),
             classifier=sub(ClassifierConfig, "classifier"),
             postprocess=sub(PostprocessConfig, "postprocess"),
+            ood=sub(OODConfig, "ood"),
             window=sub(WindowConfig, "window"),
             output=sub(OutputConfig, "output"),
         )
