@@ -19,7 +19,7 @@
 | # | 日期 | 目标 | 状态 |
 |---|---|---|---|
 | ① | 10/13 · W7 | 立项与 MVP 规格（文档） | ✅ 文档已交付（`MVP规格说明书` **v1.1**、`项目章程`、`需求确认记录`） |
-| ② | 10/27 · W9 | **可运行 MVP**（F1–F5 + 延迟实测） | 🔄 进行中（解码链路**已跑通**、`pytest` **17/17**；**WebSocket 输出已端到端跑通**，2026-10-16；**弹球游戏端代码完成 + 工程自检通过**，待 A7 录屏/A8 现场验收；校准流程未完成） |
+| ② | 10/27 · W9 | **可运行 MVP**（F1–F5 + 延迟实测） | 🔄 进行中（解码链路**已跑通**、`pytest` **22/22**；**WebSocket 输出已端到端跑通**，2026-10-16；**弹球游戏端代码完成 + 工程自检通过**，待 A7 录屏/A8 现场验收；**校准流程骨架已完成**（2026-10-21，`docs/calibration_flow.md` + `scripts/calibrate.py`，真实采集闭环属④）） |
 | ③ | 11/10 · W11 | 真实基线（`moabb` + BCI IV 2a，Kappa > 0.3）+ 用户反馈 | ⏳ 未开始 |
 | ④ | 12/01 · W14 | Beta（校准流程、黎曼、LSL、稳定性） | ⏳ 未开始 |
 | ⑤ | 12/08 · W15 | Demo Day | ⏳ 未开始 |
@@ -55,6 +55,7 @@
 - 游戏端 `python -m pytest -q "game\tests"` → **39 项全部通过**（2026-10-16，须在 `bci-decoder/` 下显式传路径，`pytest.ini` 的 `testpaths = tests` 不会收集它）；**2026-10-21 合并 platformer 后**：`pytest -q game\platformer\tests game\tests` → **64 项全部通过**（platformer 14 + game/tests 50：含 runner 11 与 ws_protocol 39）
 - **端到端**：`bci-decoder/tests` 与 `game/tests` 之外，另有非交付物脚本 `.deepworks/tmp/verify_game_headless.py`（真解码器 → 游戏端 headless，四场景 **39 项断言**；`.deepworks/` 不入库）
 - `bci-decoder/artifacts/` 内已有 `demo_lda.joblib` 与 `decoder_output.jsonl`
+- **校准骨架**（2026-10-21）：`bci-decoder/scripts/calibrate.py` 支持 `--subject-id <id> [--real-data raw.npy --labels labels.npy] [--n-per-class N] [--trial-seconds 2.0]`，按 `artifacts/users/<subject_id>/` 分目录产出 `classifier.joblib`（LDA）+ `csp.joblib`（kind=csp 时）+ `online.yaml`（可直接 `cli run` 加载）+ `metadata.json`；复用 `bootstrap_demo.extract_features` 保证训练/推理一致；synth 数据仅工程自检、不对外报准确率。设计文档：`docs/calibration_flow.md`
 - 全局 `python` **没有** pytest —— 必须用 `.venv\Scripts\python.exe`
 - 仓库**已是 Git 仓库**（2026-10-15）：远端 `origin` = **https://github.com/Bryanhw/motion-imagination-decode-module**（**公开仓库**），`main` 与 `origin/main` 同步；入库提交 **`7ce8d08`**（89 文件 / 12,317 行），父提交为远端原有 `4ea612c`（**快进推送，未覆盖、未强推**）；提交身份 **`Bryanhw <yhw20070910@outlook.com>`（仅仓库级 `git config`，未改全局）**；`.gitignore` 已实测生效（`.venv/`、`artifacts/`、`.pytest_cache/`、`.deepworks/`、`uploads/`、`.tools/*.pdf` 均被忽略）
 - `docs/evidence/W7_1013/` **已建立**（2026-10-15，含 `README.md` 与 pytest 证据）；`docs/evidence/W7_1016/` **已建立**（2026-10-16，游戏端 F4 + WebSocket 端到端证据，含 `README.md`）
@@ -65,7 +66,7 @@
 1. ~~拍板 `bci-decoder/` 的归属口径~~ ✅ **已完成**（2026-10-15：团队成果、计入进度）；~~改完旧文档表述~~ ✅ **已完成**（全库复核，残留命中均为合法的历史引述/决策记录）。
 2. ~~校准文档与仓库事实的 6 处不一致~~ ✅ **已完成**（§5.2 六条已逐条处置，处置结果记于该节表格下方）。
 3. ~~建 `docs/evidence/W7_1013/`~~ ✅ **已完成**；~~`git init` + 首次提交~~ ✅ **已完成**（2026-10-15：`7ce8d08` 已推送至 `origin/main`，公开仓库地址见「环境事实」）。
-4. 里程碑 ② 主攻：~~**`websockets` 跑通**~~ ✅ **已完成（2026-10-16）** + ~~**脑控弹球（先键盘版，`bci-decoder/game/` 尚未创建）**~~ ✅ **代码与工程自检已完成（2026-10-16，`bci-decoder/game/` 6 文件，测试 39/39）** + **校准流程骨架**（未开始）。
+4. 里程碑 ② 主攻：~~**`websockets` 跑通**~~ ✅ **已完成（2026-10-16）** + ~~**脑控弹球（先键盘版，`bci-decoder/game/` 尚未创建）**~~ ✅ **代码与工程自检已完成（2026-10-16，`bci-decoder/game/` 6 文件，测试 39/39）** + ~~**校准流程骨架**~~ ✅ **已完成（2026-10-21）**：`docs/calibration_flow.md`（含契约映射/质量门/真实采集接入点）+ `bci-decoder/scripts/calibrate.py`（`--subject-id` 分目录产出 classifier/csp/online.yaml/metadata，支持 `--real-data/--labels`），synth 自检跑通、生成配置可被 `cli run` 直接加载（详见环境事实）；真实采集闭环属里程碑④。
 5. **F4 收尾（人工，不占 AI 时间）**：接显示器跑键盘版 → 配解码器跑 `--input ws` → **录屏归档**（补 A7/A8，A8 是 F4 验收的关键一步）。A10（1 h 长跑 + 断线重连演练）已 2026-10-21 **全完成**。
 6. **执行载体**：里程碑 ② 剩余工作（A1 全员跑通 / A7 / A8 / A4 / A5 / A9 / A11 / 校准骨架）已按人按天拆解为 **`docs/M2冲刺作战清单.md`**（2026-10-20）；前置项 = 组长把 `bci-decoder/game/` 剩余文件（pong/runner/ws_client 等未跟踪项）推送上来（见「开放问题」末条）。A10 已全完成（长跑 + 断线重连），A7 只剩真人联调录屏。
 
@@ -88,6 +89,7 @@
 
 | 日期 | 变更 |
 |---|---|
+| 2026-10-21 | **校准流程骨架完成**（M2 主攻项）：新建 `docs/calibration_flow.md`（专题建议 §5.2 落地；含里程碑范围界定 ② 骨架 vs ④ 完整、总体流程、冻结契约 `calibrate`/`load_subject` 的 ④ 启用映射（不变更 MVP 忽略记日志行为）、质量门边界（CV 仅工程自检、试玩门属④）、演进路线（在线自适应微调/欧氏对齐迁移）、真实采集数据格式约定）+ 新建 `bci-decoder/scripts/calibrate.py`（复用 `bootstrap_demo.extract_features`，`--subject-id` 按用户分目录出 classifier/csp/online.yaml/metadata.json，支持 `--real-data/--labels` 真实接入，`--n-per-class` 默认 20 对应规格 20–30）。**验证**：`scripts/calibrate.py --subject-id demo` 跑通（40 trial synth，特征 4 维），产出 `artifacts/users/demo/` 四件套，生成 `online.yaml` 被 `cli run --chunks 40` 直接加载出 `left conf=1.00` 决策（compute≈0.7ms、p95≈3.2ms）；解码端 `pytest tests` **22/22 依旧通过**。**未改任何冻结契约代码**。 |
 | 2026-10-20 | 新增横版闯关游戏正式版 v1.0：放在 `bci-decoder/game/platformer/`，与现有弹球并列。键盘模拟与契约 JSONL 回放共用输入层；浏览器试玩用 8766 端口，避开解码 WebSocket 的 8765 端口。单次 D 越障、输入去重/超时、物理和金币均有自动检查；当前没有实时脑电设备或解码接入。 |
 | 2026-10-15 | 按 vibe-coding-prompt-template 的 "Start a project" 流程补齐 agent 层：新增 `AGENTS.md`、`MEMORY.md`、`REVIEW-CHECKLIST.md`、`agent_docs/*`，以及 `docs/research-BCI-Decoder.md`、`docs/MVP_PRD.md`、`docs/TechDesign-BCI-Decoder-MVP.md`、`docs/Start项目落地评估.md`。**未改动任何现有文档、未写业务代码。** |
 | 2026-10-15 | 按 vibe-coding-prompt-template **Part 1（Deep Research Prompt Builder）** 流程生成研究请求：`outputs/research-request-BCI-Decoder.md`（A 零基础口径、聚焦"在线解码链路与延迟"、全免费优先、AI 仅用于辅助开发）。**该文件是研究请求，不是研究结果**；未改动现有文档、未写业务代码。 |
