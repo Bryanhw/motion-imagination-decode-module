@@ -26,6 +26,20 @@
 - `2c_改进提案/`：OOD 低置信机制改进提案（阎浩文）
 - `D1_*.md`：各成员 D1 验收相关文档
 
+## 演示样本重建命令（`data/` 不入库，clone 后一条命令重建）
+
+`bci-decoder/data/` 与 `*.npy` 按仓库纪律不入库（见 `.gitignore`）；三个 replay 演示配置依赖的样本可在 `bci-decoder/` 目录下一键重建：
+
+```powershell
+# demo_replay.yaml        —— 连续段（也是 demo_replay_switch.yaml 的样本，哈希与旧 sample_switch.npy 一致）
+python scripts/make_sample_data.py --out data/sample_continuous.npy --seconds 60 --label-period 4
+
+# demo_weak.yaml         —— 弱信号（低信噪比；--snr-db 越小信号越弱）
+python scripts/make_sample_data.py --out data/sample_weak.npy --seconds 60 --label-period 4 --snr-db -6
+```
+
+> 注：2026-10-21 已把 `demo_replay_switch.yaml` 的样本统一指向可重建的 `sample_continuous.npy`（旧 `sample_switch.npy` 与其哈希相同，属冗余文件，不再生成）。
+
 ## 待补（评审前）
 
 - [ ] A5 延迟分解演示页（数据已齐：latency_breakdown.png + A4 数字）

@@ -1,5 +1,6 @@
-# 演示配置 · 规律切换：回放每 4 秒左右交替的样本，验证「回放跟得上类别切换」
-# 前置：python scripts/make_sample_data.py --out data/sample_switch.npy --seconds 60 --label-period 4
+# 演示配置 · 规律切换：回放 4 秒左右交替的样本，验证「回放跟得上类别切换」
+# 样本即 sample_continuous.npy（与旧 sample_switch.npy 哈希相同，统一用可重建的 continuous）：
+# 前置：python scripts/make_sample_data.py --out data/sample_continuous.npy --seconds 60 --label-period 4
 # 验证：python -m bci_decoder.cli run --config configs/demo_replay_switch.yaml --chunks 240
 #   → 台面 label 应呈 左/右/左/右 规律切换（切换边缘可能有短暂过渡）
 
@@ -7,7 +8,7 @@ source:
   kind: replay
   sfreq: 250.0
   ch_names: [C3, Cz, C4, CP3, CP4, P3, P4, Oz]
-  path: "data/sample_switch.npy"
+  path: "data/sample_continuous.npy"
   chunk_samples: 25
   realtime: false
   speed: 1.0

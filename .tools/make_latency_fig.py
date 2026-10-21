@@ -9,9 +9,13 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]
 plt.rcParams["axes.unicode_minus"] = False
 
-# 官方数字(A4，群确认后在此更新)：等数据=window 2.0s；计算=p95 中位数(ms)
+# 数字口径（对齐王释贤 2026-10-21 说明）：1.849 = 旧 bandpower 版本 p95 中位，仅历史值，
+# 非当前正式演示值；新版 CSP p95 0.320 仅 CLI 计算范围，不含完整预处理与游戏端到端。
+# 正式演示数字须：指定演示机 + 同提交 + 同配置 + 三轮复测后在此更新。
 WAIT_MS = 2000.0
-COMP_P95_MS = 1.849  # 王释贤 2026-10-20 正式三次 p95 中位；本机同口径 1.339 见 00_测试报告
+# 旧 bandpower 口径三次 p95 中位（王释贤 2026-10-20）；本机同口径 1.339 见 00_测试报告；
+# 新版 CSP 0.320 仅 CLI 计算范围。正式值待统一演示机三轮复测后替换，勿作正式演示数字。
+COMP_P95_MS = 1.849
 
 fig, ax = plt.subplots(figsize=(8, 3.6))
 labels = ["单次分类计算", "等一块数据(2.0s 窗口)"]

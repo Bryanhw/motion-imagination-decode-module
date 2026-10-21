@@ -4,6 +4,7 @@
 #    使本配置无法稳定输出 idle。属于核心模型缺陷（OOD 不降置信），待核心改进后复验。
 #    详见 myworkoutputs/T2_演示配置/2c_弱信号OOD高置信缺陷纪要_阎浩文.md
 # 前置：data/sample_weak.npy（低 SNR 合成样本，工程自检用，不评价算法性能）
+#   python scripts/make_sample_data.py --out data/sample_weak.npy --seconds 60 --label-period 4 --snr-db -6
 # 验证：python -m bci_decoder.cli run --config configs/demo_weak.yaml --chunks 200
 #   → 目标：台面 label 全程 idle；当前实测无法稳定达成（见纪要）
 
