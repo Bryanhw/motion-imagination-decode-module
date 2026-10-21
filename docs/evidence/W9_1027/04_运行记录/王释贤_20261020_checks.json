@@ -1,0 +1,23 @@
+{
+  "mock": {
+    "console_messages": 40,
+    "labels": {
+      "idle": 11,
+      "left": 19,
+      "right": 10
+    },
+    "console_check": "passed",
+    "cli_exit_code": 0
+  },
+  "replay": {
+    "console_messages": 60,
+    "labels": {
+      "idle": 22,
+      "left": 24,
+      "right": 14
+    },
+    "console_check": "passed",
+    "cli_exit_code": 0
+  },
+  "config_check": "passed"
+}

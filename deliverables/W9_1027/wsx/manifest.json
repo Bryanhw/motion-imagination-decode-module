@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-20",
+  "owner": "王释贤",
+  "source_commit": "15096bc46c257a3685df3bc01cd8a026f913da99",
+  "python": "3.12.14 (main, Sep  1 2026, 14:17:39) [MSC v.1944 64 bit (AMD64)]",
+  "dependencies": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "joblib": "1.6.0",
+    "PyYAML": "6.0.3"
+  },
+  "data_origin": "synthetic engineering demo only; not real EEG evaluation",
+  "new_feature_kind": "csp",
+  "new_components": 4,
+  "channels": [
+    "C3",
+    "Cz",
+    "C4",
+    "CP3",
+    "CP4",
+    "P3",
+    "P4",
+    "Oz"
+  ],
+  "files": [
+    {
+      "file": "models/csp/demo_csp.joblib",
+      "source": "bci-decoder/artifacts/demo_csp.joblib",
+      "bytes": 539,
+      "sha256": "caf2d55389a7af4d6fdd808a0a57850149bb0ca183c74ed3ec7d82d5aa3d8d61"
+    },
+    {
+      "file": "models/csp/demo_lda.joblib",
+      "source": "bci-decoder/artifacts/demo_lda.joblib",
+      "bytes": 1797,
+      "sha256": "4850f8f809fa4dc065389a5813f2efa886a08f03c3d98930600627d8686d40fc"
+    },
+    {
+      "file": "models/bandpower_history/demo_lda.joblib",
+      "source": "bci-decoder/artifacts/history_bandpower_20261020/demo_lda.joblib",
+      "bytes": 2565,
+      "sha256": "4e9ff801bff60580f4cb5c431960669675546727ff8db906434ffdc6bf55bdf8"
+    },
+    {
+      "file": "inputs/sample_continuous.npy",
+      "source": "bci-decoder/data/sample_continuous.npy",
+      "bytes": 960128,
+      "sha256": "c6b392af8d5972bb1d1f8fa2022f3cc3ae46f4c473505be0011455e670df21cc"
+    },
+    {
+      "file": "configs/demo_online.yaml",
+      "source": "bci-decoder/configs/demo_online.yaml",
+      "bytes": 894,
+      "sha256": "589194d8d2e96ea77d7aafce8200b9a6ab5bc59ed7149e9098373c6470bc0bef"
+    },
+    {
+      "file": "configs/demo_replay.yaml",
+      "source": "bci-decoder/configs/demo_replay.yaml",
+      "bytes": 1031,
+      "sha256": "8cf832e567c6d511d89a4c2dd31f03f0bbebd70ab91b6af79f14f37b9c5b1734"
+    },
+    {
+      "file": "configs/demo_online_bandpower_history.yaml",
+      "source": "bci-decoder/artifacts/history_bandpower_20261020/demo_online_bandpower_snapshot.yaml",
+      "bytes": 874,
+      "sha256": "80f4f5aadfd0d36502e6ded1ad3a011849200f02bb6d11ef60d99b71e1c49015"
+    }
+  ],
+  "delivery_state": "prepared locally; not yet committed or pushed",
+  "new_mock_replay_verified": true,
+  "new_three_run_benchmark_verified": true,
+  "benchmark_median_p95_ms": 0.31961000167939346,
+  "benchmark_evidence": "docs/evidence/W9_1027/01_延迟/CSP_15096bc/"
+}

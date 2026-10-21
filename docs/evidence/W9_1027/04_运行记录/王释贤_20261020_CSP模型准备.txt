@@ -1,0 +1,3 @@
+[bootstrap] 特征维度：(80, 4)
+[bootstrap] 模型已保存：artifacts/demo_lda.joblib
+[bootstrap] CSP 空间滤波模型已保存：artifacts/demo_csp.joblib

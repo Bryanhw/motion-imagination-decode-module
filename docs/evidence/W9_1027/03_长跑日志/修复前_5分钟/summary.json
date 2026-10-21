@@ -1,0 +1,14 @@
+{
+  "status": "completed",
+  "error": null,
+  "requested_seconds": 300.0,
+  "actual_seconds": 300.00352120003663,
+  "chunks": 599287,
+  "outputs": 119857,
+  "rss_first_bytes": 123523072,
+  "rss_last_bytes": 129339392,
+  "rss_delta_mib": 5.546875,
+  "progress_samples": 11,
+  "full_hour_elapsed": false,
+  "memory_acceptance": "pending review of trend after warm-up; not auto-passed"
+}

@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-20",
+  "operator": "王释贤（本人 PowerShell）",
+  "config": "configs/demo_online.yaml",
+  "chunks_per_run": 600,
+  "aggregation": "median of three per-run p95 values; not pooled p95",
+  "runs": [
+    {
+      "run": 1,
+      "raw_file": "benchmark_run1.txt",
+      "n": 120,
+      "mean_ms": 0.7350408375107994,
+      "p50_ms": 0.6321000400930643,
+      "p95_ms": 1.2782400182913984,
+      "max_ms": 3.854300011880696,
+      "window_seconds": 2.0,
+      "est_e2e_p95_ms": 2001.2782400182914,
+      "p95_under_50ms": true
+    },
+    {
+      "run": 2,
+      "raw_file": "benchmark_run2.txt",
+      "n": 120,
+      "mean_ms": 1.0217525084347774,
+      "p50_ms": 0.8021000539883971,
+      "p95_ms": 2.0107300486415625,
+      "max_ms": 3.844299935735762,
+      "window_seconds": 2.0,
+      "est_e2e_p95_ms": 2002.0107300486416,
+      "p95_under_50ms": true
+    },
+    {
+      "run": 3,
+      "raw_file": "benchmark_run3.txt",
+      "n": 120,
+      "mean_ms": 0.8939691702835262,
+      "p50_ms": 0.6379500264301896,
+      "p95_ms": 1.8489549867808819,
+      "max_ms": 6.888799951411784,
+      "window_seconds": 2.0,
+      "est_e2e_p95_ms": 2001.8489549867809,
+      "p95_under_50ms": true
+    }
+  ],
+  "median_p95_ms": 1.8489549867808819,
+  "window_plus_compute_estimate_ms": 2001.8489549867809,
+  "all_cli_p95_under_50ms": true,
+  "measurement_scope": "window retrieval, features, classification and one stabilization call; excludes prefiltering, buffer append, output/transport/rendering",
+  "actual_game_end_to_end_measured": false
+}
