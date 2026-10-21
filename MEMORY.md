@@ -84,11 +84,13 @@
 - ~~【待验证】`websockets` 能否安装跑通~~ ✅ **已验证（2026-10-16）**：装通并端到端跑通；`jsonl` 轮询降级方案仍保留备用。**新增定案**：游戏端用 **`pygame-ce`**（上游 `pygame` 无 Python 3.14 wheel）。
 - ⚠️ **F4 尚不能判定验收通过（2026-10-16）**：代码与工程自检（单测 39/39、端到端 39 项断言）已完成，但 **A7 联调录屏、A8 真人现场演示与手感验证均未做**；headless 只能证明"消息 → 位移"通路正确，证明不了"跟手/好看"。
 - ✅ **已入库（2026-10-21）**：`bci-decoder/game/platformer/` 已由组长 merge 进 `origin/main`（`1a5098a`），游戏端主线确定。**已拍板（2026-10-21）**：`pong.py/ws_client.py/render.py/input_source.py/config_game.yaml/test_ws_protocol.py` 及 `bci-decoder/tools/verify_game_headless.py` **不入库，保留为本地备选**（游戏主打继续用 `1a5098a` 提交中的 platformer 版本），保持未跟踪状态留在工作区。
+- ⚠️ **待团队（2026-10-21 复核报告追加「最新 main 复核」节）**：王释贤 1.849 三次原始基准证据**仍未入库**；仓库根 `复现说明_W9_20261020.md` **未跟踪**、`docs/复现说明.md` 自指断链仍存在；`scripts/soak_run.py` 未入库（说明可改引 `demo_soak.yaml` + A10 证据）；`04_运行记录/` 目录仍不存在。这些均不受 `10d5f7e`/`d77db01` 影响，需团队（主要是王释贤 PR #1）落地。
 
 ## 最近变更
 
 | 日期 | 变更 |
 |---|---|
+| 2026-10-21 | **演示样本走可重建路线 + 延迟图口径注释 + 审查报告复核**：① 拍板「数据/模型不入库」纪律下改用可重建路线：`demo_replay_switch.yaml` 折叠为 `sample_continuous.npy`（二者 SHA256 相同）、`make_sample_data.py` 新增 `--snr-db` 参数（复现弱样本，验证 continuous 重跑哈希一致、weak 可重建 `--snr-db -6`）、`demo_weak.yaml` 注释补重建命令、`W9_1027/README` 新增重建命令小节。② `make_latency_fig.py` 补口径注释（1.849=旧 bandpower 历史值非正式演示值；0.320 仅 CLI 计算范围；正式值须指定演示机+同提交+同配置+三轮复测）。③ 提交推送：远端有新提交 `256220b`（MI Pixel Run 文档），已 rebase 整合无冲突；最终 `10d5f7e` 推送成功 ✅。④ 核对 `outputs/王释贤测试集审查报告_20261021.md` 与最新 main 一致性：22/22 复跑成立；`01_延迟/` 已建立（fbb1ee4 补 A4/A9）；但王释贤 1.849 证据 / `复现说明` 归一 / `soak_run.py` / `04_运行记录/` 仍待团队，报告已追加「六、最新 main 复核」节。⑤ `d77db01` 推送审查报告。**pytest 22/22 始终通过，未改冻结契约代码**。 |
 | 2026-10-21 | **校准流程骨架完成**（M2 主攻项）：新建 `docs/calibration_flow.md`（专题建议 §5.2 落地；含里程碑范围界定 ② 骨架 vs ④ 完整、总体流程、冻结契约 `calibrate`/`load_subject` 的 ④ 启用映射（不变更 MVP 忽略记日志行为）、质量门边界（CV 仅工程自检、试玩门属④）、演进路线（在线自适应微调/欧氏对齐迁移）、真实采集数据格式约定）+ 新建 `bci-decoder/scripts/calibrate.py`（复用 `bootstrap_demo.extract_features`，`--subject-id` 按用户分目录出 classifier/csp/online.yaml/metadata.json，支持 `--real-data/--labels` 真实接入，`--n-per-class` 默认 20 对应规格 20–30）。**验证**：`scripts/calibrate.py --subject-id demo` 跑通（40 trial synth，特征 4 维），产出 `artifacts/users/demo/` 四件套，生成 `online.yaml` 被 `cli run --chunks 40` 直接加载出 `left conf=1.00` 决策（compute≈0.7ms、p95≈3.2ms）；解码端 `pytest tests` **22/22 依旧通过**。**未改任何冻结契约代码**。 |
 | 2026-10-20 | 新增横版闯关游戏正式版 v1.0：放在 `bci-decoder/game/platformer/`，与现有弹球并列。键盘模拟与契约 JSONL 回放共用输入层；浏览器试玩用 8766 端口，避开解码 WebSocket 的 8765 端口。单次 D 越障、输入去重/超时、物理和金币均有自动检查；当前没有实时脑电设备或解码接入。 |
 | 2026-10-15 | 按 vibe-coding-prompt-template 的 "Start a project" 流程补齐 agent 层：新增 `AGENTS.md`、`MEMORY.md`、`REVIEW-CHECKLIST.md`、`agent_docs/*`，以及 `docs/research-BCI-Decoder.md`、`docs/MVP_PRD.md`、`docs/TechDesign-BCI-Decoder-MVP.md`、`docs/Start项目落地评估.md`。**未改动任何现有文档、未写业务代码。** |
