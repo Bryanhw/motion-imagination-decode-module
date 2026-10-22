@@ -1,0 +1,27 @@
+A1 run evidence - Lan Xiyang - 2026-10-22 17:45
+Machine: LAPTOP-MHV1D6NJ  Python 3.13.14 (global)  Repo: f514273
+Command: python scripts\bootstrap_demo.py --config configs\default.yaml
+---
+[bootstrap] 使用合成自检数据：80 个 trial（不可用于性能评估）
+[bootstrap] 特征维度：(80, 4)
+[bootstrap] 5折交叉验证准确率：1.000 ± 0.000
+[bootstrap] 注意：上列数字来自合成数据自检（mock/synth），不是算法成绩，禁止对外报告准确率（红线 R-1）
+[bootstrap] 模型已保存：artifacts/demo_lda.joblib
+[bootstrap] CSP 空间滤波模型已保存：artifacts/demo_csp.joblib
+[bootstrap] 域内检测器已保存：artifacts/ood.joblib (method=mahalanobis, strength_floor=False)
+[bootstrap] OOD 阈值：{'method': 'mahalanobis', 'n_features': 4, 'tau_chi2': 13.276704135987622, 'tau_emp_p99': 12.350200116037692, 'tau_final': 13.276704135987622, 'strength_floor': None, 'strength_floor_enabled': False}
+[bootstrap] 注意：下方 cv_accuracy 同为合成数据自检值，仅用于确认流水线可跑通，不得作为性能指标
+{
+  "n_trials": 80,
+  "n_features": 4,
+  "cv_accuracy": 1.0,
+  "model_path": "artifacts/demo_lda.joblib",
+  "ood_path": "artifacts/ood.joblib",
+  "classes": [
+    "left",
+    "right"
+  ]
+}
+
+下一步：把 configs/default.yaml 里的 classifier.model_path 指向该模型，
+      再执行 python -m bci_decoder.cli run --config configs/default.yaml
