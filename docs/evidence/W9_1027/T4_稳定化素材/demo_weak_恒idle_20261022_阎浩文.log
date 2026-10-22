@@ -1,0 +1,45 @@
+﻿[bci-decoder] OOD 域内检测已启用：artifacts/ood.joblib (method=mahalanobis, strength_floor=True)
+[bci-decoder] 数据源=replay  窗口=2.0s  步长=0.5s  类别=['left', 'right']
+[bci-decoder] 输出通道=['console']
+[    1.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.5ms  win=2.0s state=running
+[    1.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    1.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    1.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    2.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    2.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[    3.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[    3.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[    4.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[    4.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    5.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    5.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    6.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    6.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    7.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    7.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    8.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    8.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[    9.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[    9.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[   10.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[   10.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   11.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[   11.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[   12.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[   12.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[   13.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   13.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.5ms  win=2.0s state=running
+[   14.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.4ms  win=2.0s state=running
+[   14.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   15.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   15.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   16.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   16.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   17.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   17.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   18.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.4ms  win=2.0s state=running
+[   18.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[   19.496s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[   19.996s] idle   conf=0.50  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[bci-decoder] 决策次数=40
+[bci-decoder] 计算耗时统计: {"n": 40, "mean_ms": 0.2855950006050989, "p50_ms": 0.27724995743483305, "p95_ms": 0.4193300090264526, "max_ms": 0.5225000204518437, "window_seconds": 2.0, "est_e2e_p95_ms": 2000.4193300090265}
