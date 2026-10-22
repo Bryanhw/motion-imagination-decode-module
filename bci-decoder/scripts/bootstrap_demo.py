@@ -25,15 +25,19 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from bci_decoder.config import Config, DEFAULT_CH_NAMES, PreprocessConfig  # noqa: E402
 from bci_decoder.pipeline.classifier import LDAClassifier  # noqa: E402
 from bci_decoder.pipeline.features import CSPExtractor, build_feature_extractor  # noqa: E402
+from bci_decoder.pipeline.ood import OODDetector  # noqa: E402
 from bci_decoder.pipeline.preprocess import Preprocessor  # noqa: E402
 from bci_decoder.synth import synthesize_dataset  # noqa: E402
 
 
-def extract_features(trials, cfg: Config, labels=None):
+def extract_features(trials, cfg: Config, labels=None, return_strength: bool = False):
     """对每个 trial 独立跑一遍预处理+特征，模拟在线窗口。
 
     CSP 路线：CSP 是有状态特征，先用全部（预处理后的）窗口 fit 学到空间滤波矩阵 W，
     再逐个 transform；保证训练/推理完全一致。bandpower/covariance 无状态，直接逐 trial 提取。
+
+    return_strength=True 时额外返回强度标量数组 (n,)，口径与 core.DecoderEngine._window_strength
+    完全一致（跨通道 RMS，预处理后窗口），供域内检测器标定信号强度下限。
     """
     n_ch = len(cfg.source.ch_names)
     pre = Preprocessor(cfg.preprocess, n_ch, cfg.source.sfreq)
@@ -49,7 +53,13 @@ def extract_features(trials, cfg: Config, labels=None):
         pre.reset()          # trial 之间互相独立，重置滤波状态
     if isinstance(ex, CSPExtractor) and not ex.trained:
         ex.fit(np.stack(cleaned), np.asarray(labels))
-    return np.asarray([ex.transform(c) for c in cleaned]), ex
+    feats = np.asarray([ex.transform(c) for c in cleaned])
+    if not return_strength:
+        return feats, ex
+    strengths = np.asarray(
+        [np.sqrt(np.mean(np.var(c, axis=1))) for c in cleaned], dtype=np.float64
+    )
+    return feats, ex, strengths
 
 
 def main() -> int:
@@ -62,6 +72,8 @@ def main() -> int:
     ap.add_argument("--out", default="artifacts/demo_lda.joblib")
     ap.add_argument("--out-csp", default="artifacts/demo_csp.joblib",
                     help="CSP 空间滤波模型输出路径（kind=csp 时保存）")
+    ap.add_argument("--out-ood", default="artifacts/ood.joblib",
+                    help="域内检测器（OODDetector）输出路径；字段随 configs 的 ood 块决定")
     args = ap.parse_args()
 
     cfg = Config.load(args.config) if os.path.exists(args.config) else Config()
@@ -83,7 +95,7 @@ def main() -> int:
         )
         print(f"[bootstrap] 使用合成自检数据：{len(trials)} 个 trial（不可用于性能评估）")
 
-    x, extractor = extract_features(trials, cfg, labels)
+    x, extractor, strengths = extract_features(trials, cfg, labels, return_strength=True)
     print(f"[bootstrap] 特征维度：{x.shape}")
 
     # 交叉验证：看流水线是否真的携带可分信息
@@ -104,12 +116,26 @@ def main() -> int:
     if isinstance(extractor, CSPExtractor):
         extractor.save(args.out_csp)
         print(f"[bootstrap] CSP 空间滤波模型已保存：{args.out_csp}")
+
+    # 域内检测器（2c 缺陷改进，D2 提案落地）：用训练特征/强度标定域分布，随模型产物发布
+    ood = OODDetector(
+        method=cfg.ood.method,
+        chi2_quantile=cfg.ood.chi2_quantile,
+        score_scale=cfg.ood.score_scale,
+        strength_floor_enabled=cfg.ood.strength_floor_enabled,
+    )
+    ood.fit(x, strengths if cfg.ood.strength_floor_enabled else None)
+    ood.save(args.out_ood)
+    print(f"[bootstrap] 域内检测器已保存：{args.out_ood} "
+          f"(method={ood.method}, strength_floor={ood.strength_floor_enabled})")
+    print(f"[bootstrap] OOD 阈值：{ood.describe()}")
     print("[bootstrap] 注意：下方 cv_accuracy 同为合成数据自检值，仅用于确认流水线可跑通，不得作为性能指标")
     print(json.dumps({
         "n_trials": int(len(labels)),
         "n_features": int(x.shape[1]),
         "cv_accuracy": float(scores.mean()),
         "model_path": args.out,
+        "ood_path": args.out_ood,
         "classes": cfg.classifier.classes,
     }, ensure_ascii=False, indent=2))
     print("\n下一步：把 configs/default.yaml 里的 classifier.model_path 指向该模型，")

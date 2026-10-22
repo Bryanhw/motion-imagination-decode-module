@@ -36,6 +36,10 @@ class MockSource(Source):
         self._t = 0
         self._label_period = int(label_period_seconds * self.sfreq)
         self._state = "left"
+        # 实时节流：用 perf_counter 截止时刻 + 短步进 sleep 自愈。
+        # Windows 长时间 time.sleep 偶发丢失唤醒（尤其系统 S3 睡眠/恢复后）会导致 mock 停摆
+        # （A10 soak 两轮复现卡在 t≈2788.5s；快跑/纯 sleep 均正常）。短步进可避免单次 sleep 异常致死。
+        self._next_sample_time = 0.0
 
     @property
     def n_channels(self) -> int:
@@ -81,4 +85,23 @@ class MockSource(Source):
             yield chunk
 
             if self.realtime:
-                time.sleep(n / self.sfreq)
+                self._keep_rate(n)
+
+    def _keep_rate(self, n: int) -> None:
+        """按样本数推进实时节流，截止时刻驱动、短步进自愈。
+
+        原实现 time.sleep(n/sfreq) 在 Windows 长时间运行后偶发丢失唤醒
+        （尤其系统 S3 睡眠/恢复后），表现为整条链路停摆（A10 soak 两轮复现）。
+        改为按 perf_counter 绝对截止时刻分段短睡：即使单次 sleep 过长/丢失，
+        下一轮也会基于真实经过时间自动追平，不会累计漂移或永久停摆。
+        """
+        if self._next_sample_time <= 0.0:
+            # 首次：以当前时刻为基准
+            self._next_sample_time = time.perf_counter()
+        self._next_sample_time += n / self.sfreq
+        while True:
+            remaining = self._next_sample_time - time.perf_counter()
+            if remaining <= 0:
+                break
+            # 短步进 sleep：单次最长 10ms，避免一次性长 sleep 被系统丢弃
+            time.sleep(min(remaining, 0.01))

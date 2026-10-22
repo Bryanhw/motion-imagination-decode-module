@@ -1,0 +1,54 @@
+# 游戏 WebSocket 联调配置：mock 仅用于工程链路自检，不用于算法性能评估。
+# 每 4 秒切换左右类别，按真实时间输出到 127.0.0.1:8765。
+# 先运行 bootstrap_demo.py 准备 demo_csp.joblib、demo_lda.joblib 和 ood.joblib。
+
+source:
+  kind: mock
+  sfreq: 250.0
+  ch_names: [C3, Cz, C4, CP3, CP4, P3, P4, Oz]
+  chunk_samples: 25
+  realtime: true
+  seed: 0
+
+preprocess:
+  l_freq: 8.0
+  h_freq: 30.0
+  notch_freq: 50.0
+  notch_q: 30.0
+  filter_order: 4
+  car: true
+  artifact_ptp_uv: 200.0
+
+features:
+  kind: csp
+  csp_components: 4
+  csp_reg: 1e-4
+  model_path: "artifacts/demo_csp.joblib"
+
+classifier:
+  kind: lda
+  classes: [left, right]
+  model_path: "artifacts/demo_lda.joblib"
+
+postprocess:
+  vote_window: 3
+  ema_alpha: 0.4
+  min_confidence: 0.6
+  idle_label: idle
+
+ood:
+  enabled: true
+  method: mahalanobis
+  chi2_quantile: 0.99
+  score_scale: 1.0
+  strength_floor_enabled: true
+  model_path: "artifacts/ood.joblib"
+
+window:
+  window_seconds: 2.0
+  step_seconds: 0.5
+
+output:
+  sinks: [websocket]
+  ws_host: "127.0.0.1"
+  ws_port: 8765

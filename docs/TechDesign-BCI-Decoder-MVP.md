@@ -76,9 +76,9 @@
 
 | 候选 | 优势 | 代价 / 风险 | 结论 |
 |---|---|---|---|
-| **A. 因果带通 + CAR + 频带功率（16 维）+ LDA** | 小数据强基线；**可解释**（能说清哪一维在起作用）；训练秒级；单次推理数毫秒、**无需 GPU**；调试路径短（滤波器有没有保状态一看就知道） | 跨被试/跨 session 泛化一般，需靠④的校准补 | ✅ **采用（MVP）** |
+| **A. 因果带通 + CAR + CSP（空间滤波，4 维）+ LDA** | 小数据强基线；空间滤波对 ERD/ERS 判别力强（与立项 `Project-Proposal` 路线一致）；训练秒级；单次推理数毫秒、**无需 GPU**；调试路径短（滤波器有没有保状态一看就知道） | 跨被试/跨 session 泛化一般，需靠④的校准补 | ✅ **采用（MVP）** |
 | B. 深度学习（EEGNet 等 CNN） | 理论上可自动学空域滤波，上限更高 | **数据量不够**；跨被试常打不过传统方法；需 GPU 与调参预算；**不可解释**，出问题难定位；训练慢 → 迭代慢 | ❌ 本期不做（`MVP规格说明书` L89 已明确） |
-| C. 黎曼几何（协方差 + 欧氏对齐 / Riemannian） | 跨被试/跨 session 通常优于频带功率 | 需引入 `pyriemann`；调试门槛高；团队 10 周内消化不了 | ⏳ **延后至里程碑 ④**（已排期） |
+| C. 黎曼几何（协方差 + 欧氏对齐 / Riemannian） | 跨被试/跨 session 通常优于频带功率/CSP | 需引入 `pyriemann`；调试门槛高；团队 10 周内消化不了 | ⏳ **延后至里程碑 ④**（已排期） |
 
 > **为什么"不靠换算法提速"**：`research-BCI-Decoder.md` 已核实瓶颈是**窗口长度（2.0 s）**，不是算法——换深度模型或买显卡对端到端延迟几乎没有帮助。所以 MVP 把精力投在因果滤波、稳定化与工程纪律上，而不是模型层。
 
@@ -107,7 +107,7 @@ bci-decoder/
 │   ├── synth.py              # 合成数据（仅供自检，禁止用于评测）
 │   ├── pipeline/
 │   │   ├── preprocess.py     # 因果滤波 + CAR + 伪迹标记
-│   │   ├── features.py       # 频带功率 / 协方差 / 欧氏对齐
+│   │   ├── features.py       # CSP(当前路线) / 频带功率 / 协方差
 │   │   ├── classifier.py     # LDA / ONNX / 未训练占位
 │   │   └── postprocess.py    # EMA 平滑 + 投票 + 置信度门限
 │   ├── sources/              # mock / replay / lsl
@@ -159,7 +159,7 @@ source:   { kind: replay, sfreq: 250.0, ch_names: [C3,Cz,C4,CP3,CP4,P3,P4,Oz], b
 preprocess: { notch_hz: 50.0, notch_q: 30.0, bandpass_hz: [8.0, 30.0], reref: car,
               artifact: { method: ptp, threshold_uv: 150, action: mark } }
 window:   { seconds: 2.0, step_seconds: 0.5 }
-features: { kind: bandpower, bands: { mu: [8,13], beta: [13,30] } }
+features: { kind: csp, csp_components: 4, csp_reg: 1e-4, model_path: artifacts/demo_csp.joblib }
 classifier: { kind: lda, path: artifacts/demo_lda.joblib }
 postprocess: { ema_alpha: 0.3, vote_n: 3, confidence_threshold: 0.6, untrained_policy: idle }
 outputs:  [ {kind: console},
@@ -384,11 +384,11 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 - Target platform: Windows 笔记本（PowerShell 5.1，Python 3.14.7，无 GPU，本地单进程）
 - Budget: ￥0 新增货币支出（全开源；详见 §11 成本明细，人力计入课程学分）
 - Timeline: 10 周（2026-10-13 – 2026-12-15）；MVP 硬节点 **10/27**（里程碑 ②）
-- AI in product scope: none（产品内无 AI：确定性信号处理链路，无深度学习/LLM/GPU）
+- AI in product scope: none（产品运行不调用大模型与深度学习：确定性信号处理链路，无 LLM/GPU；AI 仅用于辅助开发）
 - Chosen stack: Python 3.14.7 + NumPy 2.5.3 + SciPy 1.18.1 + scikit-learn 1.9.1（LDA）+ PyYAML 6.0.3 + joblib 1.6.0 + pytest 9.1.1；`websockets`（✅ 已装并跑通，17.2，F5 关键）；`pylsl`（④）；游戏端 Pygame（另见 TechDesign-Game-MVP.md）
 - AI coding tool: AI 编码助手辅助实现与测试（`AGENTS.md` 体系 / vibe-coding 工作流）；人工负责跑测试、真机联调与验收
 - Constraints: 命令必须在 `bci-decoder/` 内执行（扁平布局，`python -m bci_decoder.cli` 免安装）｜Windows PowerShell 5.1 **禁止 `&&`**｜滤波必须因果且跨 chunk 保状态（**禁止在线用 `filtfilt`**）｜环形缓冲固定容量｜未训练恒输出 `idle`｜**输出字段不得增删**｜滑窗 **2.0 s** / 步长 **0.5 s** **冻结不得改**｜通道顺序 `C3,Cz,C4,CP3,CP4,P3,P4,Oz` **不得重排**｜p95 < 50 ms｜调度抖动 < 10 ms｜**不采集真实患者数据**（伦理未走完）｜**MVP 不对外报告任何准确率**｜团队实现水平：C（大一学生，按此深度写注释与文档）
-- Decisions: MVP 用**频带功率 + LDA**（不用深度学习；黎曼延后至④）｜传输用 **WebSocket**（LSL 延后至④）｜本地单进程、不做 Docker｜数据源以 mock/replay 为主，lsl 留接口不启用｜模型产物存 `artifacts/`（不入库）｜**脑控弹球单独成文** `TechDesign-Game-MVP.md`｜降级优先 `jsonl` 轮询（零新依赖）｜`state` 仅表达稳定化阶段，不得用于改玩法
+- Decisions: MVP 用**CSP + LDA**（2026-10-20 由频带功率 16 维切换，见 `MVP规格说明书` 第 9 节 v1.1.3；不用深度学习；黎曼延后至④）｜传输用 **WebSocket**（LSL 延后至④）｜本地单进程、不做 Docker｜数据源以 mock/replay 为主，lsl 留接口不启用｜模型产物存 `artifacts/`（不入库）｜**脑控弹球单独成文** `TechDesign-Game-MVP.md`｜降级优先 `jsonl` 轮询（零新依赖）｜`state` 仅表达稳定化阶段，不得用于改玩法
 - Open questions: （已关闭 2026-10-16：`websockets` ✅ 已装通并端到端跑通）｜企业设备型号/通道顺序/LSL 流名称待书面确认｜真实基线评测协议（数据集与指标口径）｜企业未来客户端是否 Unity（不在 MVP 范围）｜`bci-decoder/` 归属口径 ✅ 已拍板为团队成果（2026-10-15）｜`game/` 位置 ✅ 已定案 `bci-decoder/game/`
 - Research status: 已核实——因果滤波必要性、窗口长度是延迟瓶颈（非算法）、WebSocket vs LSL 取舍、`pylsl`/`moabb` 可用性、合成数据 CV 必然接近 100% ｜⚠️ 未定论——`LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）、支持哪些 Unity 版本 `[未核实]` ｜未核实——真实设备型号与通道顺序（待企业确认）
 - Source files: docs/MVP_PRD.md｜docs/MVP规格说明书.md（§4 字段与控制消息、§11.1–11.3 证据/降级/明确不做、附录A 验收五步）｜docs/TechDesign-Game-MVP.md｜docs/在线解码模块设计说明.md｜docs/详细技术路线.md｜docs/research-BCI-Decoder.md｜docs/一致性复核-PRD-TechDesign.md｜REVIEW-CHECKLIST.md｜agent_docs/tech_stack.md、agent_docs/testing.md｜AGENTS.md、MEMORY.md

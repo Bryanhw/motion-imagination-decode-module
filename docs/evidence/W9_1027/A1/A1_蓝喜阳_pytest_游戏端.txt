@@ -1,0 +1,15 @@
+A1 run evidence - Lan Xiyang - 2026-10-22 17:43
+Machine: LAPTOP-MHV1D6NJ  Python 3.13.14 (global)  SDL_VIDEODRIVER=dummy  Repo: f514273
+Command: python -m pytest -v game\platformer\tests game\tests  (game suite)
+---
+============================= test session starts =============================
+platform win32 -- Python 3.13.14, pytest-9.1.1, pluggy-1.7.0
+rootdir: C:\Users\ASUS\Desktop\??\motion-imagination-decode-module\bci-decoder
+configfile: pytest.ini
+collected 25 items
+
+game\platformer\tests\test_input_layer.py ..............                 [ 56%]
+game\tests\test_runner.py ...........                                    [100%]
+
+============================= 25 passed in 0.24s ==============================
+

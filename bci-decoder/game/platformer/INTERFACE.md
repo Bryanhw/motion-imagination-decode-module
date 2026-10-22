@@ -31,15 +31,17 @@
 
 接收器按来源追踪最新的序号；重复或较小的 `sequence` 被忽略。外部 `timestamp` 保留以便记录和检查，但**永远不用于连接新鲜度计算**。新鲜度使用收到消息时记录的本地单调时钟 `received_at`。`keyboard` 由释放边沿立即发 `NONE`，不设置超时；`replay` 和 `device` 的超时可用 `--timeout` 配置（秒，默认 1.5）。超时后意图变成 `NONE` 并停止主动前进。适配器仍须持续发消息或显式发 NONE；旧消息无法续命。
 
+`--mode ws` 订阅解码器的 WebSocket 输出（默认 `ws://127.0.0.1:8765`），不会修改或重发解码器消息。适配器将解码输出映射为游戏内部决策：`label=left/right/idle` 对应 `LEFT_HAND/RIGHT_HAND/NONE`；`state` 不是 `running` 时一律映射为 `NONE`；`label` 与 `label_id` 不匹配或字段集合不符合冻结契约时拒绝消息并立即进入安全态。连接关闭会清除远端动作与序号，客户端每 0.5 秒重试连接，使解码器重启后可以恢复。
+
 ## 接入方式
 
 ```text
 键盘 ──> KeyboardInputAdapter ──┐
                                  ├──> DecisionReceiver ──> GameController.update(intent, dt)
 JSONL ──> ReplayInputAdapter ───┤
-解码器 ─> 新建 DecoderInputAdapter ┘
+解码器 WebSocket ─> WebSocketInputAdapter ┘
 ```
 
-键盘、回放与未来设备共享校验、序号、超时和物理路径。未来适配器应把设备类别原样映射为 intent，把每个输出映射为严格递增序号、`source="device"` 及自己的事件时间，再传给 `DecisionReceiver.receive(message, received_at=本地单调时钟)`。无需更改关卡或物理。输入来源可能切换；每个来源各自维护序号空间。
+键盘、回放与解码器 WebSocket 共享校验、序号、超时和物理路径。WebSocket 适配器为每条连接维护本地序号；重连后先清除接收器旧序号，允许发送端重启。无需更改关卡或物理。
 
-示例格式和时序见 `replay_demo.jsonl`。当前游戏没有实时设备连接或脑电分类模型；回放是静态示例数据演示，键盘模式是人工模拟。
+解码器 WebSocket 消息保持冻结的九字段格式（`t_data`、`t_wall`、`label`、`label_id`、`confidence`、`probs`、`state`、`compute_ms`、`window_seconds`）；本游戏只读取映射所需字段。示例格式和时序见 `replay_demo.jsonl`。游戏本身不实现脑电解码；键盘模式是人工模拟，使用 mock 源联调时只属于工程链路自检。

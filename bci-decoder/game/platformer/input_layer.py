@@ -86,6 +86,11 @@ class DecisionReceiver:
             return InputState("NONE", state.source, state.received_at, state.sequence)
         return state
 
+    def reset_remote(self) -> None:
+        """Fail safe on transport loss and allow a restarted sender's sequence."""
+        self.state = InputState("NONE", "device", time.monotonic(), -1)
+        self.last_sequence.pop("device", None)
+
 
 class KeyboardInputAdapter:
     """Translate held W and rising D presses into the shared decision stream."""

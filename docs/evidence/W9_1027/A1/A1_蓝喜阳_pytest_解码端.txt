@@ -1,0 +1,19 @@
+A1 run evidence - Lan Xiyang - 2026-10-22 17:42
+Machine: LAPTOP-MHV1D6NJ  Python 3.13.14 (global)  Repo: f514273
+Command: python -m pytest -v  (decoder suite, testpaths=tests)
+---
+============================= test session starts =============================
+platform win32 -- Python 3.13.14, pytest-9.1.1, pluggy-1.7.0
+rootdir: C:\Users\ASUS\Desktop\??\motion-imagination-decode-module\bci-decoder
+configfile: pytest.ini
+testpaths: tests
+collected 31 items
+
+tests\test_buffer.py .....                                               [ 16%]
+tests\test_engine.py ...                                                 [ 25%]
+tests\test_ood.py .........                                              [ 54%]
+tests\test_pipeline.py ...........                                       [ 90%]
+tests\test_websocket_sink.py ...                                         [100%]
+
+============================= 31 passed in 3.71s ==============================
+

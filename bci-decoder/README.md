@@ -79,7 +79,8 @@ bci-decoder/
 │   │   ├── preprocess.py     # 因果滤波 + CAR + 伪迹标记
 │   │   ├── features.py       # CSP(当前路线) / 频带功率 / 协方差
 │   │   ├── classifier.py     # LDA / ONNX / 占位
-│   │   └── postprocess.py    # 平滑 + 投票 + 置信度门限
+│   │   ├── postprocess.py    # 平滑 + 投票 + 置信度门限
+│   │   └── ood.py            # 域内检测（OOD，2c 改进，默认关）
 │   ├── sources/              # mock / replay / lsl
 │   └── outputs/              # console / jsonl / websocket
 ├── configs/                  # default / demo_online / demo_replay
@@ -124,6 +125,28 @@ bci-decoder/
 `postprocess.py` 的三重机制：概率 EMA 平滑 → 连续 N 次一致才切换 → 置信度门限。
 注意 demo 输出中类别切换时约 1 秒的过渡期（显示 `idle`），
 这正是"稳定优先"策略的体现，而非缺陷。
+
+### 5. 域内检测 OOD（2c 缺陷改进，默认关、灰度开）
+
+`ood` 配置块默认关闭（`enabled: false`）。开启后："特征 → 分类"之间增加一道**输入可信度判定**——
+马氏距离（结构性异常）+ 信号强度下限（弱信号/近零输入）任一命中即视为域外，喂均匀概率给稳定器 → 输出 `idle`。
+
+```yaml
+ood:
+  enabled: false        # 默认关，灰度开（demo_weak 已开启作验收）
+  method: mahalanobis   # mahalanobis | none
+  chi2_quantile: 0.99
+  score_scale: 1.0      # 阈值系数，灰调试区间 0.8–1.2
+  strength_floor_enabled: true   # 弱信号/近零输入兜底
+  model_path: "artifacts/ood.joblib"
+```
+
+先训出检测器才能开启：`python scripts/bootstrap_demo.py --config configs/demo_weak.yaml`
+（同时重建 `demo_csp/demo_lda/ood` 三个产物）。模型缺失时引擎优雅降级为不启用（不报错）。
+
+验收口径（合成自检，仅工程证明，不对外报准确率）：`demo_weak --chunks 200` 全程 `idle`；
+`demo_replay_switch` 左右交替不退化；`pytest` 全绿（22 旧 + N_ood 分开计数）。
+详见 `docs/evidence/W9_1027/2c_改进提案/D2_20261021_2c_OOD域内检测实施细化_阎浩文.md`。
 
 ---
 

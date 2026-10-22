@@ -64,7 +64,7 @@
  │                              │                  │
  │                     滑窗 2.0s / 步长 0.5s        │
  │                              ▼                  │
- │              频带功率(16维) ─▶ LDA ─▶ 决策稳定化  │
+ │              CSP 特征(4维) ─▶ LDA ─▶ 决策稳定化   │
  │                                          │      │
  │                             ┌────────────┼──────┤
  │                             ▼            ▼      ▼
@@ -393,7 +393,7 @@ game/                                  # 实现状态 2026-10-16：以下 6 个�
   "appName": "BCI-Decoder-Game",
   "stack": {
     "frontend": "Pygame 桌面窗口（本项目唯一的用户界面：得分/状态/挡板/最近一条消息）",
-    "backend": "Python 3.14.7 + asyncio/websockets 客户端（纯净消费者，无 AI、无模型推理）",
+    "backend": "Python 3.14.7 + asyncio/websockets 客户端（纯净消费者，不调用大模型、无模型推理）",
     "deployment": "本地单进程桌面窗口（Windows 笔记本，与解码器同机），MVP 不做容器与打包"
   },
   "commands": {
