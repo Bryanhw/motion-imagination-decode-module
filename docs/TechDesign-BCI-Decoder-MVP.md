@@ -384,7 +384,7 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 - Target platform: Windows 笔记本（PowerShell 5.1，Python 3.14.7，无 GPU，本地单进程）
 - Budget: ￥0 新增货币支出（全开源；详见 §11 成本明细，人力计入课程学分）
 - Timeline: 10 周（2026-10-13 – 2026-12-15）；MVP 硬节点 **10/27**（里程碑 ②）
-- AI in product scope: none（产品内无 AI：确定性信号处理链路，无深度学习/LLM/GPU）
+- AI in product scope: none（产品运行不调用大模型与深度学习：确定性信号处理链路，无 LLM/GPU；AI 仅用于辅助开发）
 - Chosen stack: Python 3.14.7 + NumPy 2.5.3 + SciPy 1.18.1 + scikit-learn 1.9.1（LDA）+ PyYAML 6.0.3 + joblib 1.6.0 + pytest 9.1.1；`websockets`（✅ 已装并跑通，17.2，F5 关键）；`pylsl`（④）；游戏端 Pygame（另见 TechDesign-Game-MVP.md）
 - AI coding tool: AI 编码助手辅助实现与测试（`AGENTS.md` 体系 / vibe-coding 工作流）；人工负责跑测试、真机联调与验收
 - Constraints: 命令必须在 `bci-decoder/` 内执行（扁平布局，`python -m bci_decoder.cli` 免安装）｜Windows PowerShell 5.1 **禁止 `&&`**｜滤波必须因果且跨 chunk 保状态（**禁止在线用 `filtfilt`**）｜环形缓冲固定容量｜未训练恒输出 `idle`｜**输出字段不得增删**｜滑窗 **2.0 s** / 步长 **0.5 s** **冻结不得改**｜通道顺序 `C3,Cz,C4,CP3,CP4,P3,P4,Oz` **不得重排**｜p95 < 50 ms｜调度抖动 < 10 ms｜**不采集真实患者数据**（伦理未走完）｜**MVP 不对外报告任何准确率**｜团队实现水平：C（大一学生，按此深度写注释与文档）
