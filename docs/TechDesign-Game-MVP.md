@@ -1,25 +1,25 @@
-# TechDesign · 脑控弹球（Game 端）· MVP
+# TechDesign · 游戏端（横版闯关 MI Pixel Run）· MVP
 
 > **Step 3 产出（配套文档）**（对照 vibe-coding-prompt-template 的 "Start a project"）
-> **应用名**：`BCI-Decoder-Game`（弹球端；与 `BCI-Decoder` 同一项目）
+> **应用名**：`BCI-Decoder-Game`（游戏端，主打 MI Pixel Run；与 `BCI-Decoder` 同一项目）
 > **版本**：v1.0（2026-10-15）
 > **定位**：本文件**只管游戏端**（`game/`）。**游戏端 PRD 见** [`PRD-Game-MVP.md`](PRD-Game-MVP.md)（2026-10-15）；解码侧设计见 [`TechDesign-BCI-Decoder-MVP.md`](TechDesign-BCI-Decoder-MVP.md)；**接口冻结以** [`MVP规格说明书.md`](MVP规格说明书.md) 第 4 节为准。
-> **为什么单独成文**：脑控弹球是 PRD 的 must-have（F4），但主 TechDesign 里没有它的落地设计（目录树无游戏端、无启动命令）。复核结论见 [`一致性复核-PRD-TechDesign.md`](一致性复核-PRD-TechDesign.md) P1-2。
+> **为什么单独成文**：游戏端是 PRD 的 must-have（F4），但主 TechDesign 里没有它的落地设计（目录树无游戏端、无启动命令）。复核结论见 [`一致性复核-PRD-TechDesign.md`](一致性复核-PRD-TechDesign.md) P1-2。
 > **负责人**：黄凯森（数据评测 + 游戏）；**必须与算法并行开工，不等 F1 完成**（`MVP规格说明书` L35、L60）。
 
-> **实现状态（2026-10-16，AI 编码助手辅助实施 + 人工跑测试）**：**代码已落地并通过工程自检**。
-> `bci-decoder/game/` 六个文件全部实现；游戏端单测 **39/39**、解码模块单测 **17/17**；
-> 端到端（真解码器 `--outputs websocket` → 游戏端 `--input ws`，headless）**39 项断言全绿**，
-> 覆盖"解码器运行中被杀"（F5.3）、契约控制率 2 条/秒回放、键盘降级路径。
-> 证据见 [`docs/evidence/W7_1016/`](evidence/W7_1016/README.md)。
+> **实现状态（2026-10-22，AI 编码助手辅助实施 + 人工跑测试）**：**代码已落地并通过工程自检**。
+> `bci-decoder/game/platformer/`（主打 MI Pixel Run v1.0，已接入 WebSocket）实现；游戏端自检 **72 项通过**
+> （`pytest game\tests game\platformer\tests`）、解码模块单测 **31/31**；WS 端到端已跑通（2026-10-21）。
 > **仍未完成（不得据此宣称 F4 验收通过）**：真人带屏手感验证与现场演示（A8）、联调录屏（A7）、
 > 真实采集设备联调（设备型号/LSL 流名称待书面确认）。
+
+> **2026-10-22 现状更新**：本文件 v1.0（2026-10-15）正文以"弹球载体"编写。**已拍板**：游戏端**实际落地 = 横版闯关 MI Pixel Run v1.0**（`bci-decoder/game/platformer/`，2026-10-21 并入主线并接入 WebSocket 解码器），实现自检 **72 项通过**；输入源三态（keyboard / ws / jsonl）与决策契约不变，弹球 `pong.py` / 格子版 `runner.py` 保留为备稿、pong **不入库**。机器人接口、契约字段与"可玩 → 解码可玩"判据仍有效，**载体名词以 platformer 为准**，正文弹球细则为历史契约、由代码实现替代。
 
 ---
 
 ## 1. 定位与边界
 
-**做什么**：一个桌面弹球/接球小游戏，用键盘先做完整玩法，再把输入替换为解码消息流；现场演示"想象 → 挡板动"。
+**做什么**：一个桌面横版闯关小游戏（MI Pixel Run / platformer），用键盘先做完整玩法，再把输入替换为解码消息流（WS）；现场演示"想象 → 角色动"。
 
 | ✅ 游戏端负责 | ❌ 游戏端不负责 |
 |---|---|

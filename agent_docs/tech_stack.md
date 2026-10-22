@@ -151,7 +151,7 @@ bci-decoder/
 | 项 | 现状 |
 |---|---|
 | Python 版本 | **3.14.7**（`bci-decoder/.venv`）；`requirements.txt` 已声明 3.10+ 下限 |
-| 依赖安装 | 核心依赖已装（`pytest` **17/17** 通过）；`websockets` ✅ **已装并跑通**（17.2，2026-10-16 F5.1 端到端）、`pygame-ce` ✅ 已装（2.5.8，**上游 `pygame` 无 Python 3.14 wheel**）；`pylsl` **未装**（里程碑 ④ 前必验） |
+| 依赖安装 | 核心依赖已装（`pytest` **31/31** 通过、游戏端 **72/72**）；`websockets` ✅ **已装并跑通**（17.2，2026-10-16 F5.1 端到端）、`pygame-ce` ✅ 已装（2.5.8，**上游 `pygame` 无 Python 3.14 wheel**）；`pylsl` **未装**（里程碑 ④ 前必验） |
 | 命令示例所在 shell | **PowerShell 5.1**，不能用 `&&`；文档围栏已由 ```bash``` 统一为 ```powershell``` |
 | `bci-decoder/` 归属 | ✅ 已拍板（2026-10-15）：**本团队成果、计入项目进度** |
 | `game/` 位置 | ✅ 已定案：`bci-decoder/game/` |

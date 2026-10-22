@@ -11,6 +11,8 @@
 > **详版补充**：[`项目章程.md`](项目章程.md)（团队与纪律）、[`需求确认记录.md`](需求确认记录.md)（企业需求来源）、
 > [`在线解码模块设计说明.md`](在线解码模块设计说明.md)（工程实现）、[`research-BCI-Decoder.md`](research-BCI-Decoder.md)（研究，状态 Partial research）。
 
+> **2026-10-22 游戏端现状注记**：本文 F4/A8 等处原以"脑控弹球"为 Demo 载体示例。**当前已拍板**：游戏端主打 = **横版闯关 MI Pixel Run v1.0**（`bci-decoder/game/platformer/`，2026-10-21 并入主线并接入 WebSocket 解码器；弹球 `pong.py` / 格子版 `runner.py` 保留为备稿，pong 不入库）。F4 的"键盘可玩 → 解码可玩"判据不变，现场演示与验收以 platformer 为准。
+
 ---
 
 ## Product Overview
@@ -135,9 +137,9 @@
   - [ ] 伪迹只**标记不丢弃**；超阈值时降级为 `idle`。
 - **Priority:** P0 (Critical)
 
-#### 4. F4 · 脑控弹球游戏 Demo
+#### 4. F4 · 脑控游戏 Demo（横版闯关 MI Pixel Run，platformer）
 
-- **What:** 一个可玩性完整的弹球/接球小游戏，**先做键盘版本**（左/右/停），再把输入替换为解码消息。
+- **What:** 一个可玩性完整的横版闯关游戏（MI Pixel Run，platformer 主打），**先做键盘版本**，再把输入替换为解码消息（WS 驱动）。
 - **User Story:** 作为**团队演示者**，我希望**游戏和算法能并行开工**，这样**算法没就绪时我也不会空等**。
 - **Success Criteria:**
   - [ ] 键盘版本完整可玩：有得分、有反馈、可重来。
@@ -223,7 +225,7 @@
 4. **失败也是安全态**：模型缺失时界面应当"安静地不动"，而不是报错刷屏。
 
 **Key Screens/Pages:**
-1. **脑控弹球窗口**: 唯一的"用户界面"。显示得分、运行状态、当前挡板位置；标题栏或角落显示最近一条消息。
+1. **游戏窗口（MI Pixel Run）**: 唯一的"用户界面"。显示得分、运行状态、当前角色位置；标题栏或角落显示最近一条消息。
 2. **模块运行视图（终端）**: 滚动输出 JSON 消息与状态机变化；`idle` 与 `running` 用不同颜色/前缀区分。
 3. **演示页（答辩用，Nice to have）**: 第 1 页"这是什么"，第 2 页"现场演示"，第 3 页"延迟花在哪"。
 
@@ -395,7 +397,7 @@ The MVP is ready to launch when:
 | A5 | 延迟可解释 | 报出端到端分解（窗口累积 vs 计算），说明瓶颈在窗口 | 演示第 3 页 |
 | A6 | 稳定化有效 | 连续 3 次一致才切换；置信度不足输出 `idle`；**未训练时恒 `idle`** | 测试用例 + 现场演示 |
 | A7 | WebSocket 打通 | 游戏实际订阅到消息并驱动画面 | 联调录屏 |
-| A8 | 游戏可玩 | 弹球键盘可玩 → 解码可玩；有分数、反馈、可重来 | 现场演示 |
+| A8 | 游戏可玩 | 横版闯关 MI Pixel Run：键盘可玩 → 解码（WS）可玩；有分数、反馈、可重来 | 现场演示 |
 | A9 | 3 分钟流程 | 从启动到出结果 ≤ 3 分钟 | 现场计时 |
 | A10 | 长跑稳定 | 连续 1 h 不崩、内存不增长 | 长跑日志 |
 | A11 | 证据齐备 | `docs/evidence/W9_1027/` 在 10/27 前 24 h 齐备 | 目录清单 |
@@ -465,7 +467,7 @@ After this PRD is approved:
 1. ~~Create Technical Design Document (Part 3)~~ → **已存在**：[`TechDesign-BCI-Decoder-MVP.md`](TechDesign-BCI-Decoder-MVP.md)（2026-10-15）。本 PRD 批准后按其执行即可。
 2. 解决**阻塞项**：拍板 `bci-decoder/` 的归属口径（成果 or 参考资料）。
 3. 第 1 周先验证 `websockets` 能否在本机装通并跑通。
-4. 游戏端**并行开工**：先做完整键盘版弹球（游戏端契约与设计见 `docs/PRD-Game-MVP.md`、`docs/TechDesign-Game-MVP.md`）。
+4. 游戏端**并行开工**：先做完整键盘版横版闯关游戏（platformer 主打 MI Pixel Run；游戏端契约与设计见 `docs/PRD-Game-MVP.md`、`docs/TechDesign-Game-MVP.md`）。
 5. 用 AI 助手按 `AGENTS.md` 施工；每完成一项跑最小可用测试（`python -m pytest`）。
 6. 10/27 前 24 h 齐备 `docs/evidence/W9_1027/`。
 
@@ -485,7 +487,7 @@ After this PRD is approved:
 - AI in product scope: no（产品内不含任何 LLM / 深度学习；AI 仅用于辅助开发）
 - Research status: Partial research —— 框架生态、因果滤波、延迟结构、工具链与许可证已核实（官方来源，访问日期 2026-10-15）；"换模型/上 GPU 对端到端延迟帮助有限"未找到公开依据；用户抱怨类证据未取得；深度学习工具箱与商业同类沿用既有核实（本轮未复核）；部分许可证与数据集许可待确认
 - Constraints: 类别 2 类（左手/右手）+ idle｜滑窗 2.0 s、步长 0.5 s｜250 Hz / 8 通道｜通道顺序 C3,Cz,C4,CP3,CP4,P3,P4,Oz 不可变更｜单次计算耗时 p95 < 50 ms｜未训练或不可信时恒输出 idle｜MVP 阶段不对外报告任何准确率｜不采真人数据（伦理未走完）
-- Decisions: 只做在线解码模块（游戏画面归游戏端）｜特征用 CSP + log-方差(4 维) + LDA（2026-10-20 切换，原频带功率 16 维，见 `MVP规格说明书` §9 v1.1.3）｜在线必须因果滤波（sosfilt + 跨块 zi）｜伪迹只标记不丢弃、超阈值降级为 idle｜输出多通道 console + jsonl + websocket｜游戏与算法并行开工，首选形态「脑控弹球」｜接口契约自 2026-10-13 冻结，变更走 MVP 规格说明书第 9 节
+- Decisions: 只做在线解码模块（游戏画面归游戏端）｜特征用 CSP + log-方差(4 维) + LDA（2026-10-20 切换，原频带功率 16 维，见 `MVP规格说明书` §9 v1.1.3）｜在线必须因果滤波（sosfilt + 跨块 zi）｜伪迹只标记不丢弃、超阈值降级为 idle｜输出多通道 console + jsonl + websocket｜游戏与算法并行开工，主打形态「横版闯关 MI Pixel Run（platformer）」｜接口契约自 2026-10-13 冻结，变更走 MVP 规格说明书第 9 节
 - Open questions: bci-decoder/ 归属 ✅ 已拍板为团队成果（2026-10-15）｜游戏端技术栈 ✅ **已定 Python + Pygame**（Unity 属"企业未来客户端"分支，不在 MVP）｜企业设备型号 / 通道顺序 / LSL 流名称待书面确认｜（已关闭 2026-10-16：websockets 依赖 ✅ 已装通并端到端跑通；游戏端用 `pygame-ce`）｜里程碑 ③ 真实评测协议（数据集与指标口径，含数据集许可）
 - Source files: docs/research-BCI-Decoder.md（findings，Partial research）、docs/research-request-BCI-Decoder.md → docs/MVP_PRD.md
 
@@ -497,13 +499,13 @@ After this PRD is approved:
   "documentType": "prd",
   "appName": "BCI-Decoder",
   "oneLiner": "把脑电中的运动想象意图实时解码成可被游戏直接调用的消息流",
-  "targetUsers": "合作企业（翔宇医疗）的康复/游戏应用，以及本项目自己的脑控弹球 Demo",
+  "targetUsers": "合作企业（翔宇医疗）的康复/游戏应用，以及本项目自己的脑控游戏 Demo（横版闯关 MI Pixel Run）",
   "phase": "Foundation",
   "mustHave": [
     "在线解码链路（mock / replay 数据源可切换）",
     "输出接口（console + jsonl，字段与冻结契约一致）",
     "决策稳定化（EMA 平滑 + 连续 3 次一致性投票 + 置信度门限，含 idle）",
-    "脑控弹球游戏 Demo（键盘可玩 → 解码可玩）",
+    "脑控游戏 Demo（横版闯关 MI Pixel Run，键盘可玩 → 解码可玩）",
     "WebSocket 输出打通（游戏实际订阅并驱动画面）"
   ],
   "niceToHave": [

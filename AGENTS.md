@@ -14,7 +14,7 @@
 3. `agent_docs/tech_stack.md` —— 技术栈与**确切命令**
 4. `agent_docs/testing.md` —— 完工前必须拿到的证据
 5. `docs/MVP_PRD.md` + `docs/TechDesign-BCI-Decoder-MVP.md` —— 契约版范围与技术设计
-6. `docs/PRD-Game-MVP.md` + `docs/TechDesign-Game-MVP.md` —— **游戏端（脑控弹球）**契约与设计（消费同一套冻结契约，输入源可切 `keyboard｜ws｜jsonl`）
+6. `docs/PRD-Game-MVP.md` + `docs/TechDesign-Game-MVP.md` —— **游戏端（横版闯关 MI Pixel Run，`bci-decoder/game/platformer/`）**契约与设计（消费同一套冻结契约，输入源可切 `keyboard｜ws｜jsonl`；早期弹球原型 `game/pong.py` / 格子版 `game/runner.py` 保留为备稿，pong 不入库）
 
 > 详版（内容最全，冲突时以它们为准）：
 > `docs/MVP规格说明书.md`（**范围与验收的唯一依据**）、`docs/在线解码模块设计说明.md`（工程）、
@@ -54,9 +54,9 @@
 ## 未决事项（动手前先看这里）
 
 - **（已拍板 2026-10-15）`bci-decoder/` = 本团队成果，计入项目进度**：团队在 AI 编码助手辅助下实现，
-  `pytest` **17/17 通过**（`bci-decoder/tests`；另有 `docs/learning/` 的 12 个学习用例，从仓库根跑共 29），已产出模型与输出文件；**游戏端** `pytest -q "game\tests"` **39/39** 通过、端到端自检 39 项断言全绿（2026-10-16，现场验收 A7/A8 未做）。**不要再说它是"他人参考骨架"或"不计入进度"**——
+  `pytest` **31/31 通过**（`bci-decoder/tests`），已产出模型与输出文件；**游戏端** `pytest -q "game\tests" "game\platformer\tests"` **72 项通过**（2026-10-22 复跑口径；历史 39/39 为 2026-10-16 成文时点数据，以当时证据为准）。**不要再说它是"他人参考骨架"或"不计入进度"**——
   旧表述散落在部分文档中，已按 `docs/Start项目落地评估.md` §5.1 方案 A 逐处更正。
-  **但未完成的部分（WebSocket / LSL / 弹球 / 校准 / Docker）不因归属更正而变成已完成。**
+  **不因归属更正而自动变成已完成的部分（LSL / 校准 / Docker；弹球已拍板不入库、WebSocket 链路已 2026-10-21 跑通且 platformer 已接入）**：归属更正不影响完成度判断，现场验收 A7/A8 仍待做。
 - 其余未决项见 `MEMORY.md` 的「开放问题」。
 
 ## 语言

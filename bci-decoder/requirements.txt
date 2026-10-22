@@ -11,7 +11,7 @@ websockets>=17.2      # WebSocket 输出给游戏（F5.1 主路径；2026-10-16 
 # 训练/评估辅助
 pytest>=7.4
 
-# 游戏端（脑控弹球 F4；键盘版即需要）
+# 游戏端（横版闯关 MI Pixel Run / platformer，F4；键盘版即需要）
 pygame-ce>=2.5.8      # 用 pygame-ce，勿装上游 pygame（无 Python 3.14 wheel，2026-10-16 实测）
 
 # 可选依赖（按需安装，对应功能）

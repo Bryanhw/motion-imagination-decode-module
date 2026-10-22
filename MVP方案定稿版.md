@@ -30,7 +30,7 @@
 | 延迟实测 + 采集表 | A4、A5 |
 | 长跑脚本 | A10 |
 | 链路现场验证 | A3 |
-| 真人现场演示（弹球） | A8（F4 关键） |
+| 真人现场演示（横版闯关 MI Pixel Run） | A8（F4 关键） |
 | 联调录屏 | A7 |
 | 测试证据归档 | A2 |
 | 稳定化机制演示素材 | A6 |
@@ -55,9 +55,9 @@
 ## 3. 任务清单（按人分，均可直接执行）
 
 ### 🔵 蓝喜阳（组长）
-**主线：脑控弹球打磨 + 验收主持与收口**
+**主线：横版闯关游戏打磨（MI Pixel Run / platformer）+ 验收主持与收口**
 
-- [ ] **P0-5（游戏打磨，10/21 出 v2）**：继续做 `bci-decoder/game/` 的可玩性优化——碰撞手感、计分、HUD 清晰度、显示当前 label；在 `configs/exp/config_game.yaml` 显式配置球速与板长；产出**可现场演示的稳定版本**与调参 commit 记录。
+- [ ] **P0-5（游戏打磨，10/21 出 v2）**：继续做 `bci-decoder/game/platformer/`（主打 MI Pixel Run）的可玩性优化——跳跃/碰撞手感、计分、HUD 清晰度、显示当前 label；在游戏配置中显式配置移动速度与手感参数；产出**可现场演示的稳定版本**与调参 commit 记录。
 - [ ] 验收日主持：照 `agent_docs/testing.md` §5 的 A1–A11 顺序主持，避免漏项。
 - [ ] 证据收口：建 `docs/evidence/W9_1027/` 总目录与索引 `README.md`；评审前 24h 检查 A1–A11 全勾。
 - [ ] 主导讨论并归档 `docs/M2验收_下一轮决策.md`（**M6 当前版本**必查项）：评审后记录砍项/调整及理由（示例：窗长是否从 2.0 s 调到 1.5 s、可视化是否加概率条、里程碑③是否砍掉 LSL 只保留 replay）。
@@ -73,12 +73,12 @@
 ### 🟡 黄凯森（游戏质检、演示与内测）
 **主线：验 + 演 + 试玩反馈 + 演示配套文件**
 
-- [ ] **写 `bci-decoder/game/README.md`（Git 提交物）**：游戏说明书——三种玩法怎么启动（键盘 / 连解码器 `--input ws` / 离线 `--input jsonl`）、演示时按什么顺序操作、常见问题。
+- [ ] **写 `bci-decoder/game/platformer/README.md`（Git 提交物）**：游戏说明书——横版闯关 MI Pixel Run 三种玩法怎么启动（键盘 `--mode keyboard` / 连解码器 `--mode ws` / 离线 `--mode replay`）、演示时按什么顺序操作、常见问题。
 - [ ] **写 `start_demo.ps1`（Git 提交物，代码）**：一键演示脚本——双击自动同时弹出"解码器 + 游戏"两个窗口，验收日与彩排撑 3 分钟时限。十几行 PowerShell，让组长教一次即可。
 - [ ] **P0-6（真人现场演示，A8）**：与蓝喜阳合做——先键盘版试玩 → replay 在线验证 → 真人试戴熟悉节奏 → 现场演示（一人试戴、一人主持）。
 - [ ] **P0-7（联调录屏，A7）**：录"解码器 `--outputs websocket` ↔ 游戏 `--input ws`"真机联调视频（含"解码器被杀 → 游戏安全态"镜头）。
 - [ ] **P0-11（断线重连演练，v3 转入）**：录"中途杀解码器 → 游戏保持安全态 → 重启恢复"的完整视频，归档进 A7 素材包。
-- [ ] **同学内测**：游戏可玩后拉 3 名同班同学各玩 5 分钟，收"能否理解玩法 / 挡板跟手程度 / 是否愿意再玩"，问卷与反馈汇总存 `docs/playtest/`（**Git 提交物**）。
+- [ ] **同学内测**：游戏可玩后拉 3 名同班同学各玩 5 分钟，收"能否理解玩法 / 角色操控跟手程度 / 是否愿意再玩"，问卷与反馈汇总存 `docs/playtest/`（**Git 提交物**）。
 
 ### 🟠 阎浩文（算法素材、安全演示与测试证据）
 **主线：备料 + 稳定化"不随机"演示 + 测试证据**
@@ -90,7 +90,7 @@
   后两个就是安全演示的弹药：**系统再笨也不乱指挥游戏**。
 - [ ] **写 `.tools/make_latency_fig.py`（Git 提交物，代码）**：matplotlib 画延迟分解对比图（"等数据 2000ms vs 计算 ~4ms"），30 行以内，产物供演示稿第 3 页。**数字先在群里问王释贤确认再画。**
 - [ ] **P0-4（链路现场验证，A3，v3 转入）**：用自己的切换样本跑 `demo_replay.yaml` ≥2 分钟，录屏——replay 跟得上类别切换、链路持续输出。归档 `A3_链路验证录屏.mp4`。
-- [ ] **P0-8（测试证据，A2）**：截图/导出 `pytest` 解码端 17/17、游戏端 39/39 通过记录，txt 存 `docs/evidence/W9_1027/00_测试报告/`（**Git 提交物**）。
+- [ ] **P0-8（测试证据，A2）**：截图/导出 `pytest` 解码端 31/31、游戏端 72/72 通过记录，txt 存 `docs/evidence/W9_1027/00_测试报告/`（**Git 提交物**）。
 - [ ] **P0-9（稳定化演示，A6）**：弱信号持续 `idle`、模型缺失恒 `idle` 的录屏/截图；蓝喜阳现场口头兜底"置信度滞后平滑 → 不发随机指令"。
 
 ---
@@ -132,7 +132,7 @@
 | A5 | 延迟分解说明（演示稿第 3 页） | 王释贤（数据）+ 阎浩文（图） |
 | A6 | 稳定化三重机制演示 | 阎浩文（素材）+ 蓝喜阳（口头） |
 | A7 | 联调录屏 | 黄凯森 |
-| A8 | 真人现场演示（弹球） | 黄凯森 + 蓝喜阳 |
+| A8 | 真人现场演示（横版闯关 MI Pixel Run） | 黄凯森 + 蓝喜阳 |
 | A9 | 启动到出结果 ≤3 分钟 | 王释贤 |
 | A10 | 连续 1h 长跑无崩溃/内存泄漏 | 王释贤 |
 | A11 | 证据目录齐备 | 蓝喜阳 |
@@ -174,7 +174,7 @@
 ## 10. 验收当天自检清单（逐项打勾）
 
 - [ ] A1 跑通：4 份记录齐
-- [ ] A2 测试：解码端 17/17 + 游戏端 39/39 截图齐
+- [ ] A2 测试：解码端 31/31 + 游戏端 72/72 截图齐
 - [ ] A3 链路：replay 跟得上切换，录屏可放
 - [ ] A4 延迟：benchmark 数字齐（p50/p95/max）
 - [ ] A5 延迟分解：演示稿第 3 页已写清
@@ -210,17 +210,17 @@
 # 一键演示（黄凯森的脚本，双击或命令行运行）
 .\start_demo.ps1          # 自动同时起 解码器 + 游戏 两个窗口
 
-# 游戏三种玩法（手动）
-python game\pong.py --input keyboard
-python game\pong.py --input ws
-python game\pong.py --input jsonl --file outputs\latest.jsonl
+# 游戏三种玩法（手动，横版闯关 MI Pixel Run）
+python -m game.platformer.main --mode keyboard
+python -m game.platformer.main --mode ws --ws-url ws://127.0.0.1:8765
+python -m game.platformer.main --mode replay --replay-file outputs\latest.jsonl
 
 # 解码器 + WebSocket（联调）
 python -m bci_decoder.cli run --config configs/demo_online.yaml --outputs console websocket --chunks 200
 
 # 测试（两处）
-python -m pytest                     # 解码端 17/17
-python -m pytest -q "game\tests"     # 游戏端 39/39
+python -m pytest                     # 解码端 31/31
+python -m pytest -q "game\tests" "game\platformer\tests"   # 游戏端 72/72
 
 # 延迟 benchmark（王释贤跑）
 python -m bci_decoder.cli benchmark --config configs/default.yaml --chunks 200

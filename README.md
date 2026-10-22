@@ -1,12 +1,12 @@
 # 脑电运动想象在线解码模块（BCI-Decoder）
 
 > 翔宇医疗校企合作项目 · 把脑电中的**运动想象意图**实时解码成**可被游戏直接调用的消息流**。
-> 配套 Demo：**脑控弹球**（先键盘版完整可玩，再换成解码消息驱动画面）。
+> 配套 Demo：**横版闯关 MI Pixel Run**（`bci-decoder/game/platformer/`，先键盘版完整可玩，再换成解码消息驱动画面；早期弹球 pong 保留本地备稿，不入库）。
 
 **当前状态（2026-10-21）**：里程碑 ①（10/13 文档）✅ 已交付；里程碑 ②（10/27 可运行 MVP）🔄 进行中。
 解码链路（`sources → buffer → pipeline → outputs`）**已跑通**，`pytest` **31/31 通过**（`bci-decoder/tests`，含 OOD 域内检测 9 项），已产出演示模型与输出文件。
 **WebSocket 输出已端到端跑通**（2026-10-16 实测：解码器 `--outputs websocket` ← 客户端收到消息、字段契约一致；`websockets 17.2` 与 `pygame-ce 2.5.8` 已装入 `.venv`）。
-**游戏端**：横版闯关 **MI Pixel Run v1.0**（`bci-decoder/game/platformer/`）为主打，已并入本仓库主线；格子版（`game/runner.py`，备稿）保留；脑控弹球（pong）已拍板**不入库**（本地备选）。游戏端工程自检：platformer 14 + runner 11 = **25 项单测通过**（2026-10-22 实测口径；此前记录的 ws_protocol 39 项未提交入库、已丢失）。**A7 联调录屏 / A8 真人现场验收未做 → F4 尚不能判定验收通过**。
+**游戏端**：横版闯关 **MI Pixel Run v1.0**（`bci-decoder/game/platformer/`）为主打，已并入本仓库主线；格子版（`game/runner.py`，备稿）保留；脑控弹球（pong）已拍板**不入库**（本地备选）。游戏端工程自检口径（2026-10-22 复跑）：`pytest game\tests game\platformer\tests` **72 项通过**（含 platformer 14 项；此前记录的 ws_protocol 39 项未提交入库、已丢失）。**A7 联调录屏 / A8 真人现场验收未做 → F4 尚不能判定验收通过**。
 **未完成**：LSL、校准流程、Docker。
 
 > **横版闯关游戏正式版 v1.0（主打）**：键盘模拟和 JSONL 回放版本位于 [`bci-decoder/game/platformer/`](bci-decoder/game/platformer/README.md)，已并入主线；当前没有实时脑电连接或解码功能。脑控弹球（`game/pong.py`）与格子版备稿（`game/runner.py`）仍保留。

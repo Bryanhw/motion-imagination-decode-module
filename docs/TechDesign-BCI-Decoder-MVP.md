@@ -6,7 +6,8 @@
 > **定位**：本文件是**工作流契约版技术设计**，供 AI 助手与工作流 CLI 解析。
 > **工程细节的详版是** [`在线解码模块设计说明.md`](在线解码模块设计说明.md)；
 > **技术论证的详版是** [`详细技术路线.md`](详细技术路线.md)；**接口冻结以** [`MVP规格说明书.md`](MVP规格说明书.md) 第 4 节为准。
-> **游戏端（脑控弹球）已单独成文**：[`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md)。
+> **游戏端（横版闯关 MI Pixel Run / platformer）已单独成文**：[`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md)。
+> **2026-10-22 现状注记**：游戏端主打 = **横版闯关 MI Pixel Run v1.0**（`bci-decoder/game/platformer/`，2026-10-21 并入主线并接入 WebSocket 解码器），实现自检 **72 项通过**；弹球 `pong.py` / 格子版 `runner.py` 保留为备稿、pong **不入库**。正文中 `python game\pong.py ...` 等命令行属早期弹球示例，**当前统一入口为** `python -m game.platformer.main --mode keyboard|replay|ws`（详见 TechDesign-Game-MVP.md 头部注记）。
 > **v1.1 变更**：修正 User level 口径（C→A）、补备选方案对比与成本明细、补三级降级与伪迹降级链、补 Part 3 结构合规（Handoff Context 与文末 JSON）、指向游戏端文档。依据见 [`一致性复核-PRD-TechDesign.md`](一致性复核-PRD-TechDesign.md)。
 
 ---
@@ -32,7 +33,7 @@
                                           ws://127.0.0.1:8765
                                                         ▼
                             ┌────────────────────────────────────┐
-                            │  game 进程（脑控弹球，独立文档）      │
+                            │  game 进程（横版闯关 MI Pixel Run，独立文档）      │
                             │  见 TechDesign-Game-MVP.md          │
                             └────────────────────────────────────┘
 ```
@@ -44,7 +45,7 @@
 3. **输出多通道** —— 同一次解码可同时送终端、落盘、WebSocket；
 4. **配置驱动** —— 所有参数集中在单个 YAML，交付时企业只改一个文件。
 
-**唯一的用户界面是游戏端**（弹球窗口）；本模块是 headless 的，**游戏端坏掉不影响本模块成立**。
+**唯一的用户界面是游戏端**（游戏窗口）；本模块是 headless 的，**游戏端坏掉不影响本模块成立**。
 
 ---
 
@@ -118,11 +119,11 @@ bci-decoder/
 ├── artifacts/                # 模型与输出产物（不入库）
 ├── requirements.txt
 ├── pytest.ini
-└── game/                     # 游戏端（脑控弹球）—— 见 TechDesign-Game-MVP.md
+└── game/                     # 游戏端（横版闯关 MI Pixel Run / platformer）—— 见 TechDesign-Game-MVP.md
 ```
 
 > **命令一律在 `bci-decoder/` 目录下执行**（扁平布局，`python -m bci_decoder.cli` 免安装）。
-> **`game/` 位置已定案（2026-10-15）：`bci-decoder/game/`** —— 与 `MVP规格说明书` 附录A 一致（该处先 `cd bci-decoder`，再执行 `python game\pong.py`）。
+> **`game/` 位置已定案（2026-10-15）：`bci-decoder/game/`** —— 与 `MVP规格说明书` 附录A 一致（先 `cd bci-decoder`，再执行 `python -m game.platformer.main --mode keyboard|replay|ws`；早期 `python game\pong.py` 为弹球备稿、不入库）。
 
 ---
 
@@ -188,7 +189,7 @@ PTP > 150 µV  →  标记该窗口
               →  该窗口不产生有效决策（输出 idle，或沿用上一稳定状态但不得切换类别）
               →  连续超阈值 / 信号质量持续异常
               →  进入  stabilizing（必要时驱动 stop 语义）→ 输出 idle
-              →  游戏端表现为"挡板不动"
+              →  游戏端表现为"角色不动"
 ```
 
 **规则**：
@@ -233,7 +234,7 @@ PTP > 150 µV  →  标记该窗口
 | dev（伪在线回放） | `python scripts/make_sample_data.py --out data/sample_continuous.npy --seconds 60` 后 `python -m bci_decoder.cli run --config configs/demo_replay.yaml --chunks 300` |
 | **benchmark** | `python -m bci_decoder.cli benchmark --config configs/demo_online.yaml --chunks 600` |
 | 查看生效配置 | `python -m bci_decoder.cli show-config --config configs/demo_online.yaml` |
-| **游戏端** | `python game\pong.py --input ws`（详见 `TechDesign-Game-MVP.md` §9） |
+| **游戏端** | `python -m game.platformer.main --mode ws --ws-url ws://127.0.0.1:8765`（详见 `TechDesign-Game-MVP.md`） |
 | lint / typecheck | **未设置**（MVP 不引入 flake8/mypy） |
 
 **验收当天五步（顺序与含义不得省略）**：
@@ -249,7 +250,7 @@ python -m bci_decoder.cli benchmark --config configs/demo_online.yaml --chunks 6
 python -m bci_decoder.cli show-config --config configs/demo_online.yaml
 # 5) 启动 WebSocket，再启动游戏端（需先 pip install websockets）
 python -m bci_decoder.cli run --config configs/demo_online.yaml --outputs websocket
-python game\pong.py --input ws        # 另开一个终端；游戏端定义见 TechDesign-Game-MVP.md
+python -m game.platformer.main --mode ws --ws-url ws://127.0.0.1:8765   # 另开一个终端；游戏端定义见 TechDesign-Game-MVP.md
 ```
 
 > ⚠️ **`build` 步骤的红线提示（v1.1 新增）**：`bootstrap_demo.py` 会打印**合成数据**的交叉验证准确率。
@@ -363,12 +364,12 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 
 | # | 日期 | 技术目标 | 已知技术债 |
 |---|---|---|---|
-| ② | 10/27 | 链路 + 稳定化 + WebSocket + 弹球 Demo 打通 | ~~`websockets` 未验证~~ ✅ 已跑通（2026-10-16）；`game/` 最终路径 ✅ 已定 = `bci-decoder/game/` |
+| ② | 10/27 | 链路 + 稳定化 + WebSocket + 横版闯关 Demo（MI Pixel Run）打通 | ~~`websockets` 未验证~~ ✅ 已跑通（2026-10-16）；`game/` 最终路径 ✅ 已定 = `bci-decoder/game/`（platformer 2026-10-21 接入 WS） |
 | ③ | 11/10 | `moabb` + BCI IV 2a 真实基线；伪在线一致性 < 5% | 需引入 `mne` / `moabb` |
 | ④ | 12/01 | 黎曼 + 欧氏对齐、校准流程、LSL、稳定性 | 设备型号未确认 |
 | ⑥ | 12/15 | Docker / 一键部署、交付说明 | `vibe.project.json` 与 CI 尚无 |
 
-> **弹球必须与算法并行开工**（不等 ②），其玩法/输入切换/界面在 [`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md) 中定义。
+> **游戏端必须与算法并行开工**（不等 ②），其玩法/输入切换/界面在 [`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md) 中定义。
 
 ---
 
@@ -388,7 +389,7 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
 - Chosen stack: Python 3.14.7 + NumPy 2.5.3 + SciPy 1.18.1 + scikit-learn 1.9.1（LDA）+ PyYAML 6.0.3 + joblib 1.6.0 + pytest 9.1.1；`websockets`（✅ 已装并跑通，17.2，F5 关键）；`pylsl`（④）；游戏端 Pygame（另见 TechDesign-Game-MVP.md）
 - AI coding tool: AI 编码助手辅助实现与测试（`AGENTS.md` 体系 / vibe-coding 工作流）；人工负责跑测试、真机联调与验收
 - Constraints: 命令必须在 `bci-decoder/` 内执行（扁平布局，`python -m bci_decoder.cli` 免安装）｜Windows PowerShell 5.1 **禁止 `&&`**｜滤波必须因果且跨 chunk 保状态（**禁止在线用 `filtfilt`**）｜环形缓冲固定容量｜未训练恒输出 `idle`｜**输出字段不得增删**｜滑窗 **2.0 s** / 步长 **0.5 s** **冻结不得改**｜通道顺序 `C3,Cz,C4,CP3,CP4,P3,P4,Oz` **不得重排**｜p95 < 50 ms｜调度抖动 < 10 ms｜**不采集真实患者数据**（伦理未走完）｜**MVP 不对外报告任何准确率**｜团队实现水平：C（大一学生，按此深度写注释与文档）
-- Decisions: MVP 用**CSP + LDA**（2026-10-20 由频带功率 16 维切换，见 `MVP规格说明书` 第 9 节 v1.1.3；不用深度学习；黎曼延后至④）｜传输用 **WebSocket**（LSL 延后至④）｜本地单进程、不做 Docker｜数据源以 mock/replay 为主，lsl 留接口不启用｜模型产物存 `artifacts/`（不入库）｜**脑控弹球单独成文** `TechDesign-Game-MVP.md`｜降级优先 `jsonl` 轮询（零新依赖）｜`state` 仅表达稳定化阶段，不得用于改玩法
+- Decisions: MVP 用**CSP + LDA**（2026-10-20 由频带功率 16 维切换，见 `MVP规格说明书` 第 9 节 v1.1.3；不用深度学习；黎曼延后至④）｜传输用 **WebSocket**（LSL 延后至④）｜本地单进程、不做 Docker｜数据源以 mock/replay 为主，lsl 留接口不启用｜模型产物存 `artifacts/`（不入库）｜**游戏端（主打横版闯关 MI Pixel Run）单独成文** `TechDesign-Game-MVP.md`｜降级优先 `jsonl` 轮询（零新依赖）｜`state` 仅表达稳定化阶段，不得用于改玩法
 - Open questions: （已关闭 2026-10-16：`websockets` ✅ 已装通并端到端跑通）｜企业设备型号/通道顺序/LSL 流名称待书面确认｜真实基线评测协议（数据集与指标口径）｜企业未来客户端是否 Unity（不在 MVP 范围）｜`bci-decoder/` 归属口径 ✅ 已拍板为团队成果（2026-10-15）｜`game/` 位置 ✅ 已定案 `bci-decoder/game/`
 - Research status: 已核实——因果滤波必要性、窗口长度是延迟瓶颈（非算法）、WebSocket vs LSL 取舍、`pylsl`/`moabb` 可用性、合成数据 CV 必然接近 100% ｜⚠️ 未定论——`LSL4Unity` 许可证来源冲突（`NOASSERTION` vs MIT）、支持哪些 Unity 版本 `[未核实]` ｜未核实——真实设备型号与通道顺序（待企业确认）
 - Source files: docs/MVP_PRD.md｜docs/MVP规格说明书.md（§4 字段与控制消息、§11.1–11.3 证据/降级/明确不做、附录A 验收五步）｜docs/TechDesign-Game-MVP.md｜docs/在线解码模块设计说明.md｜docs/详细技术路线.md｜docs/research-BCI-Decoder.md｜docs/一致性复核-PRD-TechDesign.md｜REVIEW-CHECKLIST.md｜agent_docs/tech_stack.md、agent_docs/testing.md｜AGENTS.md、MEMORY.md
@@ -400,7 +401,7 @@ python game\pong.py --input ws        # 另开一个终端；游戏端定义见 
   "appName": "BCI-Decoder",
   "stack": {
     "backend": "Python 3.14.7 + NumPy 2.5.3 + SciPy 1.18.1 + scikit-learn 1.9.1 + PyYAML 6.0.3 + joblib 1.6.0 + pytest 9.1.1；实时通信 websockets（✅ 已装通并端到端验证，17.2），设备接入 pylsl（④）",
-    "frontend": "无（headless 模块，无 UI；唯一用户界面在 game/ 脑控弹球，见 TechDesign-Game-MVP.md）",
+    "frontend": "无（headless 模块，无 UI；唯一用户界面在 game/ 横版闯关 MI Pixel Run，见 TechDesign-Game-MVP.md）",
     "deployment": "本地单进程（Windows 笔记本，无 GPU），无服务器/无云服务；MVP 不做容器（Docker 归里程碑 ⑥）"
   },
   "commands": {

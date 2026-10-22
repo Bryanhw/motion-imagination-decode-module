@@ -1,4 +1,4 @@
-# bci-decoder · 面向脑控游戏的在线运动想象解码模块
+﻿# bci-decoder · 面向脑控游戏的在线运动想象解码模块
 
 一个**可独立运行、可被游戏直接调用**的在线解码服务。
 输入脑电数据流，输出 `运动意图 + 置信度 + 时间戳`，游戏侧无需了解任何脑电细节。
@@ -51,7 +51,7 @@ python -m bci_decoder.cli benchmark --config configs/demo_online.yaml --chunks 6
 
 ## 横版闯关游戏正式版 v1.0
 
-仓库同时包含独立的 MI Pixel Run 横版像素平台游戏，原脑控弹球代码仍保留在 `game/`。本正式版可用键盘完整试玩，也能从 JSONL 示例驱动同一输入与物理逻辑：
+仓库的游戏端**主打 = 横版闯关 MI Pixel Run**（`game/platformer/`，已接 WebSocket 解码器）；早期弹球 `game/pong.py` / 格子版备稿保留为本地备稿（pong 不入库）。正式版可用键盘完整试玩，也能由 `--mode replay/ws` 驱动同一输入与物理逻辑：
 
 ```powershell
 # 在 bci-decoder/ 目录运行

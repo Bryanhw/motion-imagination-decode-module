@@ -1,24 +1,27 @@
-# Product Requirements Document: BCI-Decoder-Game（脑控弹球 · 游戏端）MVP
+# Product Requirements Document: BCI-Decoder-Game（游戏端 · 主打横版闯关 MI Pixel Run）MVP
 
 > **Step 2 产出（配套文档）**（对照 vibe-coding-prompt-template 的 "Start a project"）
-> **应用名**：`BCI-Decoder-Game`（弹球端；主项目 `BCI-Decoder`）
+> **应用名**：`BCI-Decoder-Game`（游戏端，主打 MI Pixel Run；主项目 `BCI-Decoder`）
 > **文件名**：`docs/PRD-Game-MVP.md`（沿用既有配对命名 `TechDesign-Game-MVP.md`，与 `MVP_PRD.md` 同级）
 > **版本**：v1.0（2026-10-15）
-> **定位**：本文件**只管游戏端**（脑控弹球的玩法、界面、输入源与演示体验）。解码侧的字段与链路以 [`MVP规格说明书.md`](MVP规格说明书.md) 第 4 节（冻结契约）为准；实现设计见 [`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md)。
-> **为什么单独成文**：脑控弹球是主 PRD 的 must-have（F4），但主 PRD 与主 TechDesign 都没有它的落地设计（复核结论 [`一致性复核-PRD-TechDesign.md`](一致性复核-PRD-TechDesign.md) P1-2）。游戏端因此**单独走一遍 PRD → TechDesign**。
+> **定位**：本文件**只管游戏端**（横版闯关 MI Pixel Run 的玩法、界面、输入源与演示体验）。解码侧的字段与链路以 [`MVP规格说明书.md`](MVP规格说明书.md) 第 4 节（冻结契约）为准；实现设计见 [`TechDesign-Game-MVP.md`](TechDesign-Game-MVP.md)。
+> **为什么单独成文**：游戏端是主 PRD 的 must-have（F4），但主 PRD 与主 TechDesign 都没有它的落地设计（复核结论 [`一致性复核-PRD-TechDesign.md`](一致性复核-PRD-TechDesign.md) P1-2）。游戏端因此**单独走一遍 PRD → TechDesign**。
 > **负责人**：黄凯森（数据评测 + 游戏）；**必须与算法并行开工，不等 F1 完成**（`MVP规格说明书` L35、L60）。
 > **范围与验收的唯一依据**：`docs/MVP规格说明书.md`（本文件若与它冲突，以它为准）。
-> **实现状态（2026-10-16，AI 编码助手辅助实施 + 人工跑测试）**：F4.1–F4.4 与 F5.3 的**代码已落地并通过工程自检**
-> （游戏端单测 39/39、解码模块 17/17、端到端 39 项断言全绿，证据 [`evidence/W7_1016/`](evidence/W7_1016/README.md)）。
+> **实现状态（2026-10-22，AI 编码助手辅助实施 + 人工跑测试）**：F4.1–F4.4 与 F5.3 的**代码已落地并通过工程自检**
+> （解码模块 31/31、游戏端 `pytest game\tests game\platformer\tests` **72 项通过**，主打 = 横版闯关 MI Pixel Run v1.0）。
 > **但以下"现场验收项"均未完成，因此 F4 不得判定为验收通过**：真人带屏手感、A7 联调录屏、A8 现场演示。
+> **但以下"现场验收项"均未完成，因此 F4 不得判定为验收通过**：真人带屏手感、A7 联调录屏、A8 现场演示。
+
+> **2026-10-22 现状更新**：本文件的"弹球载体"正文为 v1.0（2026-10-15）契约设计。**已拍板**：游戏端**实际落地 = 横版闯关 MI Pixel Run v1.0**（`bci-decoder/game/platformer/`，2026-10-21 并入主线并接入 WebSocket 解码器），实现自检 **72 项通过**（`pytest game\tests game\platformer\tests`）；输入源三态（keyboard / ws / jsonl）与决策契约不变，弹球 `pong.py` / 格子版 `runner.py` 保留为备稿、pong **不入库**。下文 F4.1–F4.4、A7/A8 的"判据"（可玩 → 解码可玩）仍有效，**载体名词以 platformer 为准**，正文中以弹球为例的玩法细节为历史契约细则、由代码实现（platformer）替代。
 
 ---
 
 ## Product Overview
 
-**App Name:** BCI-Decoder-Game（脑控弹球 / BCI-Pong）
+**App Name:** BCI-Decoder-Game（横版闯关 MI Pixel Run；早期弹球版本命名 BCI-Pong 已作备稿）
 
-**Tagline:** 想象左手或右手 —— 让挡板替你接住球
+**Tagline:** 想象左手或右手 —— 让角色向前跑
 
 **Launch Goal:** 在 10/27 的现场演示上，用**一块看得懂的窗口**证明「运动想象 → 解码 → 动作」这条链路成立：先交付**键盘版完整玩法**（不依赖解码器、随时可兜底），再交付**解码消息驱动版**（游戏实际订阅消息并驱动画面，不是"端口能连"）。
 
