@@ -10,8 +10,8 @@
 仓库内已有**本团队的可运行解码链路**（`bci-decoder/`，31/31 测试通过、已产出模型与输出文件），
 **归属已拍板（2026-10-15）：属于团队成果，计入项目进度**。
 **游戏端（脑控弹球，`bci-decoder/game/`）代码已写完并通过工程自检**（2026-10-16：单测 39/39、端到端 39 项断言全绿，
-含"解码器运行中被杀"），**但 A7 联调录屏 / A8 真人现场演示未做 → F4 尚不能判定验收通过**。
-另**横版闯关游戏正式版 v1.0**（`bci-decoder/game/platformer/`，键盘和 JSONL 回放版本，未接入实时解码器）已**并入主线**（2026-10-21）为游戏端主打；**脑控弹球**（`game/pong.py`）与格子版备稿（`game/runner.py`）仍保留。
+含"解码器运行中被杀"）。**A7 合成数据 WebSocket 联调录屏已归档，A8 真人现场演示未做 → F4 尚不能判定验收通过**。
+另**横版闯关游戏正式版 v1.0**（`bci-decoder/game/platformer/`，已接入实时 WebSocket 解码器）已**并入主线**（2026-10-21）为游戏端主打；**脑控弹球**（`game/pong.py`）与格子版备稿（`game/runner.py`）仍保留。
 **仍未完成**：LSL、校准流程、Docker（**WebSocket 输出已于 2026-10-16 端到端跑通**）。
 
 ## 里程碑状态
@@ -92,6 +92,7 @@
 
 | 日期 | 变更 |
 |---|---|
+| 2026-10-22（A7 录屏） | 修复 D 键崩溃并推送 `2165131` 后，用正式平台游戏和 mock 解码器录制 `docs/evidence/W9_1027/A7_联调录屏_ws.mp4`（约 21.7 秒、326 帧）。真实 pygame 画面，WebSocket 连接 2 次、断线 1 次、决策 28 条；停止解码器后安全回到 `NONE`，重启后恢复决策。视频标注合成数据工程测试。A7 已录制；A8 真人演示仍待完成，不据此声称分类准确率。|
 | 2026-10-22（D 键崩溃修复） | 真人试跑报告按 D 退出到 PowerShell；用不带 `repeat` 的真实 pygame `KEYDOWN` 事件复现 `AttributeError`。正式游戏 `bci-decoder/game/platformer/main.py` 改为安全读取可选 `repeat`，并依据键盘适配器状态保证按住 D 不重复跳跃；`ws` 模式不处理键盘 D。新增 `test_main_events.py` 覆盖真实主循环。旧工作区未入库的 `motion-imagery-eeg/game/main.py` 同步做同一处本地修复，但不把旧副本并入 GitHub。验证：解码器 31 项 + 游戏 32 项全部通过，旧副本 14 项通过且按 D 不再崩；根 README 清理了不存在的 `pong.py` 启动命令，A7 仍待修复版录屏。|
 | 2026-10-22 | **平台游戏新增真实解码器 WebSocket 订阅与断线重连（实现已推送；真人联调录屏 A7 仍待执行）**：`bci-decoder/game/platformer/websocket_input.py` 订阅冻结的 9 字段输出，严格校验字段/label_id/t_data/state，并将 `left/right/idle` 映射到游戏内部决策；异常/非 running/断线均安全退回 `NONE`，每 0.5 秒重连，重连清空远端序号以兼容服务端重启。`main.py --mode ws [--ws-url]` 加入连接状态显示，窗口退出使用 `finally` 停客户端。新增 `configs/demo_game_ws.yaml`（仅 mock 工程链路自检），更新根 README 与游戏 README/INTERFACE 的两终端启动说明。**测试**：platformer 19 项、decoder `tests`（排除本环境无法完成 loopback 握手的既有 `test_websocket_sink.py`）28 项、`game/tests` 11 项通过；`git diff --check` 通过。新增重连测试用 mock WebSocket 客户端覆盖两次连接及序号重置；本机 loopback 握手在当前执行环境失败，未将其伪报为端到端验收。联调录屏、真人演示/手感验证仍需现场完成，mock 数据不能作为准确率或真人脑控证据。|
 | 2026-10-22（续） | 联调复核发现 Windows 系统代理会截获本机 WebSocket；游戏客户端及契约测试改为直连（`proxy=None`），之后真实本机断线/重连集成测试通过。`pytest tests/` **31/31**、`pytest game/platformer/tests game/tests` **30/30**；mock 方向决策使游戏角色位移。找到原工作区的 PhysioNet EEGMMIDB S001 R04/R08/R12 EDF，经 SHA256 逐文件确认后按原样提交到 `bci-decoder/data/eegmmidb_s001/`（数据文件公开且来源说明见目录 README）。新增 MNE 转换脚本与真实 EDF 回放配置；端到端链路实测收到 EDF 输入对应决策，但 demo 模型合成训练，不能据此评价分类。证据 `docs/evidence/W9_1027/WS_契约自检/A7_WebSocket联调工程验证_20261022.md`；A7 录屏与 A8 真人演示仍待现场完成。|
