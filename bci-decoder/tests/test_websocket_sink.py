@@ -47,7 +47,7 @@ CASES = [
 def _collect(port: int, count: int, connected: threading.Event) -> list:
     async def _run() -> list:
         got = []
-        async with websockets.connect(f"ws://127.0.0.1:{port}") as ws:
+        async with websockets.connect(f"ws://127.0.0.1:{port}", proxy=None) as ws:
             connected.set()                        # 客户端侧握手完成（服务端登记见下方等待）
             for _ in range(count):
                 raw = await asyncio.wait_for(ws.recv(), timeout=10.0)

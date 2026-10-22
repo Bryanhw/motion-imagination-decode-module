@@ -1,0 +1,56 @@
+# 用 PhysioNet S001R04 EDF 做真实 EEG 回放联调。
+# 先运行 scripts/prepare_eegmmidb_replay.py 生成本地 .npy，并运行 bootstrap_demo.py 准备模型。
+# 模型是合成工程自检模型；本配置只验证真实信号读取和 WebSocket 游戏链路，不代表准确率。
+
+source:
+  kind: replay
+  sfreq: 250.0
+  ch_names: [C3, Cz, C4, CP3, CP4, P3, P4, Oz]
+  path: "artifacts/eegmmidb_s001r04_8ch_250hz.npy"
+  chunk_samples: 25
+  realtime: true
+  speed: 1.0
+  loop: true
+
+preprocess:
+  l_freq: 8.0
+  h_freq: 30.0
+  notch_freq: 50.0
+  notch_q: 30.0
+  filter_order: 4
+  car: true
+  artifact_ptp_uv: 200.0
+
+features:
+  kind: csp
+  csp_components: 4
+  csp_reg: 1e-4
+  model_path: "artifacts/demo_csp.joblib"
+
+classifier:
+  kind: lda
+  classes: [left, right]
+  model_path: "artifacts/demo_lda.joblib"
+
+postprocess:
+  vote_window: 3
+  ema_alpha: 0.4
+  min_confidence: 0.6
+  idle_label: idle
+
+ood:
+  enabled: true
+  method: mahalanobis
+  chi2_quantile: 0.99
+  score_scale: 1.0
+  strength_floor_enabled: true
+  model_path: "artifacts/ood.joblib"
+
+window:
+  window_seconds: 2.0
+  step_seconds: 0.5
+
+output:
+  sinks: [websocket]
+  ws_host: "127.0.0.1"
+  ws_port: 8765

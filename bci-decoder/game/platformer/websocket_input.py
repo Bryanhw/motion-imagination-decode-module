@@ -100,7 +100,11 @@ class WebSocketInputAdapter:
             self.events.put(("connecting", None))
             connected = False
             try:
-                async with websockets.connect(self.url, open_timeout=2, close_timeout=1) as websocket:
+                # websockets 15+ may auto-discover a system proxy; bypass it for
+                # the local decoder endpoint so 127.0.0.1 isn't sent to a proxy.
+                async with websockets.connect(
+                    self.url, open_timeout=2, close_timeout=1, proxy=None,
+                ) as websocket:
                     connected = True
                     sequence = 0
                     self.events.put(("connected", None))

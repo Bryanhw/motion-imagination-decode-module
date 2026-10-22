@@ -62,6 +62,23 @@ python -m pip install -r game\platformer\requirements.txt
 
 确认画面状态随解码器输出变化后，在终端 1 按 `Ctrl+C`。游戏应立即停在 `NONE` 安全态；再次执行终端 1 的命令后，游戏客户端自动重连并继续接收。录屏和说明需标注这是 **mock 工程链路自检**，仅证明消息通路与断线恢复，不证明算法准确率或真人实时脑控。
 
+### 用本地 PhysioNet EDF 做回放联调
+
+仓库提供 `data/eegmmidb_s001/` 中的三段匿名公开 EDF+ 原始记录。若尚未安装 MNE，先执行 `python -m pip install mne`。在 `bci-decoder/` 下转换第一段记录（原 EDF 不会改动）：
+
+```powershell
+python scripts/prepare_eegmmidb_replay.py --input data/eegmmidb_s001/S001R04.edf
+```
+
+准备演示模型后，在终端 1 用真实 EEG 回放启动解码器：
+
+```powershell
+python scripts/bootstrap_demo.py --config configs/demo_online.yaml
+python -m bci_decoder.cli run --config configs/demo_game_eegmmidb.yaml
+```
+
+终端 2 仍运行 `python -m game.platformer.main --mode ws`。这能检查 EDF 读取、预处理、解码消息、WebSocket 传输与游戏输入链路。演示模型由合成数据训练，不能用它评价该被试的分类效果；要检查角色方向和关卡手感，请用上面的 mock 联调配置。
+
 ## 测试
 
 从 `bci-decoder/` 目录运行：

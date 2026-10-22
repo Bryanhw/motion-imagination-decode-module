@@ -1,9 +1,8 @@
 """Checks for the decoder-to-game WebSocket message mapping."""
 
+import asyncio
 import json
-import threading
 import unittest
-from unittest.mock import patch
 
 from game.platformer.websocket_input import WebSocketInputAdapter, parse_decoder_output
 
@@ -44,54 +43,54 @@ class WebSocketMessageTests(unittest.TestCase):
             parse_decoder_output(json.dumps(decoder_message("left", 1)), sequence=0)
 
 
-class WebSocketReconnectTests(unittest.TestCase):
-    def test_reconnects_and_resets_sequence_after_connection_loss(self):
-        adapter = WebSocketInputAdapter("ws://decoder.invalid", reconnect_seconds=0.01)
-        attempts = 0
-        first_disconnected = threading.Event()
-        original_connect = __import__("websockets").connect
+class WebSocketReconnectTests(unittest.IsolatedAsyncioTestCase):
+    async def wait_for_event(self, adapter, wanted, pending):
+        deadline = asyncio.get_running_loop().time() + 5
+        while asyncio.get_running_loop().time() < deadline:
+            pending.extend(adapter.poll())
+            for event in pending[:]:
+                if event[0] == wanted:
+                    pending.remove(event)
+                    return event
+            await asyncio.sleep(0.01)
+        self.fail(f"5 秒内没有收到 WebSocket 事件 {wanted!r}；排队事件={pending!r}")
 
-        class FakeConnection:
-            def __init__(self, label, label_id, disconnect_event=None):
-                self.label, self.label_id = label, label_id
-                self.disconnect_event = disconnect_event
+    async def test_reconnects_after_decoder_server_restart(self):
+        import websockets
 
-            async def __aenter__(self):
-                return self
+        async def make_server(label, label_id, port):
+            async def handler(websocket):
+                await websocket.send(json.dumps(decoder_message(label, label_id)))
+                await websocket.wait_closed()
 
-            async def __aexit__(self, *_):
-                if self.disconnect_event:
-                    self.disconnect_event.set()
+            return await websockets.serve(handler, "127.0.0.1", port)
 
-            def __aiter__(self):
-                async def messages():
-                    yield json.dumps(decoder_message(self.label, self.label_id))
-                return messages()
+        first = await make_server("left", 0, 0)
+        port = first.sockets[0].getsockname()[1]
+        adapter = WebSocketInputAdapter(f"ws://127.0.0.1:{port}", reconnect_seconds=0.05)
+        pending = []
+        adapter.start()
+        second = None
+        try:
+            await self.wait_for_event(adapter, "connected", pending)
+            first_decision = await self.wait_for_event(adapter, "decision", pending)
+            self.assertEqual((first_decision[1].intent, first_decision[1].sequence), ("LEFT_HAND", 0))
 
-        def connect(*_args, **_kwargs):
-            nonlocal attempts
-            attempts += 1
-            if attempts == 1:
-                return FakeConnection("left", 0, first_disconnected)
-            if attempts == 2:
-                return FakeConnection("right", 1)
-            raise AssertionError("应在第二次连接后停止")
+            first.close()
+            await first.wait_closed()
+            await self.wait_for_event(adapter, "disconnected", pending)
+            second = await make_server("right", 1, port)
 
-        with patch.object(__import__("websockets"), "connect", connect):
-            adapter.start()
-            try:
-                self.assertTrue(first_disconnected.wait(2))
-                deadline = __import__("time").monotonic() + 2
-                received = []
-                while len([e for e in received if e[0] == "decision"]) < 2 and __import__("time").monotonic() < deadline:
-                    received.extend(adapter.poll())
-                    __import__("time").sleep(0.01)
-                decisions = [e[1] for e in received if e[0] == "decision"]
-                self.assertEqual([(d.intent, d.sequence) for d in decisions],
-                                 [("LEFT_HAND", 0), ("RIGHT_HAND", 0)])
-                self.assertGreaterEqual(attempts, 2)
-            finally:
-                adapter.stop()
+            await self.wait_for_event(adapter, "connected", pending)
+            second_decision = await self.wait_for_event(adapter, "decision", pending)
+            self.assertEqual((second_decision[1].intent, second_decision[1].sequence), ("RIGHT_HAND", 0))
+        finally:
+            first.close()
+            await first.wait_closed()
+            if second:
+                second.close()
+                await second.wait_closed()
+            await asyncio.to_thread(adapter.stop)
 
 
 if __name__ == "__main__":
