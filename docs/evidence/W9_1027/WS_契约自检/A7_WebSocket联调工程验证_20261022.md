@@ -15,11 +15,13 @@
 2. **断线与重连**：停止解码器后客户端收到 `disconnected`；重启 mock 解码器后自动收到 `connected` 和后续消息。
 3. **方向输入与游戏物理**：用 mock 的方向决策喂给 `DecisionReceiver` 和 `GameController`，收到 `LEFT_HAND` 并观察到角色 x 坐标从 28 增至 29.2。
 4. **游戏窗口启动**：SDL dummy 环境下运行实际 `main(--mode ws)`，自动按 Enter 后正常退出，返回码 0。
-5. **自动化测试**：解码器 `tests/` 31 项通过；平台游戏 + 其他游戏测试 30 项通过；`git diff --check` 通过。
+5. **自动化测试**：解码器 `tests/` 31 项通过；平台游戏 + 其他游戏测试 32 项通过；`git diff --check` 通过。
 
 ## 修正
 
 本机 Python WebSocket 客户端会自动读取 Windows 系统代理设置，导致 `127.0.0.1` 握手发给代理。游戏客户端和解码器 WebSocket 契约测试现在都明确传 `proxy=None` 直连本机；修复后真实本机 WebSocket 集成测试通过。
+
+真人试跑又发现：pygame 普通 `KEYDOWN` 事件没有 `repeat` 属性，正式版主循环直接读取 `event.repeat`，按 D 会抛 `AttributeError` 并退出到 PowerShell。已在正式版和本机旧副本改为安全读取，并按键盘适配器已有状态抑制按住 D 的重复事件。新增真实 pygame 主循环回归检查，覆盖普通 D 事件、重复 D 事件与 `ws` 模式下的 D 键；正式版 63 项测试全部通过。**A7 录屏须使用修复后的正式版。**
 
 ## 尚未完成
 

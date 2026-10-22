@@ -156,8 +156,9 @@ def main(argv=None):
                     if replay:
                         replay = ReplayInputAdapter(args.replay_file)
                     started = False
-                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_d
-                      and not event.repeat and started and args.mode == "keyboard"):
+                elif (args.mode == "keyboard" and started and event.type == pygame.KEYDOWN
+                      and event.key == pygame.K_d and not getattr(event, "repeat", False)
+                      and not keyboard.previous_d):
                     receiver.receive(keyboard.press_jump(now), now)
                     jump_event = True
             if websocket:

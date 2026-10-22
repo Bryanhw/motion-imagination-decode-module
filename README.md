@@ -34,9 +34,9 @@
 > 完整命令清单见 [`docs/MVP规格说明书.md`](docs/MVP规格说明书.md) **附录 A**。
 
 ```powershell
-# 1) 跑测试（当前 bci-decoder/tests 17/17 通过）
+# 1) 跑测试（解码器 31 项；平台游戏与其他游戏 32 项）
 .venv\Scripts\python.exe -m pytest
-.venv\Scripts\python.exe -m pytest -q "game\tests"   # 游戏端单测（39/39；pytest.ini 的 testpaths 不收 game/，须显式传路径）
+.venv\Scripts\python.exe -m pytest -q game\platformer\tests game\tests
 
 # 2) 终端 1：启动解码器 WebSocket 服务（mock 工程自检）
 .venv\Scripts\python.exe -m bci_decoder.cli run --config configs/demo_game_ws.yaml
@@ -45,16 +45,9 @@
 .venv\Scripts\python.exe -m game.platformer.main --mode keyboard   # 主打：MI Pixel Run 横版闯关，键盘模拟
 .venv\Scripts\python.exe -m game.platformer.main --mode replay      # 主打：JSONL 回放
 .venv\Scripts\python.exe -m game.platformer.main --mode ws          # 订阅本机解码器 WebSocket，断线自动安全待机并重连
-.venv\Scripts\python.exe -m pytest -q game\platformer\tests
-
-# 3b) 备选：脑控弹球 pong / 格子版备稿 runner（仍保留）
-.venv\Scripts\python.exe game\pong.py --input keyboard   # 键盘降级版（C 级演示，须明说不是脑控）
-.venv\Scripts\python.exe game\pong.py --input ws         # 解码驱动版：需先启动第 2 步
-.venv\Scripts\python.exe -m pytest -q "game\tests"           # 弹球 39 + runner 11（须在 bci-decoder 下显式传路径）
-
-# 4) headless 自检 + 出报告（无显示器也能跑，队友/CI 复现用）
-.venv\Scripts\python.exe game\pong.py --input ws --headless --max-frames 600 --report artifacts\pong_report.json
 ```
+
+联调与 A7 录屏请使用上面的 `game.platformer.main` 命令。旧工作区的 `motion-imagery-eeg/game/main.py` 是未入库的本地副本；本机已同步修正 D 键崩溃，但团队成员应从仓库主线运行正式版。
 
 ---
 

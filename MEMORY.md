@@ -92,6 +92,7 @@
 
 | 日期 | 变更 |
 |---|---|
+| 2026-10-22（D 键崩溃修复） | 真人试跑报告按 D 退出到 PowerShell；用不带 `repeat` 的真实 pygame `KEYDOWN` 事件复现 `AttributeError`。正式游戏 `bci-decoder/game/platformer/main.py` 改为安全读取可选 `repeat`，并依据键盘适配器状态保证按住 D 不重复跳跃；`ws` 模式不处理键盘 D。新增 `test_main_events.py` 覆盖真实主循环。旧工作区未入库的 `motion-imagery-eeg/game/main.py` 同步做同一处本地修复，但不把旧副本并入 GitHub。验证：解码器 31 项 + 游戏 32 项全部通过，旧副本 14 项通过且按 D 不再崩；根 README 清理了不存在的 `pong.py` 启动命令，A7 仍待修复版录屏。|
 | 2026-10-22 | **平台游戏新增真实解码器 WebSocket 订阅与断线重连（实现已推送；真人联调录屏 A7 仍待执行）**：`bci-decoder/game/platformer/websocket_input.py` 订阅冻结的 9 字段输出，严格校验字段/label_id/t_data/state，并将 `left/right/idle` 映射到游戏内部决策；异常/非 running/断线均安全退回 `NONE`，每 0.5 秒重连，重连清空远端序号以兼容服务端重启。`main.py --mode ws [--ws-url]` 加入连接状态显示，窗口退出使用 `finally` 停客户端。新增 `configs/demo_game_ws.yaml`（仅 mock 工程链路自检），更新根 README 与游戏 README/INTERFACE 的两终端启动说明。**测试**：platformer 19 项、decoder `tests`（排除本环境无法完成 loopback 握手的既有 `test_websocket_sink.py`）28 项、`game/tests` 11 项通过；`git diff --check` 通过。新增重连测试用 mock WebSocket 客户端覆盖两次连接及序号重置；本机 loopback 握手在当前执行环境失败，未将其伪报为端到端验收。联调录屏、真人演示/手感验证仍需现场完成，mock 数据不能作为准确率或真人脑控证据。|
 | 2026-10-22（续） | 联调复核发现 Windows 系统代理会截获本机 WebSocket；游戏客户端及契约测试改为直连（`proxy=None`），之后真实本机断线/重连集成测试通过。`pytest tests/` **31/31**、`pytest game/platformer/tests game/tests` **30/30**；mock 方向决策使游戏角色位移。找到原工作区的 PhysioNet EEGMMIDB S001 R04/R08/R12 EDF，经 SHA256 逐文件确认后按原样提交到 `bci-decoder/data/eegmmidb_s001/`（数据文件公开且来源说明见目录 README）。新增 MNE 转换脚本与真实 EDF 回放配置；端到端链路实测收到 EDF 输入对应决策，但 demo 模型合成训练，不能据此评价分类。证据 `docs/evidence/W9_1027/WS_契约自检/A7_WebSocket联调工程验证_20261022.md`；A7 录屏与 A8 真人演示仍待现场完成。|
 

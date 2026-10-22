@@ -87,6 +87,8 @@ python -m bci_decoder.cli run --config configs/demo_game_eegmmidb.yaml
 .venv\Scripts\python.exe -m pytest -q game\platformer\tests
 ```
 
+其中 `test_main_events.py` 会向实际 pygame 主循环发送不带 `repeat` 属性的 D 键事件，并检查只跳一次及 `ws` 模式不会被键盘 D 触发。
+
 ## 目录
 
 ```text
