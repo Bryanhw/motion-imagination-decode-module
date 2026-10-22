@@ -38,12 +38,13 @@
 .venv\Scripts\python.exe -m pytest
 .venv\Scripts\python.exe -m pytest -q "game\tests"   # 游戏端单测（39/39；pytest.ini 的 testpaths 不收 game/，须显式传路径）
 
-# 2) 启动解码器，输出到 WebSocket（游戏端联调用）
-.venv\Scripts\python.exe -m bci_decoder.cli run --config configs/demo_online.yaml --outputs websocket
+# 2) 终端 1：启动解码器 WebSocket 服务（mock 工程自检）
+.venv\Scripts\python.exe -m bci_decoder.cli run --config configs/demo_game_ws.yaml
 
-# 3) 游戏端（bci-decoder/game/，2026-10-21 已并主线）
+# 3) 终端 2：游戏端（bci-decoder/game/，2026-10-21 已并主线）
 .venv\Scripts\python.exe -m game.platformer.main --mode keyboard   # 主打：MI Pixel Run 横版闯关，键盘模拟
 .venv\Scripts\python.exe -m game.platformer.main --mode replay      # 主打：JSONL 回放
+.venv\Scripts\python.exe -m game.platformer.main --mode ws          # 订阅本机解码器 WebSocket，断线自动安全待机并重连
 .venv\Scripts\python.exe -m pytest -q game\platformer\tests
 
 # 3b) 备选：脑控弹球 pong / 格子版备稿 runner（仍保留）

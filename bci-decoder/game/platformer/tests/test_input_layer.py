@@ -142,6 +142,12 @@ class InputContractTests(unittest.TestCase):
         self.assertEqual(self.receiver.current(10.2).intent, "LEFT_HAND")
         self.assertEqual(self.receiver.current(10.51).intent, "NONE")
 
+    def test_disconnect_resets_remote_state_and_allows_restarted_sequence(self):
+        self.receiver.receive(Decision(1, 8, "LEFT_HAND", "device", 1.0), received_at=1.0)
+        self.receiver.reset_remote()
+        self.assertEqual(self.receiver.current(1.1).intent, "NONE")
+        self.assertTrue(self.receiver.receive(Decision(1, 0, "RIGHT_HAND", "device", 2.0), received_at=2.0))
+
     def test_none_does_not_trigger_jump_or_forward(self):
         self.game.update("NONE", 0.016)
         x = self.game.player.x

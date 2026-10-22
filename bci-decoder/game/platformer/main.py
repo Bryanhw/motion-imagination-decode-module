@@ -14,6 +14,7 @@ except ImportError as exc:
 
 from .input_layer import DecisionReceiver, KeyboardInputAdapter, ReplayInputAdapter
 from .physics import GameController, GROUND_Y, HEIGHT, TILE, UPPER_Y, WIDTH, platform_spans
+from .websocket_input import WebSocketInputAdapter
 
 ROOT = Path(__file__).resolve().parent
 NAVY = (17, 31, 64)
@@ -116,72 +117,113 @@ def draw_scene(screen, game, camera, intent, source_label, frame, title=None, ov
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="键盘试玩/契约 JSONL 回放平台游戏")
-    parser.add_argument("--mode", choices=("keyboard", "replay"), default="keyboard")
+    parser.add_argument("--mode", choices=("keyboard", "replay", "ws"), default="keyboard")
     parser.add_argument("--replay-file", type=Path, default=ROOT / "replay_demo.jsonl")
     parser.add_argument("--timeout", type=float, default=1.5, help="replay/device 输入超时秒数")
+    parser.add_argument("--ws-url", default="ws://127.0.0.1:8765", help="解码器 WebSocket 输出地址")
     args = parser.parse_args(argv)
-    pygame.init()
-    window = pygame.display.set_mode((WIDTH * 3, HEIGHT * 3))
-    pygame.display.set_caption("MI Pixel Run 闯关游戏正式版 — 键盘模拟/数据回放")
-    canvas = pygame.Surface((WIDTH, HEIGHT))
-    clock = pygame.time.Clock()
-    keyboard = KeyboardInputAdapter()
-    receiver = DecisionReceiver(args.timeout)
-    replay = ReplayInputAdapter(args.replay_file) if args.mode == "replay" else None
-    game = GameController()
-    started, running = False, True
-    mode_label = "键盘模拟" if args.mode == "keyboard" else "数据回放"
-    frame = 0
-    while running:
-        dt = min(clock.tick(60) / 1000, 0.05)
-        now = time.monotonic()
-        jump_event = False
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                running = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and not started:
-                started = True
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_r and (game.finished or not started):
-                game.reset()
-                keyboard = KeyboardInputAdapter()
-                receiver = DecisionReceiver(args.timeout)
-                if replay:
-                    replay = ReplayInputAdapter(args.replay_file)
-                started = False
-            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_d
-                  and not event.repeat and started and args.mode == "keyboard"):
-                receiver.receive(keyboard.press_jump(now), now)
-                jump_event = True
-        if started and not game.finished:
-            if args.mode == "keyboard":
-                keys = pygame.key.get_pressed()
-                if not jump_event:
-                    decisions = keyboard.poll(keys[pygame.K_w], keys[pygame.K_d], now)
-                    for decision in decisions:
-                        receiver.receive(decision, now)
+    websocket = None
+    try:
+        if args.mode == "ws":
+            websocket = WebSocketInputAdapter(args.ws_url)
+            websocket.start()
+        pygame.init()
+        window = pygame.display.set_mode((WIDTH * 3, HEIGHT * 3))
+        pygame.display.set_caption("MI Pixel Run 闯关游戏正式版 — 键盘模拟/数据回放")
+        canvas = pygame.Surface((WIDTH, HEIGHT))
+        clock = pygame.time.Clock()
+        keyboard = KeyboardInputAdapter()
+        receiver = DecisionReceiver(args.timeout)
+        replay = ReplayInputAdapter(args.replay_file) if args.mode == "replay" else None
+        game = GameController()
+        started, running = False, True
+        mode_label = {"keyboard": "键盘模拟", "replay": "数据回放", "ws": "解码器 WebSocket"}[args.mode]
+        ws_status = "CONNECTING" if websocket else ""
+        frame = 0
+        while running:
+            dt = min(clock.tick(60) / 1000, 0.05)
+            now = time.monotonic()
+            jump_event = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    running = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and not started:
+                    started = True
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_r and (game.finished or not started):
+                    game.reset()
+                    keyboard = KeyboardInputAdapter()
+                    receiver = DecisionReceiver(args.timeout)
+                    if replay:
+                        replay = ReplayInputAdapter(args.replay_file)
+                    started = False
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_d
+                      and not event.repeat and started and args.mode == "keyboard"):
+                    receiver.receive(keyboard.press_jump(now), now)
+                    jump_event = True
+            if websocket:
+                for event_type, payload in websocket.poll():
+                    if event_type == "connecting":
+                        if ws_status != "CONNECTED":
+                            ws_status = "CONNECTING"
+                    elif event_type == "connected":
+                        receiver.reset_remote()
+                        ws_status = "CONNECTED"
+                    elif event_type == "disconnected":
+                        receiver.reset_remote()
+                        ws_status = "SAFE IDLE"
+                    elif event_type == "connection_error":
+                        ws_status = "RECONNECTING"
+                    elif event_type == "decision":
+                        if started and not game.finished:
+                            receiver.receive(payload, received_at=now)
+                        ws_status = "CONNECTED"
+                    elif event_type == "invalid":
+                        receiver.reset_remote()
+                        ws_status = "SAFE IDLE"
+                        print(f"拒绝无效解码器消息：{payload}")
+            if started and not game.finished:
+                if args.mode == "keyboard":
+                    keys = pygame.key.get_pressed()
+                    if not jump_event:
+                        decisions = keyboard.poll(keys[pygame.K_w], keys[pygame.K_d], now)
+                        for decision in decisions:
+                            receiver.receive(decision, now)
+                elif args.mode == "replay":
+                    decision = replay.poll(now) if replay else None
+                    if decision:
+                        receiver.receive(decision, received_at=now)
+                intent = receiver.current(now).intent
+                game.update(intent, dt)
             else:
-                decision = replay.poll(now) if replay else None
-                if decision:
-                    receiver.receive(decision, received_at=now)
-            intent = receiver.current(now).intent
-            game.update(intent, dt)
-        else:
-            intent = receiver.current(now).intent
-        camera = max(0, min(game.level_width - WIDTH, int(game.player.x - 88)))
-        if not started:
-            lines = [f"正式版 v1.0 · {mode_label}  |  W 前进，D 向前跳跃" if args.mode == "keyboard" else f"正式版 v1.0 · {mode_label}  |  示例数据驱动相同游戏逻辑",
-                     "W 是持续状态，D 按下只跳一次；收集金币后到达终点。",
-                     "按 Enter 开始    R 重新开始    Esc 退出"]
-            draw_scene(canvas, game, camera, intent, mode_label, frame, "MI PIXEL RUN · 正式版", lines)
-        elif game.finished:
-            draw_scene(canvas, game, camera, intent, mode_label, frame, "LEVEL CLEAR!",
-                       [f"金币 {len(game.collected)}/{len(game.coins)}（金币不是通关条件）", "按 R 重新开始    Esc 退出"])
-        else:
-            draw_scene(canvas, game, camera, intent, mode_label, frame)
-        pygame.transform.scale(canvas, window.get_size(), window)
-        pygame.display.flip()
-        frame += 1
-    pygame.quit()
+                intent = receiver.current(now).intent
+            camera = max(0, min(game.level_width - WIDTH, int(game.player.x - 88)))
+            if not started:
+                if args.mode == "keyboard":
+                    lines = [f"正式版 v1.0 · {mode_label}  |  W 前进，D 向前跳跃",
+                             "W 是持续状态，D 按下只跳一次；收集金币后到达终点。",
+                             "按 Enter 开始    R 重新开始    Esc 退出"]
+                elif args.mode == "ws":
+                    lines = [f"订阅 {args.ws_url}", f"DECODER: {ws_status}",
+                             "连接中断或输入超时会自动进入 NONE 安全态。",
+                             "按 Enter 开始    R 重新开始    Esc 退出"]
+                else:
+                    lines = [f"正式版 v1.0 · {mode_label}  |  示例数据驱动相同游戏逻辑",
+                             "W 是持续状态，D 按下只跳一次；收集金币后到达终点。",
+                             "按 Enter 开始    R 重新开始    Esc 退出"]
+                draw_scene(canvas, game, camera, intent, mode_label, frame, "MI PIXEL RUN · 正式版", lines)
+            elif game.finished:
+                draw_scene(canvas, game, camera, intent, mode_label, frame, "LEVEL CLEAR!",
+                           [f"金币 {len(game.collected)}/{len(game.coins)}（金币不是通关条件）", "按 R 重新开始    Esc 退出"])
+            else:
+                source_label = f"WS {ws_status}" if websocket else mode_label
+                draw_scene(canvas, game, camera, intent, source_label, frame)
+            pygame.transform.scale(canvas, window.get_size(), window)
+            pygame.display.flip()
+            frame += 1
+    finally:
+        pygame.quit()
+        if websocket:
+            websocket.stop()
     return 0
 
 
