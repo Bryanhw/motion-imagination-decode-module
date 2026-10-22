@@ -92,6 +92,7 @@
 
 | 日期 | 变更 |
 |---|---|
+| 2026-10-22（桌面版镜头修复） | 真人试玩发现 PowerShell 版人物看似悬空、跑出屏幕。根因是 `draw_scene` 已按 `camera` 平移场景，但 `draw_player` 仍用世界 x 坐标；网页版已正确减去镜头偏移。桌面版人物绘制改用屏幕 x，新增实际 pygame 像素回归检查（角色与滚动平台对齐）；重录 A7 视频并替换旧文件。|
 | 2026-10-22（A7 录屏） | 修复 D 键崩溃并推送 `2165131` 后，用正式平台游戏和 mock 解码器录制 `docs/evidence/W9_1027/A7_联调录屏_ws.mp4`（约 21.7 秒、326 帧）。真实 pygame 画面，WebSocket 连接 2 次、断线 1 次、决策 28 条；停止解码器后安全回到 `NONE`，重启后恢复决策。视频标注合成数据工程测试。A7 已录制；A8 真人演示仍待完成，不据此声称分类准确率。|
 | 2026-10-22（D 键崩溃修复） | 真人试跑报告按 D 退出到 PowerShell；用不带 `repeat` 的真实 pygame `KEYDOWN` 事件复现 `AttributeError`。正式游戏 `bci-decoder/game/platformer/main.py` 改为安全读取可选 `repeat`，并依据键盘适配器状态保证按住 D 不重复跳跃；`ws` 模式不处理键盘 D。新增 `test_main_events.py` 覆盖真实主循环。旧工作区未入库的 `motion-imagery-eeg/game/main.py` 同步做同一处本地修复，但不把旧副本并入 GitHub。验证：解码器 31 项 + 游戏 32 项全部通过，旧副本 14 项通过且按 D 不再崩；根 README 清理了不存在的 `pong.py` 启动命令，A7 仍待修复版录屏。|
 | 2026-10-22 | **平台游戏新增真实解码器 WebSocket 订阅与断线重连（实现已推送；真人联调录屏 A7 仍待执行）**：`bci-decoder/game/platformer/websocket_input.py` 订阅冻结的 9 字段输出，严格校验字段/label_id/t_data/state，并将 `left/right/idle` 映射到游戏内部决策；异常/非 running/断线均安全退回 `NONE`，每 0.5 秒重连，重连清空远端序号以兼容服务端重启。`main.py --mode ws [--ws-url]` 加入连接状态显示，窗口退出使用 `finally` 停客户端。新增 `configs/demo_game_ws.yaml`（仅 mock 工程链路自检），更新根 README 与游戏 README/INTERFACE 的两终端启动说明。**测试**：platformer 19 项、decoder `tests`（排除本环境无法完成 loopback 握手的既有 `test_websocket_sink.py`）28 项、`game/tests` 11 项通过；`git diff --check` 通过。新增重连测试用 mock WebSocket 客户端覆盖两次连接及序号重置；本机 loopback 握手在当前执行环境失败，未将其伪报为端到端验收。联调录屏、真人演示/手感验证仍需现场完成，mock 数据不能作为准确率或真人脑控证据。|

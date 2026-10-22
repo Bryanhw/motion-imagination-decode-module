@@ -47,8 +47,8 @@ def draw_coin(surface, x, y, frame):
     px(surface, (255, 230, 121), x - max(1, radius // 2), y - 2, 2, 5)
 
 
-def draw_player(surface, player, intent, frame):
-    x, y = int(player.x), int(player.y)
+def draw_player(surface, player, camera, intent, frame):
+    x, y = int(player.x - camera), int(player.y)
     # 16x16 hand-drawn sprite, with readable idle, walk and jump poses.
     px(surface, (45, 35, 52), x + 4, y + 13, 9, 3)
     px(surface, PINK, x + 4, y + 1, 9, 7)
@@ -95,7 +95,7 @@ def draw_scene(screen, game, camera, intent, source_label, frame, title=None, ov
     for index, (x, y) in enumerate(game.coins):
         if index not in game.collected:
             draw_coin(screen, int(x - camera), y, frame)
-    draw_player(screen, game.player, intent, frame)
+    draw_player(screen, game.player, camera, intent, frame)
     font = pygame.font.Font(None, 10)
     screen.blit(font.render(f"COINS {len(game.collected):02}/{len(game.coins):02}", True, GOLD), (7, 7))
     screen.blit(font.render(f"SOURCE: {source_label}", True, CREAM), (211, 7))
