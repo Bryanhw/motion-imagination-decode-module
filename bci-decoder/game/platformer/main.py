@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from functools import lru_cache
 from pathlib import Path
 import sys
 import time
@@ -68,7 +69,49 @@ def draw_player(surface, player, camera, intent, frame):
         px(surface, (245, 191, 79), x + 10 - stride, y + 14, 3, 2)
 
 
-def draw_scene(screen, game, camera, intent, source_label, frame, title=None, overlay=None):
+@lru_cache(maxsize=32)
+def ui_font(size):
+    # Render at display resolution, with a CJK font when available.
+    path = pygame.font.match_font("microsoftyahei,simhei,notosanscjk,wenquanyimicrohei")
+    return pygame.font.Font(path, size)
+
+
+def key_matches(event, key, scancode):
+    """Accept the physical W/D key even when an IME changes its key symbol."""
+    return getattr(event, "key", None) == key or getattr(event, "scancode", None) == scancode
+
+
+def draw_hud(screen, game, intent, source_label, title=None, overlay=None):
+    scale = screen.get_width() / WIDTH
+    def label(text, x, y, size=11, color=WHITE, centered=False):
+        point_size = max(12, round(size * scale))
+        font = ui_font(point_size)
+        # Keep long instructions inside the window, including CJK fallback fonts.
+        while font.size(text)[0] > screen.get_width() - round(12 * scale) and point_size > 8:
+            point_size -= 1
+            font = ui_font(point_size)
+        rendered = font.render(text, True, color)
+        rect = rendered.get_rect()
+        if centered:
+            rect.center = (round(x * scale), round(y * scale))
+        else:
+            rect.topleft = (round(x * scale), round(y * scale))
+        screen.blit(rendered, rect)
+    label(f"COINS {len(game.collected):02}/{len(game.coins):02}", 7, 5, color=GOLD)
+    label(f"SOURCE: {source_label}", 190, 5, size=9)
+    state = {"LEFT_HAND": "FORWARD", "RIGHT_HAND": "JUMP", "NONE": "IDLE"}[intent]
+    label(f"STATE: {state}", 250, 18, size=9)
+    label("W FORWARD   D JUMP   ESC QUIT", 7, 166, size=9)
+    if overlay:
+        veil = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        veil.fill((7, 15, 34, 190))
+        screen.blit(veil, (0, 0))
+        label(title or "", WIDTH / 2, 60, size=21, color=GOLD, centered=True)
+        for i, line in enumerate(overlay):
+            label(line, WIDTH / 2, 90 + i * 17, size=10, centered=True)
+
+
+def draw_scene(screen, game, camera, intent, source_label, frame, title=None, overlay=None, render_ui=True):
     screen.fill(SKY)
     for i in range(4):
         cx, cy = (48 + i * 93 - camera // 3) % 370 - 25, 28 + (i % 2) * 17
@@ -96,23 +139,8 @@ def draw_scene(screen, game, camera, intent, source_label, frame, title=None, ov
         if index not in game.collected:
             draw_coin(screen, int(x - camera), y, frame)
     draw_player(screen, game.player, camera, intent, frame)
-    font = pygame.font.Font(None, 10)
-    screen.blit(font.render(f"COINS {len(game.collected):02}/{len(game.coins):02}", True, GOLD), (7, 7))
-    screen.blit(font.render(f"SOURCE: {source_label}", True, CREAM), (211, 7))
-    state_text = {"LEFT_HAND": "FORWARD", "RIGHT_HAND": "JUMP", "NONE": "IDLE"}[intent]
-    screen.blit(font.render(f"STATE: {state_text}", True, WHITE), (250, 17))
-    screen.blit(font.render("W FORWARD   D JUMP   ESC QUIT", True, (196, 207, 214)), (7, 167))
-    if overlay:
-        veil = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        veil.fill((7, 15, 34, 190))
-        screen.blit(veil, (0, 0))
-        big = pygame.font.Font(None, 24)
-        medium = pygame.font.Font(None, 11)
-        text = big.render(title or "", True, GOLD)
-        screen.blit(text, text.get_rect(center=(WIDTH // 2, 67)))
-        for i, line in enumerate(overlay):
-            label = medium.render(line, True, WHITE)
-            screen.blit(label, label.get_rect(center=(WIDTH // 2, 96 + i * 15)))
+    if render_ui:
+        draw_hud(screen, game, intent, source_label, title, overlay)
 
 
 def main(argv=None):
@@ -121,6 +149,7 @@ def main(argv=None):
     parser.add_argument("--replay-file", type=Path, default=ROOT / "replay_demo.jsonl")
     parser.add_argument("--timeout", type=float, default=1.5, help="replay/device 输入超时秒数")
     parser.add_argument("--ws-url", default="ws://127.0.0.1:8765", help="解码器 WebSocket 输出地址")
+    parser.add_argument("--debug-input", action="store_true", help="打印窗口焦点、启动状态和按键事件用于排查")
     args = parser.parse_args(argv)
     websocket = None
     try:
@@ -129,6 +158,9 @@ def main(argv=None):
             websocket.start()
         pygame.init()
         window = pygame.display.set_mode((WIDTH * 3, HEIGHT * 3))
+        # This window consumes control keys, not composed text. SDL enables text
+        # input by default; an IME may consume letter keys while composing.
+        pygame.key.stop_text_input()
         pygame.display.set_caption("MI Pixel Run 闯关游戏正式版 — 键盘模拟/数据回放")
         canvas = pygame.Surface((WIDTH, HEIGHT))
         clock = pygame.time.Clock()
@@ -142,11 +174,17 @@ def main(argv=None):
         frame = 0
         w_held = False
         d_held = False
+        if args.debug_input:
+            print(f"[input-debug] mode={args.mode} driver={pygame.display.get_driver()} focused={pygame.key.get_focused()} started={started}", flush=True)
         while running:
             dt = min(clock.tick(60) / 1000, 0.05)
             now = time.monotonic()
             jump_event = False
             for event in pygame.event.get():
+                if args.debug_input and event.type in (pygame.KEYDOWN, pygame.KEYUP, pygame.TEXTINPUT,
+                                                       pygame.WINDOWFOCUSGAINED, pygame.WINDOWFOCUSLOST,
+                                                       pygame.MOUSEBUTTONDOWN):
+                    print(f"[input-debug] {event!r} focused={pygame.key.get_focused()} started={started}", flush=True)
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     running = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and not started:
@@ -160,17 +198,19 @@ def main(argv=None):
                     started = False
                     w_held = False
                     d_held = False
-                elif args.mode == "keyboard" and event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+                elif event.type == pygame.WINDOWFOCUSGAINED:
+                    pygame.key.stop_text_input()
+                elif args.mode == "keyboard" and event.type == pygame.KEYDOWN and key_matches(event, pygame.K_w, pygame.KSCAN_W):
                     w_held = True
-                elif args.mode == "keyboard" and event.type == pygame.KEYUP and event.key == pygame.K_w:
+                elif args.mode == "keyboard" and event.type == pygame.KEYUP and key_matches(event, pygame.K_w, pygame.KSCAN_W):
                     w_held = False
-                elif args.mode == "keyboard" and event.type == pygame.KEYUP and event.key == pygame.K_d:
+                elif args.mode == "keyboard" and event.type == pygame.KEYUP and key_matches(event, pygame.K_d, pygame.KSCAN_D):
                     d_held = False
                 elif args.mode == "keyboard" and event.type == pygame.WINDOWFOCUSLOST:
                     w_held = False
                     d_held = False
                 elif (args.mode == "keyboard" and started and event.type == pygame.KEYDOWN
-                      and event.key == pygame.K_d and not getattr(event, "repeat", False)
+                      and key_matches(event, pygame.K_d, pygame.KSCAN_D) and not getattr(event, "repeat", False)
                       and not d_held):
                     d_held = True
                     receiver.receive(keyboard.press_jump(now), now)
@@ -224,17 +264,21 @@ def main(argv=None):
                     lines = [f"正式版 v1.0 · {mode_label}  |  示例数据驱动相同游戏逻辑",
                              "W 是持续状态，D 按下只跳一次；收集金币后到达终点。",
                              "按 Enter 开始    R 重新开始    Esc 退出"]
-                draw_scene(canvas, game, camera, intent, mode_label, frame, "MI PIXEL RUN · 正式版", lines)
+                draw_scene(canvas, game, camera, intent, mode_label, frame, render_ui=False)
+                hud_title, hud_lines, hud_source = "MI PIXEL RUN · 正式版", lines, mode_label
             elif game.finished:
-                draw_scene(canvas, game, camera, intent, mode_label, frame, "LEVEL CLEAR!",
-                           [f"金币 {len(game.collected)}/{len(game.coins)}（金币不是通关条件）", "按 R 重新开始    Esc 退出"])
+                draw_scene(canvas, game, camera, intent, mode_label, frame, render_ui=False)
+                hud_title, hud_lines, hud_source = "LEVEL CLEAR!", [f"金币 {len(game.collected)}/{len(game.coins)}（金币不是通关条件）", "按 R 重新开始    Esc 退出"], mode_label
             else:
                 source_label = f"WS {ws_status}" if websocket else mode_label
-                draw_scene(canvas, game, camera, intent, source_label, frame)
+                draw_scene(canvas, game, camera, intent, source_label, frame, render_ui=False)
+                hud_title, hud_lines, hud_source = None, None, source_label
             pygame.transform.scale(canvas, window.get_size(), window)
+            draw_hud(window, game, intent, hud_source, hud_title, hud_lines)
             pygame.display.flip()
             frame += 1
     finally:
+        ui_font.cache_clear()
         pygame.quit()
         if websocket:
             websocket.stop()

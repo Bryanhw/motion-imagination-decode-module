@@ -89,6 +89,29 @@ class MainKeyboardEventTests(unittest.TestCase):
         ])
         self.assertEqual(game.intents.count("RIGHT_HAND"), 2)
 
+    def test_physical_keys_work_when_ime_changes_key_symbols(self):
+        game = self.run_events("keyboard", [
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UNKNOWN, scancode=pygame.KSCAN_W)],
+            [],
+            [pygame.event.Event(pygame.KEYUP, key=pygame.K_UNKNOWN, scancode=pygame.KSCAN_W)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UNKNOWN, scancode=pygame.KSCAN_D)],
+            [pygame.event.Event(pygame.KEYUP, key=pygame.K_UNKNOWN, scancode=pygame.KSCAN_D)],
+            [pygame.event.Event(pygame.QUIT)],
+        ])
+        self.assertIn("LEFT_HAND", game.intents)
+        self.assertEqual(game.intents.count("RIGHT_HAND"), 1)
+        self.assertEqual(game.intents[-1], "NONE")
+
+    def test_control_window_disables_text_composition_on_start_and_refocus(self):
+        with patch.object(pygame.key, "stop_text_input") as stop_text:
+            self.run_events("keyboard", [
+                [pygame.event.Event(pygame.WINDOWFOCUSGAINED)],
+                [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN)],
+                [pygame.event.Event(pygame.QUIT)],
+            ])
+        self.assertGreaterEqual(stop_text.call_count, 2)
+
     def test_focus_loss_releases_w(self):
         game = self.run_events("keyboard", [
             [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN)],
