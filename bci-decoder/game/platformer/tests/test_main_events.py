@@ -3,7 +3,6 @@
 import importlib
 import os
 import unittest
-from collections import defaultdict
 from unittest.mock import patch
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
@@ -41,11 +40,9 @@ class MainKeyboardEventTests(unittest.TestCase):
                 pass
 
         events = iter(frames)
-        held_keys = defaultdict(bool, {pygame.K_d: True})
         with patch.object(game_main, "GameController", TrackingGame), \
              patch.object(game_main, "WebSocketInputAdapter", NoConnection), \
-             patch.object(pygame.event, "get", side_effect=lambda: next(events, [pygame.event.Event(pygame.QUIT)])), \
-             patch.object(pygame.key, "get_pressed", return_value=held_keys):
+             patch.object(pygame.event, "get", side_effect=lambda: next(events, [pygame.event.Event(pygame.QUIT)])):
             self.assertEqual(game_main.main(["--mode", mode]), 0)
         return games[0]
 
@@ -67,6 +64,39 @@ class MainKeyboardEventTests(unittest.TestCase):
             [pygame.event.Event(pygame.QUIT)],
         ])
         self.assertNotIn("RIGHT_HAND", game.intents)
+
+    def test_w_key_events_move_and_stop_without_key_state_polling(self):
+        game = self.run_events("keyboard", [
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_w)],
+            [],
+            [pygame.event.Event(pygame.KEYUP, key=pygame.K_w)],
+            [],
+            [pygame.event.Event(pygame.QUIT)],
+        ])
+        self.assertEqual(game.intents[:3], ["NONE", "LEFT_HAND", "LEFT_HAND"])
+        self.assertEqual(game.intents[-2:], ["NONE", "NONE"])
+        self.assertGreater(game.player.x, 28)
+
+    def test_d_key_events_jump_and_rearm_after_release(self):
+        game = self.run_events("keyboard", [
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_d)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_d)],
+            [pygame.event.Event(pygame.KEYUP, key=pygame.K_d)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_d)],
+            [pygame.event.Event(pygame.QUIT)],
+        ])
+        self.assertEqual(game.intents.count("RIGHT_HAND"), 2)
+
+    def test_focus_loss_releases_w(self):
+        game = self.run_events("keyboard", [
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_w)],
+            [pygame.event.Event(pygame.WINDOWFOCUSLOST)],
+            [pygame.event.Event(pygame.QUIT)],
+        ])
+        self.assertEqual(game.intents[-1], "NONE")
 
 
 class MainCameraRenderingTests(unittest.TestCase):

@@ -140,6 +140,8 @@ def main(argv=None):
         mode_label = {"keyboard": "键盘模拟", "replay": "数据回放", "ws": "解码器 WebSocket"}[args.mode]
         ws_status = "CONNECTING" if websocket else ""
         frame = 0
+        w_held = False
+        d_held = False
         while running:
             dt = min(clock.tick(60) / 1000, 0.05)
             now = time.monotonic()
@@ -156,9 +158,21 @@ def main(argv=None):
                     if replay:
                         replay = ReplayInputAdapter(args.replay_file)
                     started = False
+                    w_held = False
+                    d_held = False
+                elif args.mode == "keyboard" and event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+                    w_held = True
+                elif args.mode == "keyboard" and event.type == pygame.KEYUP and event.key == pygame.K_w:
+                    w_held = False
+                elif args.mode == "keyboard" and event.type == pygame.KEYUP and event.key == pygame.K_d:
+                    d_held = False
+                elif args.mode == "keyboard" and event.type == pygame.WINDOWFOCUSLOST:
+                    w_held = False
+                    d_held = False
                 elif (args.mode == "keyboard" and started and event.type == pygame.KEYDOWN
                       and event.key == pygame.K_d and not getattr(event, "repeat", False)
-                      and not keyboard.previous_d):
+                      and not d_held):
+                    d_held = True
                     receiver.receive(keyboard.press_jump(now), now)
                     jump_event = True
             if websocket:
@@ -184,9 +198,8 @@ def main(argv=None):
                         print(f"拒绝无效解码器消息：{payload}")
             if started and not game.finished:
                 if args.mode == "keyboard":
-                    keys = pygame.key.get_pressed()
                     if not jump_event:
-                        decisions = keyboard.poll(keys[pygame.K_w], keys[pygame.K_d], now)
+                        decisions = keyboard.poll(w_held, d_held, now)
                         for decision in decisions:
                             receiver.receive(decision, now)
                 elif args.mode == "replay":
