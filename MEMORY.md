@@ -2,12 +2,12 @@
 
 > **当前状态、已定决策、下一步**。每个会话结束时更新本文件；
 > 长期规则见 `AGENTS.md`，项目细节见 `agent_docs/`。
-> **最后更新：2026-10-21**
+> **最后更新：2026-10-22**
 
 ## 一句话现状
 
 项目处于**立项完成、工程起步**阶段。里程碑 ①（10/13 文档）已交付，里程碑 ② 🔄 进行中；
-仓库内已有**本团队的可运行解码链路**（`bci-decoder/`，17 项测试通过、已产出模型与输出文件），
+仓库内已有**本团队的可运行解码链路**（`bci-decoder/`，31/31 测试通过、已产出模型与输出文件），
 **归属已拍板（2026-10-15）：属于团队成果，计入项目进度**。
 **游戏端（脑控弹球，`bci-decoder/game/`）代码已写完并通过工程自检**（2026-10-16：单测 39/39、端到端 39 项断言全绿，
 含"解码器运行中被杀"），**但 A7 联调录屏 / A8 真人现场演示未做 → F4 尚不能判定验收通过**。
@@ -19,8 +19,8 @@
 | # | 日期 | 目标 | 状态 |
 |---|---|---|---|
 | ① | 10/13 · W7 | 立项与 MVP 规格（文档） | ✅ 文档已交付（`MVP规格说明书` **v1.1**、`项目章程`、`需求确认记录`） |
-| ② | 10/27 · W9 | **可运行 MVP**（F1–F5 + 延迟实测） | 🔄 进行中（解码链路**已跑通**、`pytest` **22/22**；**WebSocket 输出已端到端跑通**，2026-10-16；**弹球游戏端代码完成 + 工程自检通过**，待 A7 录屏/A8 现场验收；**校准流程骨架已完成**（2026-10-21，`docs/calibration_flow.md` + `scripts/calibrate.py`，真实采集闭环属④）） |
-| ③ | 11/10 · W11 | 真实基线（`moabb` + BCI IV 2a，Kappa > 0.3）+ 用户反馈 | ⏳ 未开始 |
+| ② | 10/27 · W9 | **可运行 MVP**（F1–F5 + 延迟实测） | 🔄 进行中（解码链路**已跑通**、`pytest` **31/31**；**WebSocket 输出已端到端跑通**，2026-10-16；**弹球游戏端代码完成 + 工程自检通过**，待 A7 录屏/A8 现场验收；**校准流程骨架已完成**（2026-10-21，`docs/calibration_flow.md` + `scripts/calibrate.py`，真实采集闭环属④）） |
+| ③ | 11/10 · W11 | 真实基线（`moabb` + BCI IV 2a，Kappa > 0.3）+ 用户反馈 | 🔄 进行中 · **预研已完成**（2026-10-22，见 `docs/M3_评测预研_20261022_阎浩文.md`：`venv_m3` + moabb 1.7.2 + BCI IV 2a（`BNCI2014_001`）数据链路打通、subject 1 全链路自检通过；**未对外报任何准确率**；9 受试全量正式评测 11/10 前跑） |
 | ④ | 12/01 · W14 | Beta（校准流程、黎曼、LSL、稳定性） | ⏳ 未开始 |
 | ⑤ | 12/08 · W15 | Demo Day | ⏳ 未开始 |
 | ⑥ | 12/15 · W16 | 反思与归档（Docker、交付说明） | ⏳ 未开始 |
@@ -50,8 +50,9 @@
 ## 环境事实（已核实）
 
 - `bci-decoder/.venv`：**Python 3.14.7**；已装 numpy 2.5.3 / scipy 1.18.1 / scikit-learn 1.9.1 / PyYAML 6.0.3 / joblib 1.6.0 / pytest 9.1.1 / **websockets 17.2** / **pygame-ce 2.5.8**
-- **未安装**：`mne`、`moabb`、`pyriemann`、`pylsl`（里程碑 ③/④ 前装好；`websockets` 已于 2026-10-16 装通并验证）
-- `python -m pytest` → **17 项全部通过**（2026-10-16 复核；口径 = `bci-decoder/tests`；从仓库根跑会额外收集 `docs/learning/` 的 12 个学习用例共 29。2026-10-15 的 14 项快照见 `docs/evidence/W7_1013/pytest_20261015.txt`，16 项见 `docs/evidence/W7_1016/`）
+- **里程碑③ 独立 venv（2026-10-22）**：`bci-decoder/.venv` **之外**另建 **`D:\校企合作项目\.deepworks\venv_m3`**（Python 3.14.7，不入库、不污染 MVP 冻结栈）；内含 **mne 1.13.2 / moabb 1.7.2 / pyriemann 0.12**（numpy 2.5.4 / scipy 1.18.1 / scikit-learn 1.9.1 / pandas 3.0.6）。`bci-decoder/.venv` **仍不含** mne/moabb/pyriemann/pylsl（后者留待 ④ 前装）
+- **下载/安装一律落 D 盘（用户偏好，2026-10-22 确立）**：pip 缓存 `d:\pip-cache`、数据集 `D:\校企合作项目\.deepworks\mne_data`（不入库）、临时日志 `.deepworks/tmp/`。**NEMAR 下载关键坑**：moabb 从 BNCI 官方源下载的 `.mat` 是坏文件（14MB 残缺，scipy 报 `could not read bytes`）→ 改用 `https://nemar.s3.us-east-2.amazonaws.com/nm000139/objects/SHA256E-s<size>--<sha256>.mat`（public-read、支持 Range）手动下载并 **SHA-256 校验**后复制进 `mne_data\MNE-bnci-data\~bci\database\001-2014\`，moabb 即跳过下载直接读完好数据（详见 `docs/M3_评测预研_20261022_阎浩文.md`）
+- `python -m pytest`（在 `bci-decoder/` 下、用 `.venv\Scripts\python.exe`）→ **31 项全部通过**（2026-10-22 复核；口径 = `bci-decoder/tests`；从仓库根跑会额外收集 `docs/learning/` 的学习用例。历史快照：14 项见 `docs/evidence/W7_1013/pytest_20261015.txt`，16 项见 `docs/evidence/W7_1016/`）
 - 游戏端 `python -m pytest -q "game\tests"` → **39 项全部通过**（2026-10-16，须在 `bci-decoder/` 下显式传路径，`pytest.ini` 的 `testpaths = tests` 不会收集它）；**2026-10-21 合并 platformer 后**：`pytest -q game\platformer\tests game\tests` → **64 项全部通过**（platformer 14 + game/tests 50：含 runner 11 与 ws_protocol 39）
 - **端到端**：`bci-decoder/tests` 与 `game/tests` 之外，另有非交付物脚本 `.deepworks/tmp/verify_game_headless.py`（真解码器 → 游戏端 headless，四场景 **39 项断言**；`.deepworks/` 不入库）
 - `bci-decoder/artifacts/` 内已有 `demo_lda.joblib` 与 `decoder_output.jsonl`
@@ -76,7 +77,7 @@
 - 企业设备型号 / 通道顺序 / LSL 流名称（需书面确认）。
 - ✅ **已定（2026-10-15）**：Demo 游戏端 = **Python + Pygame**（`docs/TechDesign-Game-MVP.md`）；Unity 属"企业未来客户端"分支，不在 MVP。
 - ✅ **已关闭（2026-10-16）**：`websockets 17.2` 装通并端到端跑通（F5.1：解码器 `--outputs websocket` ← 客户端收消息、字段契约逐条一致）。
-- 里程碑 ③ 的评测协议（用哪个数据集、什么指标口径）。
+- ✅ **已定（2026-10-22 预研完成，阎浩文）**：里程碑③评测协议 = `moabb` 1.7.2 + **BCI IV 2a（`BNCI2014_001`，9 受试 × 2 session × 288 trial、4 类 MI：left/right/feet/tongue）**，Kappa > 0.3 口径（正式数字 11/10 发布；合成/单受试自检数字一律不外报）。**数据链路、环境版本、运行方式与坑**见 `docs/M3_评测预研_20261022_阎浩文.md`。
 - ✅ **已拍板（2026-10-15）**：**User level 统一为 A**（A/B/C 指"交付物面向谁"，不是团队水平）；"团队实现水平 = C" 改记入 TechDesign 的 Constraints。**已核实**（2026-10-15）：`docs/项目章程.md`、`docs/需求确认记录.md` 中**并无** User level 字段，复核报告原"仍记 C"一句系未经核实的推断，已在报告中更正。
 - ✅ **已授权且已执行（2026-10-15）**：`docs/TechDesign-BCI-Decoder-MVP.md` 由 v1.0 修至 **v1.1**，复核报告 §6 的 14 项全部落地（含 Part 3 结构合规）。**校验**：417 行、文末 JSON 解析通过、顺序 `正文 → 页脚 → Handoff Context → JSON`、Handoff 14 字段。
 - ✅ **红线残留已修复（2026-10-15）**：`bci-decoder/scripts/bootstrap_demo.py` 已在交叉验证输出行后与 JSON 输出前各加一行合成数据警示（**禁止对外报告准确率**）。**验证**：`python -m pytest` → **14 passed**、`py_compile` 通过。文档侧另有 TechDesign v1.1 §7/§10/§12 三处红线提示。
@@ -95,6 +96,7 @@
 | 2026-10-22（续） | 联调复核发现 Windows 系统代理会截获本机 WebSocket；游戏客户端及契约测试改为直连（`proxy=None`），之后真实本机断线/重连集成测试通过。`pytest tests/` **31/31**、`pytest game/platformer/tests game/tests` **30/30**；mock 方向决策使游戏角色位移。找到原工作区的 PhysioNet EEGMMIDB S001 R04/R08/R12 EDF，经 SHA256 逐文件确认后按原样提交到 `bci-decoder/data/eegmmidb_s001/`（数据文件公开且来源说明见目录 README）。新增 MNE 转换脚本与真实 EDF 回放配置；端到端链路实测收到 EDF 输入对应决策，但 demo 模型合成训练，不能据此评价分类。证据 `docs/evidence/W9_1027/WS_契约自检/A7_WebSocket联调工程验证_20261022.md`；A7 录屏与 A8 真人演示仍待现场完成。|
 
 | 2026-10-21 | **OOD 拍板 8/8 通过 + 灰度扩展域内回归（组长蓝喜阳）**：D3 §6 待拍板清单 8/8 全部通过（第 3 项：MVP 现状「维度校验+优雅降级」够用，正式版本绑定 M2 后再议；第 7 项：demo_online + demo_replay_switch 与 demo_weak 同参数启用 OOD，开启后各重跑域内回归并归档 W9_1027）。两配置已增同参 `ood:` 块（mahalanobis / chi2 0.99 / scale 1.0 / strength_floor true / artifacts/ood.joblib）+ 头注释。回归（base→ood，逐条核对，未报准确率）：demo_online 40 决策 idle 11→11 / left 17→19 / right 12→10，compute p95 1.42→1.04ms；demo_replay_switch 48 决策 idle 14→21（+7，全部集中在左右切换边缘及相邻 1–2 窗，保守转 idle）/ left 18→16 / right 16→11，p95 0.72→0.79ms——交替主体保留、无持续全 idle、增量 ≪+1ms 预算。如实注记：probs 与 label 解耦为稳定器既有设计（基线亦见 label=idle 但 probs=[1.00 0.00]）；回放信号功率高于 demo_weak 弱信号训练域，切换边更易越界（对应第 3 项 M2 后再议跟踪）。证据：`docs/evidence/W9_1027/2c_改进提案/`（D3 §6 回填拍板结果 + `D5_20261021_2c_OOD灰度扩展域内回归_阎浩文.md` + D5 log ×2）；规格书 §9 **v1.1.4 已补写**（22/22→31/31、OOD 机制、第 4 节接口零改动声明）。**已提交推送**（当日第 4 笔）。`artifacts/ood.joblib` 不入库。 |
+| 2026-10-22 | **里程碑③ 预研完成（阎浩文，任务①「先 1」）+ 确立「所有下载/安装落 D 盘」偏好**：独立 `venv_m3`（Python 3.14.7 + mne 1.13.2 + moabb 1.7.2 + pyriemann 0.12，`.deepworks/venv_m3`，不入库）验证兼容；**BCI IV 2a（`BNCI2014_001`）数据链路打通——根因：moabb 从官方源下载的 .mat 是坏文件（14MB 残缺、scipy `could not read bytes`），改为手动从 NEMAR S3 `https://nemar.s3.us-east-2.amazonaws.com/nm000139/objects/SHA256E-s<size>--<sha256>.mat` 下载、逐文件 SHA-256 校验（A01T `054f02e7…` / A01E `53d415f3…` 均匹配）后复制进 `mne_data\MNE-bnci-data\~bci\database\001-2014\`，moabb 即跳过下载直接读完好数据**；骨架脚本 `bci-decoder/scripts/m3/offline_eval_bci4_2a.py`（`--subjects/--pipeline csp|riemann/--quick/--load-only/--with-ood/--mne-data`，含纪律 docstring「MVP 不得对外报准确率」）全链路跑通：**subject 1 读入 X=(576,22,1001)/y=(576,)、5-fold 回测、OOD 域内检出率≈0.7%（≈域内零误杀）、总耗时 9.3s（工程自检值，未对外报告）**。已知坑（记录在预研文档）：curl 勿用 `-C -` 断点续传（会写坏文件）、须一次性 `--fail`；bash 120s 超时杀进程树；NEMAR S3 16 并发会 `ConnectionResetError`；PowerShell here-string/GBK/`$host` 保留名等。**已提交推送**。 |
 | 2026-10-21 | **2c 缺陷·OOD 域内检测已按 D2 提案落地实现（用户授权“按提案开始落地”）**：新建 `bci_decoder/bci_decoder/pipeline/ood.py`（`OODDetector`：马氏距离主判据 + 信号强度下限辅助；阈值 max(χ²_{d,0.99}, 经验 p99)×score_scale；强度地板=训练集 p5；fit/is_outside/save/load）。`config.py` 新增 `OODConfig`（默认 `enabled=False` 关、灰度开；`from_dict` 白名单过滤向后兼容各既有 yaml）。`core.py` 接入：`_build_ood`（config 开启且 model_path 存在才加载，缺失/坏文件优雅降级不崩）+ `push()`「特征→分类」间判定，OOD 命中喂均匀概率 [0.5,0.5] 给稳定器→自然 `idle`（label_id=-1，**9 字段契约零改动**）；`_window_strength`（跨通道 RMS，µV）。`bootstrap_demo.py`：`extract_features(..., return_strength=True)` 收集训练特征+强度（与在线同口径），训练侧 `OODDetector.fit/save`（默认 `artifacts/ood.joblib`，不改 demo_csp/demo_lda 既有路径）。`configs/demo_weak.yaml` 增 `ood:` 块灰度开启（enabled true/mahalanobis/strength_floor true->artifacts/ood.joblib），「已知限制 v0」注释更新为「已由 OOD 机制兜底」。`README.md` 补 §5 域内检测配置说明 + 目录树 `ood.py`。新增 `tests/test_ood.py` **9 项**（round-trip；域内不误杀；结构性噪声马氏命中>90%；强度兜底弱输入；method=none 全放行；引擎开启强制 idle/label_id=-1；域内强信号不误杀；关闭时行为不变；enabled 但模型缺失优雅降级）。**验证**：`pytest` **22+9=31 全绿**；备份旧 artifacts 后 `bootstrap_demo.py --config demo_weak.yaml` 重训产 ood.joblib（seed=0 合成，tau_final=13.28、strength_floor≈3.21µV）；`cli run --config demo_weak.yaml --chunks 200` → **40/40 全 idle（conf=0.50）**，compute p95≈0.18ms（预算 +≤1ms 大幅满足）；`cli run --config demo_replay_switch.yaml --chunks 240` → 48 次决策 idle14/left18/right16 左右交替不退化；`demo_replay_switch` 未启用 OOD（无 ood 块=默认关）。**纪律**：合成数据仅工程自检、未对外报准确率（红线 4/5/6 守）；**未擅改 `MVP规格说明书.md` 第 9 节版本号**，v1.1.4 变更记录待组长确认后补写；**本地未提交 git（沿用“提交待用户指示”惯例）**，旧 artifacts 备份于 `C:\Users\yhw\AppData\Local\Temp\opencode\artifacts_bak_preOOD`。 |
 | 2026-10-21 | **新增 2c 缺陷实施细化提案（D2，待评审）**：`docs/evidence/W9_1027/2c_改进提案/D2_20261021_2c_OOD域内检测实施细化_阎浩文.md`（承接 D1 提案，作者阎浩文/AI 代笔，只读探索未改代码）。**代码级根因（已核对到行）**：(1) `features.py` CSP 输出 `log(var/var.sum())` 归一化抹掉绝对强度；(2) `classifier.py` LDA `predict_proba` 对分布外样本武断给出近 0/1；(3) `postprocess.py` 仅当 argmax 概率 < min_confidence 才 idle，挡不住「单类虚高」；(4) `core.py` 决策循环无「输入是否在训练域」判定。**方案**：主=马氏距离域内检测（训练期收集 CSP 特征算 μ/Σ，阈值=max(χ²_0.99, 经验 p99+score_scale)，接入 `core.py` 特征→分类之间，OOD 命中时喂均匀概率 [0.5,0.5] 让 stabilizer 自然输出 idle——**9 字段契约零改动、label_id=-1 语义不变**）；辅=信号强度下限（独立开关）。走配置默认关、灰度开；`artifacts/ood.joblib` 随模型产物不入库；`bootstrap_demo.py` 训练侧追加 OODDetector.fit/save，不改既有产物路径。验收：OOD 模拟集 idle≥95%、`pytest` 22/22 不回归且新增用例单独计「22+N」、延迟 +≤1ms。**待核心/组长评审 6 个拍板点**（见提案 §7：主方案认可、阈值口径、产物版本绑定、里程碑③是否纳入、延迟预算、排期）。**本次仅新文档，未写业务代码、未触碰冻结项。** |
 | 2026-10-21 | **演示样本走可重建路线 + 延迟图口径注释 + 审查报告复核**：① 拍板「数据/模型不入库」纪律下改用可重建路线：`demo_replay_switch.yaml` 折叠为 `sample_continuous.npy`（二者 SHA256 相同）、`make_sample_data.py` 新增 `--snr-db` 参数（复现弱样本，验证 continuous 重跑哈希一致、weak 可重建 `--snr-db -6`）、`demo_weak.yaml` 注释补重建命令、`W9_1027/README` 新增重建命令小节。② `make_latency_fig.py` 补口径注释（1.849=旧 bandpower 历史值非正式演示值；0.320 仅 CLI 计算范围；正式值须指定演示机+同提交+同配置+三轮复测）。③ 提交推送：远端有新提交 `256220b`（MI Pixel Run 文档），已 rebase 整合无冲突；最终 `10d5f7e` 推送成功 ✅。④ 核对 `outputs/王释贤测试集审查报告_20261021.md` 与最新 main 一致性：22/22 复跑成立；`01_延迟/` 已建立（fbb1ee4 补 A4/A9）；但王释贤 1.849 证据 / `复现说明` 归一 / `soak_run.py` / `04_运行记录/` 仍待团队，报告已追加「六、最新 main 复核」节。⑤ `d77db01` 推送审查报告。**pytest 22/22 始终通过，未改冻结契约代码**。 |
