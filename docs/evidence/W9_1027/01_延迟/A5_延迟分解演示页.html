@@ -60,11 +60,12 @@
       <tr><td>决策步长（冻结契约）</td><td>0.5 s / 条</td></tr>
       <tr><td>游戏节奏要求（规格书 F1）</td><td>≤ 20 ms</td></tr>
       <tr><td>单次分类计算（本机）</td><td>0.955 ms</td></tr>
+      <tr><td>2026-10-23 复测（阎浩文机，p50 / p95）</td><td>1.19 / 2.27 ms</td></tr>
     </table>
     <p class="note">两个数要分开说：① <b>起步延迟</b>（开机→第一条结果）≈ 2.1 s，主体是等满首窗 2.0 s，启动开销 &lt;0.1 s（A9 实测 2026-10-21）；② <b>稳态延迟</b>（跑起来后想象→角色动作）&lt;1 s = 决策步长 0.5 s + 单次计算（本机 A4 中位 0.955 ms；demo_weak p95≈0.18 ms，2026-10-21）。只甩一句「99.8% 在攒窗口」是单次决策构成里的理论占比，不是端到端延迟，正式讲解不要只用这一个数。</p>
   </section>
 
-  <footer>测量方法：<b>起步延迟</b>＝冷启动到首决策墙钟（<code>docs/evidence/W9_1027/01_延迟/A9_启动计时_20261021.txt</code>，实测 2.1 s）；<b>稳态延迟</b>＝决策步长 0.5 s + 单次计算（<code>A4_benchmark_20261021_dfd9dfc.txt</code>，本机中位 0.955 ms；命令 <code>cli benchmark --config configs/demo_online.yaml --chunks 600</code>）。多机数字不得互比；演示机正式走查以统一演示机复测口径为准。</footer>
+  <footer>测量方法：<b>起步延迟</b>＝冷启动到首决策墙钟（<code>docs/evidence/W9_1027/01_延迟/A9_启动计时_20261021.txt</code>，实测 2.1 s）；<b>稳态延迟</b>＝决策步长 0.5 s + 单次计算（<code>A4_benchmark_20261021_dfd9dfc.txt</code>，本机中位 0.955 ms；命令 <code>cli benchmark --config configs/demo_online.yaml --chunks 600</code>）。多机数字不得互比；演示机正式走查以统一演示机复测口径为准。<strong>2026-10-23 阎浩文机复测</strong>：起步≈2.0 s（首帧墙钟 1.996 s，<code>cli run --chunks 200</code>）；稳态计算 p50≈1.19 ms / p95≈2.27 ms（<code>cli benchmark --chunks 600</code>，n=120；max 146 ms 为首帧冷启动）。与存档 0.955 ms 存在同机即时负载差，属正常；正式演示以当日复测为准。</footer>
 </div>
 </body>
 </html>
