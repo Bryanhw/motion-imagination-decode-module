@@ -41,9 +41,10 @@
   </header>
 
   <section class="cards">
-    <div class="card"><div class="num">≈ 2.1 s</div><div class="lbl">起步延迟：开机 → 第一条结果</div></div>
-    <div class="card"><div class="num">&lt; 1 s</div><div class="lbl">稳态延迟：跑起来后，想象 → 角色动作</div></div>
-    <div class="card"><div class="num">0.955 ms</div><div class="lbl">单次分类计算（本机 A4 中位）</div></div>
+    <div class="card"><div class="num">≈ 2.1 s</div><div class="lbl">首个结果：开机 → 第一条输出（可能为 idle）</div></div>
+    <div class="card"><div class="num">&lt; 1 s</div><div class="lbl">稳态节奏：持续段每 0.5 s 一条指令</div></div>
+    <div class="card"><div class="num">≈ 3.5 s</div><div class="lbl">首次有效动作：新类别出现 → 游戏动作（最坏）</div></div>
+    <div class="card"><div class="num">0.955 ms</div><div class="lbl">单次计算（A4 中位；10-24 实测 p50 0.67 ms）</div></div>
   </section>
 
   <figure>
@@ -59,13 +60,18 @@
       <tr><td>滑窗长度（冻结契约）</td><td>2.0 s</td></tr>
       <tr><td>决策步长（冻结契约）</td><td>0.5 s / 条</td></tr>
       <tr><td>游戏节奏要求（规格书 F1）</td><td>≤ 20 ms</td></tr>
-      <tr><td>单次分类计算（本机）</td><td>0.955 ms</td></tr>
-      <tr><td>2026-10-23 复测（阎浩文机，p50 / p95）</td><td>1.19 / 2.27 ms</td></tr>
+      <tr><td>单次分类计算（A4 存档，本机）</td><td>0.955 ms</td></tr>
+      <tr><td>窗口齐备后计算（2026-10-24 实测，n=120）</td><td>p50 0.67 / p95 0.91 / max 8.99 ms</td></tr>
+      <tr><td>新类别确认等待（vote_window=3 + EMA 0.4）</td><td>1.5 s（3 步 × 0.5 s）</td></tr>
+      <tr><td>最后样本 → 显示（计算 + ws + 帧，p95）</td><td>≈ 19 ms</td></tr>
+      <tr><td>首次有效动作（新类别出现 → 动作）</td><td>≈ 3.5 s（最坏：2.0 + 1.5 + 0.02）</td></tr>
+      <tr><td>真实「想象发生」时刻</td><td>不可测（无真人采集，组长 §4.3）</td></tr>
+      <tr><td>2026-10-23 复测（含后台下载负载，p50 / p95）</td><td>1.19 / 2.27 ms</td></tr>
     </table>
-    <p class="note">两个数要分开说：① <b>起步延迟</b>（开机→第一条结果）≈ 2.1 s，主体是等满首窗 2.0 s，启动开销 &lt;0.1 s（A9 实测 2026-10-21）；② <b>稳态延迟</b>（跑起来后想象→角色动作）&lt;1 s = 决策步长 0.5 s + 单次计算（本机 A4 中位 0.955 ms；demo_weak p95≈0.18 ms，2026-10-21）。只甩一句「99.8% 在攒窗口」是单次决策构成里的理论占比，不是端到端延迟，正式讲解不要只用这一个数。</p>
+    <p class="note"><b>三个口径要分开说（按组长 §4.3 答复修订）</b>：① <b>首个结果</b>（开机→第一条输出，可能是 idle）≈ 2.1 s，主体是等满首窗 2.0 s + 启动 &lt;0.1 s；② <b>稳态节奏</b>（持续段每 0.5 s 一条指令，末样本→显示 ≈19 ms）；③ <b>首次有效动作</b>（新类别出现→游戏动作）最坏 ≈ 3.5 s = 2.0 s 窗 + <b>1.5 s 确认等待</b>（vote_window=3 → 3 步×0.5 s；EMA 拖尾先回 idle 再确认，实测比预估的 +1 s 更慢）+ 计算/传输/显示 ≈0.02 s。<b>「99.8% 在攒窗口」不是已测事实</b>，只是单次决策构成的理论占比，不能拿它当端到端延迟——处理、EMA、三次确认、通信和显示都占时间。真实「想象发生」时刻无真人采集，无法测得，本页不作声称。</p>
   </section>
 
-  <footer>测量方法：<b>起步延迟</b>＝冷启动到首决策墙钟（<code>docs/evidence/W9_1027/01_延迟/A9_启动计时_20261021.txt</code>，实测 2.1 s）；<b>稳态延迟</b>＝决策步长 0.5 s + 单次计算（<code>A4_benchmark_20261021_dfd9dfc.txt</code>，本机中位 0.955 ms；命令 <code>cli benchmark --config configs/demo_online.yaml --chunks 600</code>）。多机数字不得互比；演示机正式走查以统一演示机复测口径为准。<strong>2026-10-23 阎浩文机复测</strong>：起步≈2.0 s（首帧墙钟 1.996 s，<code>cli run --chunks 200</code>）；稳态计算 p50≈1.19 ms / p95≈2.27 ms（<code>cli benchmark --chunks 600</code>，n=120；max 146 ms 为首帧冷启动）。与存档 0.955 ms 存在同机即时负载差，属正常；正式演示以当日复测为准。</footer>
+  <footer>测量方法：<b>起步延迟</b>＝冷启动到首决策墙钟（<code>docs/evidence/W9_1027/01_延迟/A9_启动计时_20261021.txt</code>，实测 2.1 s）；<b>稳态延迟</b>＝决策步长 0.5 s + 单次计算（<code>A4_benchmark_20261021_dfd9dfc.txt</code>，本机中位 0.955 ms；命令 <code>cli benchmark --config configs/demo_online.yaml --chunks 600</code>）。多机数字不得互比；演示机正式走查以统一演示机复测口径为准。<strong>2026-10-23 阎浩文机复测</strong>：起步≈2.0 s（首帧墙钟 1.996 s，<code>cli run --chunks 200</code>）；稳态计算 p50≈1.19 ms / p95≈2.27 ms（<code>cli benchmark --chunks 600</code>，n=120；max 146 ms 为首帧冷启动）。与存档 0.955 ms 存在同机即时负载差，属正常；正式演示以当日复测为准。<strong>2026-10-24 分段实测</strong>（<code>.deepworks/tmp/a5_stage_latency.py</code>，无后台负载）：窗口齐备后计算 p50 0.67 / p95 0.91 / max 8.99 ms（n=120）；新类别确认等待 1.5 s；ws 本地回环 p95 0.89 ms；60 fps 显示帧 ≤17.3 ms；合计「最后样本→显示」≈19 ms（p95）。演示讲解以本页三个口径（首个结果 / 稳态节奏 / 首次有效动作）为准。</footer>
 </div>
 </body>
 </html>
