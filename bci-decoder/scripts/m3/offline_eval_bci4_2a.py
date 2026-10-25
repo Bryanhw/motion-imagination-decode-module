@@ -30,6 +30,46 @@ import numpy as np
 # —— D 盘数据目录（用户偏好：所有下载落 D 盘）——
 _DEFAULT_MNE_DATA = Path(r"D:\校企合作项目\.deepworks\mne_data")
 
+_DEFAULT_BANDS = [[4, 8], [8, 12], [12, 16], [16, 20], [20, 24], [24, 28], [28, 32]]
+
+from sklearn.base import BaseEstimator, TransformerMixin  # noqa: E402
+
+
+class FBCSP(BaseEstimator, TransformerMixin):
+    """Filter-Bank CSP：多子带带通 → 每带 CSP(log) → 拼接特征 → 下游 LDA。
+
+    mne 1.13 无 mne.decoding.FilterBank，这里用 scipy 零相位带通自行实现。
+    只用于离线调优；不入在线链路（在线链路固定 CSP，契约不变）。
+    """
+
+    def __init__(self, sfreq: float = 250.0, bands=None, n_components: int = 4) -> None:
+        self.sfreq = sfreq
+        self.bands = bands if bands is not None else _DEFAULT_BANDS
+        self.n_components = n_components
+
+    def _bandpass(self, X: np.ndarray, lo: float, hi: float) -> np.ndarray:
+        from scipy.signal import butter, sosfiltfilt
+
+        sos = butter(4, [lo, hi], btype="bandpass", fs=self.sfreq, output="sos")
+        return sosfiltfilt(sos, X, axis=-1)
+
+    def fit(self, X: np.ndarray, y) -> "FBCSP":
+        from mne.decoding import CSP
+
+        self.csps_ = []
+        for lo, hi in self.bands:
+            csp = CSP(n_components=self.n_components, reg=None, log=True)
+            csp.fit(self._bandpass(X, lo, hi), y)
+            self.csps_.append(csp)
+        return self
+
+    def transform(self, X: np.ndarray) -> np.ndarray:
+        feats = [
+            csp.transform(self._bandpass(X, lo, hi))
+            for csp, (lo, hi) in zip(self.csps_, self.bands)
+        ]
+        return np.hstack(feats)
+
 
 def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
@@ -44,9 +84,15 @@ def main() -> int:
     )
     parser.add_argument(
         "--pipeline",
-        choices=["csp", "riemann"],
+        choices=["csp", "riemann", "fbcsp", "mdm"],
         default="csp",
-        help="特征路线：csp（对齐 MVP）或 riemann（④备用）",
+        help="特征路线：csp（对齐 MVP）、riemann（④备用）、fbcsp（滤波组 CSP）、mdm（Riemann 最小距离均值）",
+    )
+    parser.add_argument(
+        "--n-components",
+        type=int,
+        default=4,
+        help="CSP 每带分量数（默认 4）",
     )
     parser.add_argument(
         "--quick",
@@ -115,11 +161,24 @@ def main() -> int:
         from pyriemann.tangentspace import TangentSpace
 
         pipeline = make_pipeline(Covariances(), TangentSpace(), LDA(solver="lsqr", shrinkage="auto"))
+    elif args.pipeline == "mdm":
+        from pyriemann.estimation import Covariances
+        from pyriemann.classification import MDM
+
+        pipeline = make_pipeline(Covariances(), MDM())
+    elif args.pipeline == "fbcsp":
+        pipeline = make_pipeline(
+            FBCSP(sfreq=250.0, bands=_DEFAULT_BANDS, n_components=args.n_components),
+            LDA(solver="lsqr", shrinkage="auto"),
+        )
     else:
         from mne.decoding import CSP
 
         # 对齐 MVP：CSP(log=True) + LDA
-        pipeline = make_pipeline(CSP(n_components=4, log=True, reg=None), LDA(solver="lsqr", shrinkage="auto"))
+        pipeline = make_pipeline(
+            CSP(n_components=args.n_components, log=True, reg=None),
+            LDA(solver="lsqr", shrinkage="auto"),
+        )
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     t1 = time.time()
