@@ -1,0 +1,59 @@
+# 在线解码演示配置：加载 bootstrap_demo 训练出的模型，用 mock 源验证闭环
+# 用法：python -m bci_decoder.cli run --config configs/demo_online.yaml --chunks 200
+# OOD：2026-10-21 组长拍板开启（同 demo_weak 参数）；开启后域内回归证据见
+#      docs/evidence/W9_1027/2c_改进提案/D4_OOD域内回归_*.log
+
+# A10 soak 配置：与 demo_online 同模型/同后处理，唯一差异是 mock 源 realtime=true
+# （按真实时间 0.5 s/决策节流），用于「墙钟 1 小时连续稳定运行」证据。
+# 用法：powershell -ExecutionPolicy Bypass -File scripts\soak_rss.ps1 -Minutes 60 -IntervalSeconds 60
+# 注意：mock 源仅用于工程稳定性自检，不得用于任何准确率结论（红线 5/6）。
+source:
+  kind: mock
+  sfreq: 250.0
+  ch_names: [C3, Cz, C4, CP3, CP4, P3, P4, Oz]
+  chunk_samples: 25
+  realtime: true
+  seed: 0
+
+preprocess:
+  l_freq: 8.0
+  h_freq: 30.0
+  notch_freq: 50.0
+  notch_q: 30.0
+  filter_order: 4
+  car: true
+  artifact_ptp_uv: 200.0
+
+features:
+  kind: csp
+  csp_components: 4
+  csp_reg: 1e-4
+  model_path: "artifacts/demo_csp.joblib"
+
+classifier:
+  kind: lda
+  classes: [left, right]
+  model_path: "artifacts/demo_lda.joblib"
+
+postprocess:
+  vote_window: 3
+  ema_alpha: 0.4
+  min_confidence: 0.6
+  idle_label: idle
+
+ood:
+  enabled: true
+  method: mahalanobis
+  chi2_quantile: 0.99
+  score_scale: 1.0
+  strength_floor_enabled: true
+  model_path: "artifacts/ood.joblib"
+
+window:
+  window_seconds: 2.0
+  step_seconds: 0.5
+
+output:
+  sinks: [console]
+  ws_host: "127.0.0.1"
+  ws_port: 8765

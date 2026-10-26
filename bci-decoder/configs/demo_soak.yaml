@@ -1,12 +1,8 @@
-# 在线解码演示配置：加载 bootstrap_demo 训练出的模型，用 mock 源验证闭环
-# 用法：python -m bci_decoder.cli run --config configs/demo_online.yaml --chunks 200
-# OOD：2026-10-21 组长拍板开启（同 demo_weak 参数）；开启后域内回归证据见
-#      docs/evidence/W9_1027/2c_改进提案/D4_OOD域内回归_*.log
+# A10 一小时 soak 专用配置：mock 无限源 + 真实在线节奏（realtime: true）
+# 仅验证长时间连续解码稳定性（进程/RSS/决策数/无中断），不是算法性能评估。
+# 用法：python -m bci_decoder.cli run --config configs/demo_soak.yaml
+# 注意：勿传 --chunks（cli 会强制 realtime=false，变成快跑失真）。
 
-# A10 soak 配置：与 demo_online 同模型/同后处理，唯一差异是 mock 源 realtime=true
-# （按真实时间 0.5 s/决策节流），用于「墙钟 1 小时连续稳定运行」证据。
-# 用法：powershell -ExecutionPolicy Bypass -File scripts\soak_rss.ps1 -Minutes 60 -IntervalSeconds 60
-# 注意：mock 源仅用于工程稳定性自检，不得用于任何准确率结论（红线 5/6）。
 source:
   kind: mock
   sfreq: 250.0
@@ -40,14 +36,6 @@ postprocess:
   ema_alpha: 0.4
   min_confidence: 0.6
   idle_label: idle
-
-ood:
-  enabled: true
-  method: mahalanobis
-  chi2_quantile: 0.99
-  score_scale: 1.0
-  strength_floor_enabled: true
-  model_path: "artifacts/ood.joblib"
 
 window:
   window_seconds: 2.0
