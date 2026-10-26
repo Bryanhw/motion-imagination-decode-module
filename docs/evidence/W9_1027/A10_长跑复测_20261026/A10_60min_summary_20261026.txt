@@ -1,0 +1,21 @@
+﻿A10 soak summary  2026-10-26 17:23:09
+config            : configs\demo_soak.yaml
+duration_min      : 60
+samples           : 60
+decoder_pid       : 1924
+early_exit        : False
+messages          : 7213
+log_span_s        : 3604.5
+realtime_source   : True
+wall_clock_s      : 3611.5
+wall_rate         : 2 /s  (paced source only, target 1.8-2.2)
+decision_rate     : 2 /s   (per DATA clock, always 2.0 by design)
+label_hist        : idle=2845 left=2237 right=2131
+rss_peak_mb       : 122.7   (<= 500)
+rss_drift_mb      : -49.8  (tail - head, |x| <= 50)
+rss_slope_mb_h    : -49.7
+handles_delta     : -10
+stderr_bytes      : 0  (must be 0)
+checks            : peak=True drift=True rate=True stderr=True
+RESULT            : PASS
+files             : D:\校企合作项目\bci-decoder\artifacts\soak\rss_20261026_162257.csv | D:\校企合作项目\bci-decoder\artifacts\soak\decoder_20261026_162257.log | D:\校企合作项目\bci-decoder\artifacts\soak\decoder_20261026_162257.err.log
