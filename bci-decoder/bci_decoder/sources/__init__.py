@@ -38,6 +38,9 @@ def build_source(cfg: SourceConfig) -> Source:
             ch_names=list(cfg.ch_names),
             chunk_samples=cfg.chunk_samples,
             resolve_timeout=cfg.resolve_timeout,
+            stream_type=cfg.stream_type,
+            channel_map=dict(cfg.channel_map or {}),
+            channel_index=list(cfg.channel_index or []),
         )
     raise ValueError(f"未知的数据源类型: {cfg.kind}")
 

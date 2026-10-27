@@ -1,0 +1,97 @@
+# LSL 实时接入模板（设备型号 / 通道顺序 / 流名尚未书面确认时用这份）
+#
+# 为什么需要这份：企业侧暂未提供设备型号、通道顺序、LSL 流名的书面确认。
+# 本配置把这三项都做成"可现场判定"，不需要等回复：
+#   1) 流名 → stream_name 留空，按 stream_type 自动发现；
+#   2) 通道顺序 → channel_map / channel_index 显式映射，缺通道直接报错（不静默错位）；
+#   3) 顺序是否正确 → 跑 scripts/lsl_selftest.py --check 60 用数据自证。
+#
+# 前置：
+#   pip install pylsl
+#   设备端采集软件已开始发布 LSL 流
+#
+# 现场标准流程（约 3 分钟）：
+#   python scripts/lsl_selftest.py --list          # 看有哪些流
+#   python scripts/lsl_selftest.py --check 60      # 抓 60s 静息，判读顺序
+#   python scripts/lsl_selftest.py --check 60 --emit-config   # 生成下面这段
+#
+# 用法：python -m bci_decoder.cli run --config configs/lsl_template.yaml
+
+source:
+  kind: lsl
+  sfreq: 250.0                        # 会被设备实际采样率覆盖
+  ch_names: [C3, Cz, C4, CP3, CP4, P3, P4, Oz]   # 顺序即语义，不得改动（红线 4）
+  chunk_samples: 25
+  realtime: true
+
+  # ---- 发现 ----
+  stream_name: ""                     # 留空 = 按类型自动发现；已知流名时填精确名称
+  stream_type: "EEG"
+  resolve_timeout: 10.0
+
+  # ---- 映射（优先级：channel_index > channel_map > 同名匹配）----
+  # 情况 A：设备通道名就叫 C3/Cz/... （最常见，无需任何配置）
+  # 情况 B：设备名有前缀/别名 → 用别名表
+  channel_map: {}
+  #   EEG_C3: C3
+  #   EEG_Cz: Cz
+  #   EEG_C4: C4
+  #   EEG_CP3: CP3
+  #   EEG_CP4: CP4
+  #   EEG_P3: P3
+  #   EEG_P4: P4
+  #   EEG_Oz: Oz
+  #
+  # 情况 C：设备不发布通道名（只有数量和数值）→ 直接给索引，顺序与 ch_names 一致
+  channel_index: []
+  #   - 0    # C3
+  #   - 1    # Cz
+  #   - 2    # C4
+  #   - 3    # CP3
+  #   - 4    # CP4
+  #   - 5    # P3
+  #   - 6    # P4
+  #   - 7    # Oz
+
+preprocess:
+  l_freq: 8.0
+  h_freq: 30.0
+  notch_freq: 50.0                    # 50 Hz（国内工频）；设备若在国外用 60
+  notch_q: 30.0
+  filter_order: 4
+  car: true
+  artifact_ptp_uv: 200.0
+
+features:
+  kind: csp
+  csp_components: 4
+  csp_reg: 1e-4
+  model_path: "artifacts/demo_csp.joblib"
+
+classifier:
+  kind: lda
+  classes: [left, right]
+  model_path: "artifacts/demo_lda.joblib"
+
+postprocess:
+  vote_window: 3
+  ema_alpha: 0.4
+  min_confidence: 0.6
+  idle_label: idle
+
+ood:
+  enabled: false                      # 真实设备首接建议先关，确认链路后再开
+  method: mahalanobis
+  chi2_quantile: 0.99
+  score_scale: 1.0
+  strength_floor_enabled: true
+  model_path: "artifacts/ood.joblib"
+
+window:
+  window_seconds: 2.0
+  step_seconds: 0.5
+
+output:
+  sinks: [console]
+  ws_host: "127.0.0.1"
+  ws_port: 8765

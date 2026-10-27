@@ -24,8 +24,11 @@ class SourceConfig:
     path: str = ""                     # replay 源的数据文件 (.npy, 形状 (n_ch, n_t))
     speed: float = 1.0                 # replay 源倍速
     loop: bool = False                 # replay 源是否循环
-    stream_name: str = "BCI-EEG"       # lsl 源的流名称
+    stream_name: str = "BCI-EEG"       # lsl 源的流名称（留空=按 stream_type 自动发现）
     resolve_timeout: float = 5.0       # lsl 源查找流的超时（秒）
+    stream_type: str = "EEG"           # lsl 自动发现时的流类型
+    channel_map: Dict[str, str] = field(default_factory=dict)   # 设备通道名 -> 目标通道名
+    channel_index: List[int] = field(default_factory=list)      # 设备索引（按目标顺序），优先于 channel_map
 
 
 @dataclass
