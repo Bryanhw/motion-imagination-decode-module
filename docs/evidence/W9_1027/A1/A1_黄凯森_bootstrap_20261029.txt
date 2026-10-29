@@ -1,0 +1,23 @@
+[bootstrap] ʹ�úϳ��Լ����ݣ�80 �� trial��������������������
+[bootstrap] ����ά�ȣ�(80, 4)
+[bootstrap] 5�۽�����֤׼ȷ�ʣ�1.000 �� 0.000
+[bootstrap] ע�⣺�����������Ժϳ������Լ죨mock/synth���������㷨�ɼ�����ֹ���ⱨ��׼ȷ�ʣ����� R-1��
+[bootstrap] ģ���ѱ��棺artifacts/demo_lda.joblib
+[bootstrap] CSP �ռ��˲�ģ���ѱ��棺artifacts/demo_csp.joblib
+[bootstrap] ���ڼ�����ѱ��棺artifacts/ood.joblib (method=mahalanobis, strength_floor=False)
+[bootstrap] OOD ��ֵ��{'method': 'mahalanobis', 'n_features': 4, 'tau_chi2': 13.276704135987622, 'tau_emp_p99': 12.350200116038007, 'tau_final': 13.276704135987622, 'strength_floor': None, 'strength_floor_enabled': False}
+[bootstrap] ע�⣺�·� cv_accuracy ͬΪ�ϳ������Լ�ֵ��������ȷ����ˮ�߿���ͨ��������Ϊ����ָ��
+{
+  "n_trials": 80,
+  "n_features": 4,
+  "cv_accuracy": 1.0,
+  "model_path": "artifacts/demo_lda.joblib",
+  "ood_path": "artifacts/ood.joblib",
+  "classes": [
+    "left",
+    "right"
+  ]
+}
+
+��һ������ configs/default.yaml ��� classifier.model_path ָ���ģ�ͣ�
+      ��ִ�� python -m bci_decoder.cli run --config configs/default.yaml

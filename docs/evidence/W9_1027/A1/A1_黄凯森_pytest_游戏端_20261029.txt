@@ -1,0 +1,13 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0
+rootdir: D:\CST AI\�Ե��˶�����\_ws_reconnect\bci-decoder
+configfile: pytest.ini
+plugins: platformdirs-4.13.5
+collected 36 items
+
+game\platformer\tests\test_input_layer.py ...............                [ 41%]
+game\platformer\tests\test_main_events.py ......                         [ 58%]
+game\platformer\tests\test_websocket_input.py ....                       [ 69%]
+game\tests\test_runner.py ...........                                    [100%]
+
+============================= 36 passed in 2.64s ==============================

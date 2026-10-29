@@ -1,0 +1,45 @@
+[bci-decoder] OOD ���ڼ�������ã�artifacts/ood.joblib (method=mahalanobis, strength_floor=False)
+[bci-decoder] ����Դ=mock  ����=2.0s  ����=0.5s  ���=['left', 'right']
+[bci-decoder] ���ͨ��=['console']
+[    1.996s] idle   conf=1.00  probs=[1.00 0.00]  compute=7.5ms  win=2.0s state=running
+[    1.996s] idle   conf=1.00  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+[    1.996s] left   conf=1.00  probs=[1.00 0.00]  compute=0.4ms  win=2.0s state=running
+[    1.996s] left   conf=1.00  probs=[1.00 0.00]  compute=0.4ms  win=2.0s state=running
+[    2.496s] left   conf=1.00  probs=[1.00 0.00]  compute=0.7ms  win=2.0s state=running
+[    2.996s] left   conf=1.00  probs=[1.00 0.00]  compute=0.8ms  win=2.0s state=running
+[    3.496s] left   conf=1.00  probs=[1.00 0.00]  compute=0.7ms  win=2.0s state=running
+[    3.996s] left   conf=1.00  probs=[1.00 0.00]  compute=0.6ms  win=2.0s state=running
+[    4.496s] left   conf=0.80  probs=[0.50 0.50]  compute=0.3ms  win=2.0s state=running
+[    4.996s] left   conf=0.68  probs=[0.50 0.50]  compute=0.2ms  win=2.0s state=running
+[    5.496s] left   conf=0.61  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[    5.996s] left   conf=0.64  probs=[0.00 1.00]  compute=1.2ms  win=2.0s state=running
+[    6.496s] left   conf=0.78  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[    6.996s] right  conf=0.87  probs=[0.00 1.00]  compute=0.4ms  win=2.0s state=running
+[    7.496s] right  conf=0.92  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[    7.996s] right  conf=0.95  probs=[0.00 1.00]  compute=0.6ms  win=2.0s state=running
+[    8.496s] right  conf=0.77  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[    8.996s] right  conf=0.66  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[    9.496s] idle   conf=0.60  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[    9.996s] idle   conf=0.64  probs=[1.00 0.00]  compute=0.4ms  win=2.0s state=running
+[   10.496s] idle   conf=0.78  probs=[1.00 0.00]  compute=0.5ms  win=2.0s state=running
+[   10.996s] left   conf=0.87  probs=[1.00 0.00]  compute=0.4ms  win=2.0s state=running
+[   11.496s] left   conf=0.92  probs=[1.00 0.00]  compute=0.5ms  win=2.0s state=running
+[   11.996s] left   conf=0.95  probs=[1.00 0.00]  compute=0.4ms  win=2.0s state=running
+[   12.496s] left   conf=0.77  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[   12.996s] left   conf=0.66  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[   13.496s] idle   conf=0.60  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[   13.996s] idle   conf=0.64  probs=[0.00 1.00]  compute=0.4ms  win=2.0s state=running
+[   14.496s] idle   conf=0.78  probs=[0.00 1.00]  compute=0.4ms  win=2.0s state=running
+[   14.996s] right  conf=0.87  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[   15.496s] right  conf=0.92  probs=[0.00 1.00]  compute=0.5ms  win=2.0s state=running
+[   15.996s] right  conf=0.95  probs=[0.00 1.00]  compute=0.4ms  win=2.0s state=running
+[   16.496s] right  conf=0.77  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[   16.996s] right  conf=0.66  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[   17.496s] idle   conf=0.60  probs=[0.50 0.50]  compute=0.1ms  win=2.0s state=running
+[   17.996s] idle   conf=0.64  probs=[1.00 0.00]  compute=0.4ms  win=2.0s state=running
+[   18.496s] idle   conf=0.78  probs=[1.00 0.00]  compute=0.4ms  win=2.0s state=running
+[   18.996s] left   conf=0.87  probs=[1.00 0.00]  compute=0.4ms  win=2.0s state=running
+[   19.496s] left   conf=0.92  probs=[1.00 0.00]  compute=0.9ms  win=2.0s state=running
+[   19.996s] left   conf=0.95  probs=[1.00 0.00]  compute=0.7ms  win=2.0s state=running
+[bci-decoder] ���ߴ���=40
+[bci-decoder] �����ʱͳ��: {"n": 40, "mean_ms": 0.5853149996255524, "p50_ms": 0.4115999909117818, "p95_ms": 0.8970049588242537, "max_ms": 7.457699975930154, "window_seconds": 2.0, "est_e2e_p95_ms": 2000.8970049588243}

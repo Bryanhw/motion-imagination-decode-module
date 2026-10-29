@@ -1,0 +1,15 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0
+rootdir: D:\CST AI\�Ե��˶�����\_ws_reconnect\bci-decoder
+configfile: pytest.ini
+plugins: platformdirs-4.13.5
+collected 45 items
+
+tests\test_buffer.py .....                                               [ 11%]
+tests\test_engine.py ...                                                 [ 17%]
+tests\test_lsl_mapping.py ..............                                 [ 48%]
+tests\test_ood.py .........                                              [ 68%]
+tests\test_pipeline.py ...........                                       [ 93%]
+tests\test_websocket_sink.py ...                                         [100%]
+
+============================= 45 passed in 2.39s ==============================
