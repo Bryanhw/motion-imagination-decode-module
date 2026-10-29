@@ -41,6 +41,33 @@ if (Test-Path -LiteralPath $OutDir) {
 
 New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 
+function Copy-GitTracked {
+    <#
+      Copy only files tracked by git, so the bundle always equals the committed
+      version. Untracked local drafts (pong.py, ws_client.py, ...) must never
+      leak into a demo bundle that is presented as "the team's game".
+    #>
+    param([string]$Name)
+    $dst = Join-Path $OutDir $Name
+    New-Item -ItemType Directory -Path $dst -Force | Out-Null
+    $files = & git -C $root ls-files -- $Name
+    if ($LASTEXITCODE -ne 0) { throw "git ls-files failed for $Name" }
+    $n = 0
+    foreach ($rel0 in $files) {
+        $rel = "$rel0".Trim()
+        if (-not $rel) { continue }
+        $relWin = $rel -replace '/', '\'
+        $full = Join-Path $root $relWin
+        if (-not (Test-Path -LiteralPath $full)) { Write-Host "  warn: tracked but missing: $rel"; continue }
+        $target = Join-Path $OutDir $relWin
+        $dir = Split-Path $target -Parent
+        if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+        Copy-Item -LiteralPath $full -Destination $target -Force
+        $n++
+    }
+    Write-Host "copied (git-tracked): $Name  [$n files]"
+}
+
 function Copy-Tree {
     param([string]$Name)
     $src = Join-Path $root $Name
@@ -63,9 +90,26 @@ function Copy-Tree {
 "Packaging to  : $OutDir"
 ""
 
-foreach ($d in @("bci_decoder", "game", "configs", "data", "scripts", "tests")) {
-    Copy-Tree $d
+$gitOk = $false
+try {
+    $null = & git -C $root rev-parse --git-dir 2>$null
+    if ($LASTEXITCODE -eq 0) { $gitOk = $true }
+} catch { $gitOk = $false }
+
+if ($gitOk) {
+    $head = & git -C $root log -1 --format="%h %ad %s" --date=short
+    Write-Host "source commit : $head"
+    Write-Host "copy mode     : git-tracked files only (untracked drafts excluded)"
+} else {
+    Write-Host "WARNING: not a git repo - plain copy, untracked drafts may be included"
 }
+
+foreach ($d in @("bci_decoder", "game", "configs", "scripts", "tests")) {
+    if ($gitOk) { Copy-GitTracked $d } else { Copy-Tree $d }
+}
+
+# data/ is gitignored by design, but the demo needs it -> always copy from disk
+Copy-Tree "data"
 
 # artifacts: models + configs only (skip logs, soak output, jsonl dumps)
 $artSrc = Join-Path $root "artifacts"
@@ -184,6 +228,15 @@ powershell -ExecutionPolicy Bypass -File setup.ps1
 2. **首次运行会编译 pyc**：第一次启动明显更慢，第二次恢复正常。**彩排时至少要跑两遍**。
 3. **屏幕分辨率/缩放不同**：pygame 窗口尺寸按像素算，换机器前先在目标机上看一眼窗口是否完整。
 4. **中文路径**：包放在纯英文路径下最稳（如 `D:\A8_demo`），避免 `文档\新建文件夹` 这类路径。
+
+## 采集环境快照（彩排第一件事，同时就是归档证据）
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\collect_env.ps1
+```
+
+在当前目录生成 `A8_演示环境_<主机名>_<时间>.txt`，自动记录主机名、系统、CPU/内存、Python 与各包版本、import 检查、分辨率与缩放、端口占用、代理、防火墙。
+**只需手填末尾三行计时**（冷启动到首个 idle、首帧、第二遍 idle），然后拷进 `docs\evidence\W9_1027\`。
 
 ## 自检清单（彩排时逐条打勾）
 
