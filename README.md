@@ -55,6 +55,7 @@
 
 | 想了解 | 看这里 |
 |---|---|
+| **5 分钟看懂项目全貌（评审/新人入口）** | [`docs/唯一规格说明.md`](docs/唯一规格说明.md) |
 | **范围与验收的唯一依据** | [`docs/MVP规格说明书.md`](docs/MVP规格说明书.md) |
 | 解码模块：需求 / 设计 | [`docs/MVP_PRD.md`](docs/MVP_PRD.md) · [`docs/TechDesign-BCI-Decoder-MVP.md`](docs/TechDesign-BCI-Decoder-MVP.md) |
 | 游戏端：需求 / 设计 | [`docs/PRD-Game-MVP.md`](docs/PRD-Game-MVP.md) · [`docs/TechDesign-Game-MVP.md`](docs/TechDesign-Game-MVP.md) |
