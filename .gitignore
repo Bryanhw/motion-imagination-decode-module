@@ -32,3 +32,6 @@ uploads/
 
 # —— 由 .tools/md2docx.py 生成的对外提交稿；如需入库请取消下一行注释 ——
 # *.docx
+
+# —— 打包产物（scripts/pack_demo.ps1 生成，可重建，不入库）——
+dist/
