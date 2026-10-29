@@ -35,3 +35,6 @@ uploads/
 
 # —— 打包产物（scripts/pack_demo.ps1 生成，可重建，不入库）——
 dist/
+
+# —— 交付包（二进制，可重建，不入库；说明文档仍入库）——
+outputs/*.zip
