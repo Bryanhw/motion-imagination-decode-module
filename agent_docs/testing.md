@@ -122,7 +122,7 @@ T_response ≈ T_accumulate（滑窗 2.0 s）+ T_compute（数毫秒，本机实
 
 > 注：A8 验收文本原为“脑控弹球可玩”；**游戏端主打 = 横版闯关 MI Pixel Run v1.0**（`bci-decoder/game/platformer/`，2026-10-21 并入主线、已接 WebSocket 解码器；弹球 `pong.py` / 格子版 `runner.py` 保留为备稿，pong 不入库）——现场演示与验收口径以 platformer 为准。
 >
-> 证据目录 `docs/evidence/W9_1027/` **已建立**，证据按项归档（见该目录 `README.md`；剩余待补：A7 联调录屏 / A8 真人现场）。
+> 证据目录 `docs/evidence/W9_1027/` **已建立**，证据按项归档（见该目录 `README.md`；**A7 联调录屏已归档（10/22）、A8 判据达成（10/29 三段录屏，判据见规格书 §6.1，口径澄清 v1.1.5 组长已确认）**）。
 
 ---
 
