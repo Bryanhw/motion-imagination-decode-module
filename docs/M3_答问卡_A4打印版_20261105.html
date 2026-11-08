@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>M3 评测口径答问卡（A4 双面）</title>
+<style>
+  @page { size: A4; margin: 13mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    color: #1a1a1a; font-size: 10.5pt; line-height: 1.45; margin: 0;
+  }
+  .sheet { page-break-after: always; }
+  .sheet:last-child { page-break-after: auto; }
+  h1 { font-size: 16pt; margin: 0 0 2mm; letter-spacing: .5px; }
+  .sub { font-size: 9pt; color: #555; margin-bottom: 4mm; padding-bottom: 2mm; border-bottom: 1.2pt solid #1a1a1a; }
+  h2 { font-size: 11pt; margin: 4mm 0 1.5mm; padding-left: 2.5mm; border-left: 3pt solid #1a1a1a; }
+  p { margin: 0 0 1.2mm; }
+  .q { font-weight: 700; margin-bottom: .8mm; }
+  .a { margin-bottom: 2.5mm; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 3mm; font-size: 9.5pt; }
+  th, td { border: .6pt solid #999; padding: 1.1mm 2mm; text-align: left; }
+  th { background: #eee; font-weight: 700; }
+  .num { text-align: center; font-variant-numeric: tabular-nums; }
+  .ok { color: #0a6b2d; font-weight: 700; }
+  .note { font-size: 8.8pt; color: #444; }
+  .box { border: 1pt solid #1a1a1a; padding: 2.5mm 3mm; margin: 2.5mm 0; }
+  .foot { margin-top: 4mm; padding-top: 2mm; border-top: .6pt solid #999; font-size: 8.5pt; color: #555; }
+  ul { margin: 0 0 2mm; padding-left: 4.5mm; }
+  li { margin-bottom: .8mm; }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <h1>M3 评测口径答问卡 · 正面</h1>
+  <div class="sub">口径已由组长蓝喜阳 2026-11-05 拍板（五条可行）。数字与正式报告、演示稿 v0.3 同一套。</div>
+
+  <h2>高频三问</h2>
+
+  <div class="a">
+    <div class="q">Q1　Kappa 是什么？</div>
+    <p>扣除"瞎猜也能猜中"的机会影响后的一致性指标。判据是 <b>&gt; 0.3</b>，<b>不能读成准确率 30%</b>。</p>
+  </div>
+
+  <div class="a">
+    <div class="q">Q2　为什么窗口级看起来低、trial 级却达标？</div>
+    <p>窗口级＝每 0.5 秒单独判一次，噪声大、偏低；trial 级＝把一个 trial 的 <b>3 个窗投票</b>后再判一次任务。两者是<b>不同统计单位</b>，不能混用、也不能相减当"提升"。正式口径用 trial 级。</p>
+  </div>
+
+  <div class="a">
+    <div class="q">Q3　离线与伪在线的差很小，说明什么？</div>
+    <p>说明只用"过去的信息"（因果滤波）在线跑，判定几乎不变：准确率差 <b>+0.13 / +0.15 个百分点</b>（判据 &lt;5%）；逐窗一致率 <b>0.966 / 0.958</b>。但<b>不等于</b>现场真人脑控就可靠。</p>
+  </div>
+
+  <h2>冻结口径数字</h2>
+  <table>
+    <tr><th>口径</th><th>做法</th><th class="num">CSP Kappa</th><th class="num">Riemann Kappa</th><th class="num">判据 0.3</th></tr>
+    <tr><td>A（旁证）</td><td>4 类 + 5 折混合会话</td><td class="num">0.242</td><td class="num"><b>0.438</b></td><td class="num ok">✅</td></tr>
+    <tr><td><b>B（主讲）</b></td><td>严格跨天 0train→1test，trial 级 3 窗投票</td><td class="num"><b>0.466</b></td><td class="num"><b>0.481</b></td><td class="num ok">✅</td></tr>
+  </table>
+  <table>
+    <tr><th>指标</th><th>数值</th><th>口径说明</th></tr>
+    <tr><td>ITR@2.0s</td><td>CSP 7.22 / Riemann 6.84 bits/min</td><td>逐受试平均（组长拍板④）；pooled 4.89 / 5.23 作脚注</td></tr>
+    <tr><td>伪在线 vs 离线</td><td>+0.13pp / +0.15pp</td><td>判据 &lt;5pp，实际 &lt;1pp</td></tr>
+    <tr><td>留一受试（LOO）</td><td>0.191 / 0.200</td><td>无个人校准 ≈ 随机 → 不能承诺免校准</td></tr>
+  </table>
+  <p class="note">注：旧值 0.198 / 0.046 系 CSP 特征基翻转污染的日志，已勘误作废，任何场合不得引用。</p>
+
+  <div class="foot">M3 中期评审 · 内部材料｜对外发布以正式报告定稿为准</div>
+</div>
+
+<div class="sheet">
+  <h1>M3 评测口径答问卡 · 反面</h1>
+  <div class="sub">追问应对 + 改进证据（不上主屏）</div>
+
+  <h2>追问四问</h2>
+
+  <div class="a">
+    <div class="q">Q4　idle 是不是"识别到静息"？</div>
+    <p>不是。idle 表示<b>本次不发布动作</b>，可能来自拒绝、置信度不足或安全状态。红线：未训练 / 模型缺失 / 置信度 &lt; 0.6 → 必须 idle，绝不发随机左右。</p>
+  </div>
+
+  <div class="a">
+    <div class="q">Q5　"0.320 ms"能报成端到端延迟吗？</div>
+    <p>不能。那是旧个人 CSP 配置下三轮计算 p95 中位数，不是当前冻结配置的端到端延迟（含攒窗 2 s、平滑等待、通信、显示）。本次不引用该数字。</p>
+  </div>
+
+  <div class="a">
+    <div class="q">Q6　trial 级平均达标，能说现场脑控可靠了吗？</div>
+    <p>不能。离线公开数据评测与游戏实时动作是<b>不同证据</b>；现场模型、通道、数据源、端到端链路仍需单独核验，且平均达标不代表每个人达标（S05≈+0.06、S02≈+0.14）。</p>
+  </div>
+
+  <div class="a">
+    <div class="q">Q7　你们试过改进吗？</div>
+    <p>试过，用受试级多折（开发 7 人 / 确认 2 人，两套切法）。四条路线：欧氏对齐（两种）、CSP 正则化、子带 FBCSP。前三条与基线<b>逐位一致</b>（CSP/Riemann 对满秩线性变换不变），FBCSP 更差（平均 −0.06）。结论：冻结算法 + 5 天窗口内冲不高，是<b>用数据证过的边界</b>。</p>
+  </div>
+
+  <h2>改进路线（报告 §8.1）</h2>
+  <ul>
+    <li><b>A.</b> 在线逐块自正则欧氏对齐（须并入因果链路并重验伪在线一致性）</li>
+    <li><b>B.</b> Riemann MDM / 投影稳定性选分量；FBCSP 需逐受试带宽折选</li>
+    <li><b>C.</b> 跨被试迁移依赖个人校准（LOO 已证无校准 ≈ 随机）</li>
+    <li><b>D.</b> 工程稳健已闭环；演示用「3 窗投票置信度时序图」讲清 idle 与投票</li>
+  </ul>
+
+  <div class="box">
+    <b>证据可追溯</b><br>
+    · 脚本：<code>bci-decoder/scripts/m3/itr_report.py</code><br>
+    · 两次运行日志 + README：<code>docs/evidence/M3_20261105_itr/</code>（26/27 行逐行一致，仅加载耗时不同）<br>
+    · 勘误与口径：<code>docs/M3_口径拍板记录_组长_20261105.md</code>；commit <code>1aff183</code>
+  </div>
+
+  <div class="foot">M3 中期评审 · 内部材料｜口径问题以组长拍板记录为准</div>
+</div>
+
+</body>
+</html>
