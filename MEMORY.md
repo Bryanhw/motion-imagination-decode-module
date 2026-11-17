@@ -44,7 +44,8 @@
 > ② `docs/D1_至D2_模型数据格式交接_20261117.md`（交接契约：D2 部署模型须走 calibrate.py 训 csp/lda/online.yaml 四件套、**勿把 D1 sklearn 管道直接塞 cli**；数据口径 22ch/250Hz/µV、session1(0train) 校准 → session2(1test) 测试；ReplaySource/CSP 支持任意通道数）。
 > **关键通道事实（探针实证）**：BCI IV 2a 的 22 通道为 Fz FC3 FC1 FCz FC2 FC4 C5 C3 C1 Cz C2 C4 C6 CP3 CP1 CPz CP2 CP4 P1 Pz P2 POz，**不含 P3/P4/Oz**（冻结 8 通道契约仅命中 C3/Cz/C4/CP3/CP4 五个）→ **通道口径建议方案 A＝22 通道全集 replay**（与 D1 口径一致、信息无损）；方案 B＝若组长坚持冻结 8 通道，D2 只能换 EEGMMIDB（旧 demo `demo_game_eegmmidb.yaml` 链路已通，非本周主线）。**通道口径待组长今日拍板**（否则王释贤周四难开工）。本机 `artifacts/` Python 写入仍被系统拦截（RA1），S05 导出产物在 `.deepworks/tmp/m4_replay/`（联调机各自生成）。P0 余项＝周二晚“初步数字发群”口头动作；D1 证据链本身已闭环。
 
-> **最后更新：2026-11-17（D1→D2 交接定件 + P0.③ 发群文案备好 + P1 排查闭环：正则化≈零影响、迁移校准整体更差、均不替换主线；记录 docs/evidence/M4_calibration_20261117/P1_正则化与迁移对照_20261117/；通道口径待组长拍板）**
+> **2026-11-17（M4 增量归并 main 完成）**：将 `m3/w11-baseline` 的 M4 增量**增量归并**到 origin/main（分支 `merge-m4-increments`，提交 `b05feac`，24 文件，+1904/−7；脚本/测试 8 新增 3 修改＋D1→D2 交接/通道诊断/任务卡/P1 证据等文档＋MEMORY 并集合并；pytest `bci-decoder/tests` **66/66**）。**未纳入**：`matrix_csp.csv`（main 已有同数字）、`.opencode/game/outputs/A8/团队任务卡` 等未跟踪文件、`docs/阎浩文M4_第4周收口对表_20261117.md`（m3 独有，性质/命名不明，未擅自纳入）。**本地提交未推送远程 main**，推送时机待组长/团队决策。
+> **最后更新：2026-11-17（M4 增量归并 main 完成：merge-m4-increments@b05feac，pytest 66/66；D1→D2 交接定件 + P0.③ 发群文案备好 + P1 排查闭环：正则化≈零影响、迁移校准整体更差、均不替换主线；通道口径待组长拍板）**
 
 ## 一句话现状
 
