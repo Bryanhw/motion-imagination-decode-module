@@ -130,3 +130,39 @@
 - `raw.npy`：`(n_channels, n_t)` 连续原始 EEG（或已按 trial 对齐的矩阵，需配 labels）
 - `labels.npy`：每个 trial 的类别标签，长度 = trial 数；标签取值 ∈ `config.classifier.classes`（如 `left/right`）
 - 通道顺序必须与 `source.ch_names` 一致（`C3, Cz, C4, CP3, CP4, P3, P4, Oz`）——**红线 4，不得重排**
+
+---
+
+## 8. LSL 链路无设备自检（仿真流，RA2 未到前必看）
+
+**背景**：RA2（设备型号/通道顺序/采样率/流名书面确认）未到时，pylsl 的「发现流→抓取→判读」
+代码路径从未被验证过。`lsl_selftest.py --from-npy` 只能验判读算法，**不能验 pylsl 取流**。
+`scripts/lsl_sim_stream.py` 在本机发布一条 8 通道仿真 EEG 流（通道顺序同红线 4），
+让整条 LSL 在线链路无真机也能完整跑通。
+
+**能验 / 不能验（务必分清，勿把自检当性能证据）**：
+
+- [能] pylsl 可用、流发现、抓取 + 判读、LSL 在线接入代码路径（`sources/lsl.py`）
+- [不能] 真实通道顺序——仿真数据是自造的，判读结论不构成任何性能/顺序陈述（红线 5/6）
+
+命令（两个终端，都在 `bci-decoder/` 下）：
+
+```powershell
+# 终端 1：发布本地仿真流（默认推 30s）
+.venv\Scripts\python.exe scripts\lsl_sim_stream.py --seconds 30
+
+# 终端 2：发现流 + 抓取判读
+.venv\Scripts\python.exe scripts\lsl_selftest.py --list
+.venv\Scripts\python.exe scripts\lsl_selftest.py --check 20 --stream-name sim_mi_8ch
+```
+
+**2026-11-15 冒烟实测记录**（pylsl 1.18.6 / liblsl 1.18.0.b6 / 本机 LAPTOP-FAS37C8L）：
+
+- 链路 `--list` 与 `--check` 均可发现并抓取仿真流，判读完整产出结论——**取流代码路径已验证**。
+- 判读返回 `WARN（合成数据提示：alpha 相对功率 >75%）` 属**预期**：判读器能识别合成数据，这恰是
+  防“把自检当真实证据”的设计，不构成异常。
+- 仿真流按 CH 序号判读且排序正确（CH8=Oz 最强 98.6%，与仿真枕区 alpha 设计吻合），
+  说明数据通道顺序与结构自洽；但**通道名未能从远端读到**：liblsl 1.18.0.b6 发布端把 XDF
+  `<desc>` 通道标签树同步为空（远端 XML 为 `<desc />`，实测确认）。若真机上 `--check` 也读不到
+  通道名，先核对 liblsl 版本，勿直接怀疑设备。真实通道顺序的最终证据仍来自真机静息判读
+  （`--check 60`）叠加 RA2 书面确认。

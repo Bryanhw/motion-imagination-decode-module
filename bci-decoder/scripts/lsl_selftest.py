@@ -215,11 +215,16 @@ def from_npy(path: str, ch_names: str, sfreq: float) -> tuple[np.ndarray, List[s
 
 
 def list_streams(timeout: float) -> None:
+    # pylsl >= 1.16 用 resolve_streams(wait_time=)，旧版为 resolve_stream(type, timeout)
     try:
-        from pylsl import resolve_stream
+        from pylsl import resolve_streams
+        streams = resolve_streams(wait_time=timeout)
     except ImportError:
-        raise SystemExit("未安装 pylsl（pip install pylsl）。")
-    streams = resolve_stream("", timeout)
+        try:
+            from pylsl import resolve_stream  # 旧 API 兼容
+        except ImportError:
+            raise SystemExit("未安装 pylsl（pip install pylsl）。")
+        streams = resolve_stream("", timeout)
     if not streams:
         print(f"{timeout}s 内没有发现任何 LSL 流。")
         return

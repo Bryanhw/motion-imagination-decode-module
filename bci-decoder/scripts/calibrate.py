@@ -70,6 +70,31 @@ def _prepare_trials(args, cfg: Config):
     if args.real_data and args.labels:
         raw = np.load(args.real_data)
         labels = np.load(args.labels)
+
+        # 通道数/维度校验（红线 4：通道顺序即语义，数量不符必须显式报错，禁止静默错位）
+        n_ch_expected = len(cfg.source.ch_names)
+        if raw.ndim != 2 or raw.shape[0] != n_ch_expected:
+            raise ValueError(
+                f"真实数据通道数不符：raw.shape={raw.shape}，期望 {n_ch_expected} 通道"
+                f"（source.ch_names={cfg.source.ch_names}）。通道顺序必须与 ch_names 一致。"
+            )
+
+        # 标签取值校验（须 ∈ config.classifier.classes，兼容 0..n-1 索引写法）
+        allowed_str = set(cfg.classifier.classes)
+        allowed_idx = set(range(len(cfg.classifier.classes)))
+        if labels.ndim != 1:
+            raise ValueError(f"labels 必须是一维数组，当前 shape={labels.shape}")
+        bad = [
+            v for v in np.unique(labels)
+            if v not in allowed_str
+            and not (isinstance(v, (int, np.integer)) and int(v) in allowed_idx)
+        ]
+        if bad:
+            raise ValueError(
+                f"labels 含未知类别 {bad}，期望 ∈ {cfg.classifier.classes}"
+                "（或等价格引 0..n-1）。"
+            )
+
         step = int(cfg.source.sfreq * args.trial_seconds)
         if raw.shape[1] < len(labels) * step:
             raise ValueError(
@@ -77,7 +102,11 @@ def _prepare_trials(args, cfg: Config):
                 f"需要至少 {len(labels) * step} 样本。"
             )
         trials = [raw[:, i * step : (i + 1) * step] for i in range(len(labels))]
-        print(f"[calibrate] 数据来源=真实采集：{len(trials)} 个 trial")
+        print(
+            f"[calibrate] 数据来源=真实采集：{len(trials)} 个 trial"
+            f"（提示：trial 切分按 sfreq={cfg.source.sfreq} × {args.trial_seconds}s，"
+            f"请确保与采集设备一致）"
+        )
         return trials, labels, "real"
     trials, labels = bootstrap_demo.synthesize_dataset(
         n_per_class=args.n_per_class,
