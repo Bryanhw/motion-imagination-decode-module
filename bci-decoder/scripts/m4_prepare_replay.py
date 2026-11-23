@@ -79,7 +79,9 @@ def main(argv: list[str] | None = None) -> int:
     X = epochs.get_data()[mask]  # (n_trials, n_ch, n_samples)
     Y = y_int[mask]
     # 按 trial 顺序拼成连续流（演示/回放用途；跨 trial 边缘为固定时长，与 D1 滑窗一致）
-    data_uv = X.transpose(1, 0, 2).reshape(X.shape[1], -1).astype(np.float32)  # (n_ch, n_trials*n_samples)
+    # ⚠️ 单位：mne/moabb 的 get_data() 返回 SI 伏特，而 ReplaySource/calibrate 契约要求 µV，
+    #    必须 ×1e6（与 prepare_eegmmidb_replay.py 相同；此前版本漏乘导致单位差 1e6，已修，2026-11-19）。
+    data_uv = (X.transpose(1, 0, 2).reshape(X.shape[1], -1) * 1e6).astype(np.float32)  # (n_ch, n_trials*n_samples) 单位 µV
     if not np.isfinite(data_uv).all():
         ap.error("导出数据含非有限值")
 
