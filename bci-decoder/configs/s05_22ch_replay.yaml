@@ -1,0 +1,57 @@
+# S05 22 通道回放配置（D2 replay 链路口径，由 default/demo_replay 派生，2026-11-19 阎浩文）
+# 用途：把 BCI IV 2a S05 回放数据接入解码管线（伪在线验证 + 校准后模型回放）
+# 与 D1 证据同一数据口径：22 通道 / 250Hz / µV / 窗口 2.0s / 步 0.5s
+# 用法：
+#   $env:PYTHONPATH = "D:/校企合作项目/bci-decoder"
+#   # 冒烟（不接游戏）：
+#   & ".deepworks/venv_m3/Scripts/python.exe" -m bci_decoder.cli run --config configs/s05_22ch_replay.yaml --chunks 120
+#   # 接游戏（WS 8765）：把 output.sinks 改为 [console, websocket]，或用 demo_game_ws.yaml 改 source
+
+source:
+  kind: replay
+  sfreq: 250.0
+  ch_names: [Fz, FC3, FC1, FCz, FC2, FC4, C5, C3, C1, Cz, C2, C4, C6, CP3, CP1, CPz, CP2, CP4, P1, Pz, P2, POz]
+  path: "artifacts/m4_replay/S05_1test_22ch_250hz.npy"
+  chunk_samples: 25
+  realtime: false
+  speed: 1.0
+  loop: false
+
+preprocess:
+  l_freq: 8.0
+  h_freq: 30.0
+  notch_freq: 50.0
+  notch_q: 30.0
+  filter_order: 4
+  car: true
+  artifact_ptp_uv: 200.0
+
+features:
+  kind: csp
+  csp_components: 4
+  csp_reg: 1e-4
+  model_path: "artifacts/demo_csp.joblib"   # 占位冒烟；校准后改为 artifacts/users/s05/csp.joblib
+
+classifier:
+  kind: lda
+  classes: [left, right]
+  model_path: "artifacts/demo_lda.joblib"   # 占位冒烟；校准后改为 artifacts/users/s05/classifier.joblib
+  # 校准命令（22 通道，D2 检查点）：
+  #   & ".deepworks/venv_m3/Scripts/python.exe" scripts/calibrate.py --subject-id s05
+  #       --real-data artifacts/m4_replay/S05_0train_22ch_250hz.npy
+  #       --labels    artifacts/m4_replay/S05_0train_labels.npy --config configs/s05_22ch_replay.yaml
+
+postprocess:
+  vote_window: 3
+  ema_alpha: 0.4
+  min_confidence: 0.6   # 契约默认；校准后模型可正常输出，公开数据集回放勿改低
+  idle_label: idle
+
+window:
+  window_seconds: 2.0
+  step_seconds: 0.5
+
+output:
+  sinks: [console]
+  ws_host: "127.0.0.1"
+  ws_port: 8765

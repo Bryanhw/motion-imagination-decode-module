@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>脑控游戏_向老师汇报_一页纸与口播词.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> or <div class="page"></div> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="脑控游戏项目--向老师汇报一页纸大白话版">脑控游戏项目 —— 向老师汇报·一页纸（大白话版）</h1>
+<p><strong>项目组</strong>：蓝喜阳（组长）、阎浩文、黄凯森、王释贤（智能医学工程专业·大一，4 人）
+<strong>合作方</strong>：翔宇医疗（校企合作）｜ <strong>汇报日期</strong>：2026-11-23｜ <strong>周期</strong>：10 周（2026-10-13 → 2026-12-15）</p>
+<hr>
+<h2 id="一句话说清我们在做什么">一句话说清我们在做什么</h2>
+<p>我们做一个「脑子一想，游戏就动」的小项目：</p>
+<blockquote>
+<p><strong>同学戴上脑电帽，心里想“左手、右手”，帽子把脑电信号传给电脑，电脑实时“翻译”出他到底在想哪只手，再把结果告诉游戏——游戏里的挡板就真的跟着动。全程不用动手。</strong></p>
+</blockquote>
+<p>（说明：脑电帽上的电极贴在头皮上，接收大脑活动产生的微弱电信号；这些信号不同人、不同想法长得不一样，电脑要做的就是“听懂”它。）</p>
+<hr>
+<h2 id="它怎么工作三步都能懂">它怎么工作（三步，都能懂）</h2>
+<ol>
+<li><strong>收信号</strong>：脑电帽上 8 个电极贴着头皮，专门对准“指挥手脚运动”的脑区，采大脑电信号。</li>
+<li><strong>翻译信号</strong>：电脑每 2 秒看一段信号，判断“这是在想左手 / 想右手 / 什么都没想”，并附上“有多确定”。</li>
+<li><strong>驱动游戏</strong>：翻译结果通过电脑间实时传输，直接让游戏挡板动；什么都没想时，游戏就安静待着，<strong>绝不乱跳</strong>。</li>
+</ol>
+<hr>
+<h2 id="目前的进度10-周计划已走完前-3-个里程碑">目前的进度（10 周计划，已走完前 3 个里程碑）</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时间</th>
+<th>我们做到了什么</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 立项</td>
+<td>10/13</td>
+<td>写清“要做什么、怎么算合格”</td>
+<td>已完成</td>
+</tr>
+<tr>
+<td>② 能跑的 MVP</td>
+<td>10/27</td>
+<td>解码程序和游戏全部跑通，自动化检查 31 项 + 72 项全过</td>
+<td>已完成</td>
+</tr>
+<tr>
+<td>③ 真实数据验证</td>
+<td>11 月</td>
+<td>用国际公开脑电数据集证明算法达标</td>
+<td>已基本完成</td>
+</tr>
+<tr>
+<td>④ 接真实设备</td>
+<td>12/01 前</td>
+<td>等企业新脑电帽参数，打通“真实采集”闭环</td>
+<td>未开始</td>
+</tr>
+<tr>
+<td>⑤ 期末现场演示</td>
+<td>12/08</td>
+<td>请同学现场戴帽、想动作、挡板实时动</td>
+<td>未开始</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="我们最有分量的一件事证明为什么要个人校准">我们最有分量的一件事：证明“为什么要个人校准”</h2>
+<p>“校准”就像手机第一次录人脸/指纹——电脑也得先“认识”某个人的脑电长什么样。我们用国际公开标准数据（不是自己编的）证明了：</p>
+<ul>
+<li><strong>不校准</strong>：电脑判断 ≈ 瞎猜（得分 0.19/0.20，接近“掷硬币”）。</li>
+<li><strong>校准后</strong>：只花约 4 分钟录一小段，得分升到 <strong>0.36</strong>，超过合格线 0.3，真能分清左右手。</li>
+<li><strong>双重验证</strong>：我们写了两套完全独立的程序互相核对，结果逐位一致，说明这不是自己程序的毛病。</li>
+</ul>
+<blockquote>
+<p><strong>结论</strong>：真人演示时必须“每个人都先录入一小段”——这正是期末现场演示的关键剧情，也是我们最扎实的成果。</p>
+</blockquote>
+<hr>
+<h2 id="几个靠谱的细节给老师吃定心丸">几个“靠谱”的细节（给老师吃定心丸）</h2>
+<ul>
+<li><strong>绝不乱动</strong>：电脑不确定你在想什么时，就输出“待机”，绝不给游戏发乱指令。</li>
+<li><strong>够快</strong>：一次判断约 0.9 毫秒（不到 1 毫秒）；受 2 秒滑窗的设计限制，整体响应 2 秒内，达标。</li>
+<li><strong>够稳</strong>：连续跑 1 小时不崩溃、内存不涨。</li>
+<li><strong>口径诚实</strong>：成绩只用国际公开标准数据，报“Kappa”这类不易夸大的指标（不报容易虚高的裸准确率）；凡用回放画面演示都会标注“公开数据回放”，不冒充现场实测。</li>
+</ul>
+<hr>
+<h2 id="接下来到-1208-的打算">接下来到 12/08 的打算</h2>
+<ol>
+<li>等企业新脑电帽参数到位，把“录入 → 解码 → 游戏”真刀真枪闭环。</li>
+<li>请 3 位以上同学来试玩实测，收集感受，作为现场演示素材。</li>
+<li>若新设备来不及：用已做好的“公开数据回放”演示，画面照实标注。</li>
+</ol>
+<hr>
+<h2 id="一句话总结">一句话总结</h2>
+<p><strong>工程上能跑、算法经公开数据验证、做法诚实——就等真设备到齐，期末现场给您演示“一想就动”的脑控游戏。</strong></p>
+<hr>
+<h1 id="口播词约-90-秒照着念即可">口播词（约 90 秒，照着念即可）</h1>
+<p>老师好，我用大白话简单汇报一下我们组在做的事。</p>
+<p>我们做的叫“脑控游戏”——同学戴上脑电帽，心里想“左手、左手、右手”，不用真动手，电脑把脑电波翻译出来，游戏里那块挡板就会真的左右移动。本质就是：把“脑子里的想法”实时变成“游戏能懂的信号”。</p>
+<p>它分三步：帽子收脑电信号 → 电脑每 2 秒翻译一次、判断想的是哪只手 → 结果实时传给游戏，挡板就动了。什么都不想时，游戏就安静待着，绝不乱动。</p>
+<p>进度上，我们 10 周的大计划已经走完前三个里程碑：方案定好了、程序和游戏跑通了、自动化检查 31 项加 72 项全过，还用国际公开的脑电数据验证了算法达标。</p>
+<p>其中最有意思的发现是“校准”。就像手机第一次录入人脸一样，电脑也得先认识这个人。我们用真实数据证明：不校准基本等于瞎猜，校准 4 分钟之后，分清左右手的能力就明显超过了合格线；而且我们两套独立写的程序结果完全一致，说明这个结论很扎实，不是运气。</p>
+<p>接下来主要等企业的真脑电帽到位——接上真设备、请几位同学现场试玩，12 月 8 号期末现场演示给您看“一想就动”。如果设备实在来不及，我们也有诚实的备选方案。</p>
+<p>总之：<strong>工程能跑、算法经得起公开数据检验、做法诚实</strong>。谢谢老师！</p>
+
+</body>
+</html>

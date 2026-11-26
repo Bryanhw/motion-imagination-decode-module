@@ -86,7 +86,7 @@ class OODConfig:
 @dataclass
 class WindowConfig:
     window_seconds: float = 2.0        # 滑动窗长度
-    step_seconds: float = 0.25         # 决策步长
+    step_seconds: float = 0.5          # 决策步长（冻结契约：2.0s 窗 / 0.5s 步长；勿改）
 
 
 @dataclass
